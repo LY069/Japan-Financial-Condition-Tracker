@@ -78,14 +78,38 @@ def run_estat(conn):
     # MIC CPI: core (ex-fresh food), national, monthly. statsDataId is configurable.
     sid = "core_cpi_yoy"
     stats_id = os.environ.get("ESTAT_CPI_CORE_ID", "0003427113")
+    cd_cat = os.environ.get("ESTAT_CPI_CAT")        # ex-fresh-food item code (table-specific)
+    cd_area = os.environ.get("ESTAT_CPI_AREA", "00000")   # national
     try:
-        levels = S.fetch_estat(stats_id, app)
+        levels = S.fetch_estat(stats_id, app, cd_cat=cd_cat, cd_area=cd_area, limit=2000)
         rows = S.to_yoy(levels)
         if rows:
             n += upsert_observations(conn, sid, rows, "ESTAT")
-            print(f"  [ESTAT] {sid}: {len(rows)} obs")
+            print(f"  [ESTAT] {sid}: {len(rows)} obs (id={stats_id})")
+            return n
+        print(f"  [ESTAT] {sid}: id={stats_id} returned no usable rows; trying discovery")
     except Exception as e:
-        print(f"  [ESTAT] {sid} failed: {e}")
+        print(f"  [ESTAT] {sid} id={stats_id} failed ({e}); trying discovery")
+
+    # Self-heal: discover a monthly CPI table id via getStatsList.
+    try:
+        candidates = S.estat_find_cpi_table(app)
+        print(f"  [ESTAT] discovery found {len(candidates)} CPI tables; trying top 3")
+        for cid, title in candidates[:3]:
+            try:
+                levels = S.fetch_estat(cid, app, cd_area=cd_area, limit=2000)
+                rows = S.to_yoy(levels)
+                if rows:
+                    n += upsert_observations(conn, sid, rows, "ESTAT")
+                    print(f"  [ESTAT] {sid}: {len(rows)} obs via discovered id={cid} ({title[:40]})")
+                    print(f"          set ESTAT_CPI_CORE_ID={cid} to lock this in.")
+                    break
+            except Exception:
+                continue
+        else:
+            print("  [ESTAT] discovery exhausted; FRED CPI fallback retained.")
+    except Exception as e:
+        print(f"  [ESTAT] discovery failed: {e}; FRED CPI fallback retained.")
     return n
 
 

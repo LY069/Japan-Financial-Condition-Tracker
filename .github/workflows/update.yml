@@ -33,7 +33,7 @@ jobs:
         run: |
           git config user.name "fci-tracker-bot"
           git config user.email "actions@github.com"
-          git add data/jfct.db web/data.json Japan_FCI_Tracker.xlsx
+          git add data/jfct.db web/data.json web/data.js Japan_FCI_Tracker.xlsx
           if git diff --cached --quiet; then
             echo "No data changes."
           else
