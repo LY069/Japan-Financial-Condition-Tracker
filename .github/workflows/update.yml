@@ -1,0 +1,42 @@
+name: Refresh Japan FCI Tracker
+
+# Refreshes the database, web data.json and Excel workbook from official
+# sources on a schedule, then commits the updated artifacts.
+on:
+  schedule:
+    - cron: "0 21 * * 1-5"   # 06:00 JST, weekdays (after JGB fixings publish)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run pipeline (fetch -> indicators -> exports)
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          ESTAT_APP_ID: ${{ secrets.ESTAT_APP_ID }}
+        run: python etl/run_all.py
+
+      - name: Commit refreshed artifacts
+        run: |
+          git config user.name "fci-tracker-bot"
+          git config user.email "actions@github.com"
+          git add data/jfct.db web/data.json Japan_FCI_Tracker.xlsx
+          if git diff --cached --quiet; then
+            echo "No data changes."
+          else
+            git commit -m "chore: scheduled data refresh ($(date -u +%Y-%m-%d))"
+            git push
+          fi
