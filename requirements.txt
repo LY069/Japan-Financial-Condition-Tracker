@@ -1,0 +1,6 @@
+# Japan Financial Conditions Tracker — Python dependencies
+# Core ETL/exports use only the standard library (sqlite3, urllib, csv, json).
+# These are needed for the Excel workbook export.
+openpyxl>=3.1
+# Optional: only used if you extend the ETL with dataframe transforms.
+# pandas>=2.0

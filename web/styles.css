@@ -1,0 +1,276 @@
+/* =========================================================================
+   Japan Financial Conditions Tracker — central-bank aesthetic
+   Palette: deep navy (#1F3864) + white + slate/grey, with green/amber/red
+   accommodation convention.
+   ========================================================================= */
+
+:root {
+  --navy:        #1F3864;
+  --navy-deep:   #16294a;
+  --navy-soft:   #2c4a7c;
+  --ink:         #1b2230;
+  --slate:       #4a5568;
+  --slate-light: #6b7688;
+  --line:        #e2e6ee;
+  --line-strong: #cdd4e0;
+  --bg:          #f4f6fa;
+  --panel:       #ffffff;
+
+  /* accommodation convention */
+  --green:       #1f8a55;
+  --green-soft:  #e3f3ea;
+  --amber:       #c98a16;
+  --amber-soft:  #fbf2dd;
+  --red:         #c0392b;
+  --red-soft:    #fbe6e3;
+
+  --radius:      12px;
+  --shadow:      0 1px 2px rgba(16,32,64,.06), 0 6px 18px rgba(16,32,64,.06);
+  --shadow-lg:   0 8px 28px rgba(16,32,64,.12);
+  --maxw:        1180px;
+
+  --sans: "Segoe UI", "Helvetica Neue", Helvetica, Arial,
+          system-ui, -apple-system, "Hiragino Kaku Gothic ProN", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--sans);
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.5;
+  font-size: 15px;
+}
+
+.wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 22px; }
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ----------------------------- Header ----------------------------- */
+.site-header {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%);
+  color: #fff;
+  border-bottom: 3px solid var(--amber);
+}
+.header-inner {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 18px; padding: 20px 22px; flex-wrap: wrap;
+}
+.brand { display: flex; align-items: center; gap: 16px; }
+.brand-mark {
+  width: 52px; height: 52px; flex: none;
+  display: grid; place-items: center;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 10px;
+  font-size: 18px; font-weight: 700; letter-spacing: 1px;
+}
+.brand-text h1 { margin: 0; font-size: 21px; font-weight: 650; letter-spacing: .2px; }
+.brand-sub { margin: 2px 0 0; font-size: 13px; color: #c3cee3; }
+.header-meta { display: flex; align-items: center; gap: 14px; }
+.asof { font-size: 13px; color: #cdd7ec; }
+.asof strong { color: #fff; }
+.badge {
+  font-size: 11.5px; font-weight: 600; letter-spacing: .4px;
+  text-transform: uppercase;
+  background: var(--amber); color: #2a1d00;
+  padding: 5px 10px; border-radius: 999px; white-space: nowrap;
+}
+
+/* ----------------------------- Cards / sections ----------------------------- */
+main.wrap { padding-top: 28px; padding-bottom: 40px; }
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px;
+}
+.card-head {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 10px; margin-bottom: 12px;
+}
+.card-head h3 { margin: 0; font-size: 15px; font-weight: 650; color: var(--navy); }
+.hint { font-size: 12px; color: var(--slate-light); }
+
+.note {
+  margin: 10px 0 0; font-size: 12.5px; color: var(--slate);
+  border-left: 3px solid var(--line-strong); padding-left: 10px;
+}
+
+.stage { margin-top: 34px; }
+.stage-head {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 18px; margin-bottom: 14px; flex-wrap: wrap;
+}
+.stage-kicker {
+  display: inline-block; font-size: 11.5px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--amber); margin-bottom: 2px;
+}
+.stage-head h2 { margin: 0; font-size: 20px; color: var(--navy); font-weight: 650; }
+.stage-desc { margin: 6px 0 0; max-width: 70ch; color: var(--slate); font-size: 13.5px; }
+
+.stage-score { text-align: right; flex: none; }
+.stage-score-label { display: block; font-size: 12px; color: var(--slate-light); margin-top: 4px; }
+
+/* ----------------------------- Chip ----------------------------- */
+.chip {
+  display: inline-block; font-size: 12.5px; font-weight: 650;
+  padding: 4px 11px; border-radius: 999px; white-space: nowrap;
+  border: 1px solid transparent;
+}
+.chip.pos { background: var(--green-soft); color: var(--green); border-color: #bfe3cd; }
+.chip.neu { background: var(--amber-soft); color: var(--amber); border-color: #ecdcb0; }
+.chip.neg { background: var(--red-soft);   color: var(--red);   border-color: #efc6c0; }
+.chip.big { font-size: 15px; padding: 6px 14px; }
+
+/* ----------------------------- Hero ----------------------------- */
+.hero-grid {
+  display: grid; grid-template-columns: 320px 1fr; gap: 20px;
+  align-items: stretch;
+}
+.gauge-card { display: flex; flex-direction: column; }
+.gauge-wrap { position: relative; flex: 1; display: grid; place-items: center; min-height: 180px; }
+.gauge-wrap canvas { max-width: 100%; }
+.gauge-readout {
+  position: absolute; bottom: 6px; left: 0; right: 0; text-align: center;
+  pointer-events: none;
+}
+.gauge-score { font-size: 34px; font-weight: 700; line-height: 1; }
+.gauge-label { font-size: 13px; font-weight: 600; margin-top: 2px; }
+.gauge-scale {
+  display: flex; justify-content: space-between;
+  font-size: 11px; color: var(--slate-light); margin-top: 6px;
+}
+
+/* metric cards */
+.metrics {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+}
+.metric {
+  background: var(--panel); border: 1px solid var(--line);
+  border-radius: var(--radius); box-shadow: var(--shadow);
+  padding: 14px 15px; display: flex; flex-direction: column;
+  border-top: 3px solid var(--navy-soft);
+}
+.metric.pos { border-top-color: var(--green); }
+.metric.neu { border-top-color: var(--amber); }
+.metric.neg { border-top-color: var(--red); }
+.metric-label { font-size: 12px; color: var(--slate); font-weight: 600; }
+.metric-value { font-size: 26px; font-weight: 700; color: var(--navy); margin: 6px 0 2px; }
+.metric-sub { font-size: 11.5px; color: var(--slate-light); }
+
+/* natural-rate band mini-viz inside metric */
+.band-viz { margin-top: 10px; }
+.band-track {
+  position: relative; height: 8px; border-radius: 999px;
+  background: linear-gradient(90deg, var(--green-soft), var(--amber-soft), var(--red-soft));
+  border: 1px solid var(--line);
+}
+.band-range {
+  position: absolute; top: -1px; bottom: -1px; border-radius: 999px;
+  background: rgba(31,56,100,.10); border: 1px solid rgba(31,56,100,.25);
+}
+.band-mid, .band-now {
+  position: absolute; top: -3px; width: 2px; height: 14px;
+}
+.band-mid { background: var(--slate); }
+.band-now { background: var(--navy); width: 3px; border-radius: 2px; }
+.band-legend {
+  display: flex; justify-content: space-between;
+  font-size: 10.5px; color: var(--slate-light); margin-top: 5px;
+}
+
+/* assessment callout */
+.callout {
+  display: flex; gap: 14px; align-items: flex-start;
+  margin-top: 20px; padding: 16px 18px;
+  background: #eef2f9; border: 1px solid #d8e0ef;
+  border-left: 4px solid var(--navy);
+  border-radius: 10px;
+}
+.callout-icon { color: var(--navy); font-size: 22px; line-height: 1.1; flex: none; }
+.callout p { margin: 0; color: var(--ink); font-size: 14.5px; }
+
+/* ----------------------------- Charts ----------------------------- */
+.chart-box { position: relative; height: 280px; }
+.chart-box.tall { height: 360px; }
+.chart-duo { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+/* ----------------------------- Axis cards (Stage 2) ----------------------------- */
+.axis-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+.axis-card { display: flex; flex-direction: column; gap: 12px; }
+.axis-card .card-head { margin-bottom: 0; }
+.axis-spark { height: 64px; position: relative; }
+.axis-members { list-style: none; margin: 0; padding: 0; }
+.axis-members li {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; padding: 8px 0; border-top: 1px solid var(--line);
+  font-size: 13px;
+}
+.member-name { color: var(--ink); flex: 1; }
+.member-val { color: var(--slate); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.member-chip { flex: none; }
+
+/* ----------------------------- Explore ----------------------------- */
+.explore-control { display: flex; align-items: center; gap: 10px; }
+.explore-control label { font-size: 13px; font-weight: 600; color: var(--slate); }
+#series-select {
+  font: inherit; font-size: 13.5px; color: var(--ink);
+  padding: 8px 12px; border: 1px solid var(--line-strong);
+  border-radius: 8px; background: #fff; min-width: 240px; cursor: pointer;
+}
+#series-select:focus { outline: 2px solid var(--navy-soft); outline-offset: 1px; }
+.explore-meta {
+  display: flex; flex-wrap: wrap; gap: 8px 22px; margin-bottom: 14px;
+  font-size: 12.5px; color: var(--slate);
+}
+.explore-meta .em-name { font-size: 15px; font-weight: 650; color: var(--navy); flex-basis: 100%; }
+.explore-meta b { color: var(--ink); }
+.explore-meta a { color: var(--navy-soft); }
+
+/* ----------------------------- Footer ----------------------------- */
+.site-footer {
+  margin-top: 48px; background: var(--navy-deep); color: #dbe2f0;
+  border-top: 3px solid var(--amber);
+}
+.footer-inner {
+  display: grid; grid-template-columns: 1.4fr 1fr .8fr; gap: 34px;
+  padding: 34px 22px;
+}
+.foot-col h4 { margin: 0 0 10px; font-size: 14px; color: #fff; letter-spacing: .3px; }
+.foot-col p { margin: 0 0 10px; font-size: 13px; color: #c3cee3; }
+.foot-col strong { color: #fff; }
+.sign-key { display: flex; flex-wrap: wrap; gap: 8px; }
+.caveat { font-style: italic; color: #aab8d6; font-size: 12.5px; }
+.source-list { list-style: none; margin: 0; padding: 0; font-size: 13px; color: #c3cee3; }
+.source-list li { padding: 3px 0; }
+.gen-stamp { margin-top: 12px; font-size: 11.5px; color: #8fa0c5; }
+
+/* ----------------------------- Responsive ----------------------------- */
+@media (max-width: 960px) {
+  .hero-grid { grid-template-columns: 1fr; }
+  .metrics { grid-template-columns: repeat(2, 1fr); }
+  .chart-duo, .axis-grid { grid-template-columns: 1fr; }
+  .footer-inner { grid-template-columns: 1fr; gap: 24px; }
+}
+@media (max-width: 560px) {
+  body { font-size: 14px; }
+  .header-inner { gap: 12px; }
+  .brand-text h1 { font-size: 18px; }
+  .metrics { grid-template-columns: 1fr 1fr; }
+  .stage-head { flex-direction: column; }
+  .stage-score { text-align: left; }
+  #series-select { min-width: 0; width: 100%; }
+  .explore-control { width: 100%; }
+}

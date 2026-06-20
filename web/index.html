@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Japan Financial Conditions Tracker</title>
+  <meta name="description" content="Bank of Japan two-stage assessment of financial conditions — interest-rate developments and the funding environment." />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ============================ HEADER ============================ -->
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">日銀</div>
+        <div class="brand-text">
+          <h1 id="dash-title">Japan Financial Conditions Tracker</h1>
+          <p class="brand-sub">
+            <span id="framework-line">BoJ two-stage assessment of financial conditions</span>
+          </p>
+        </div>
+      </div>
+      <div class="header-meta">
+        <div class="asof">As of <strong id="asof-date">—</strong></div>
+        <span class="badge" id="data-mode-badge">—</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <!-- ============================ HERO / VERDICT ============================ -->
+    <section class="hero" aria-labelledby="hero-heading">
+      <h2 id="hero-heading" class="visually-hidden">Headline verdict</h2>
+      <div class="hero-grid">
+
+        <!-- FCI gauge -->
+        <div class="card gauge-card">
+          <div class="card-head">
+            <h3>Composite FCI</h3>
+            <span class="hint">z-score vs 2005+ history</span>
+          </div>
+          <div class="gauge-wrap">
+            <canvas id="fciGauge" width="320" height="180" role="img"
+                    aria-label="Composite Financial Conditions Index gauge"></canvas>
+            <div class="gauge-readout">
+              <div class="gauge-score" id="gauge-score">—</div>
+              <div class="gauge-label" id="gauge-label">—</div>
+            </div>
+          </div>
+          <div class="gauge-scale">
+            <span>−3 Restrictive</span><span>0</span><span>+3 Accommodative</span>
+          </div>
+        </div>
+
+        <!-- Metric cards -->
+        <div class="metrics" id="metric-cards">
+          <!-- populated by JS -->
+        </div>
+      </div>
+
+      <!-- Assessment callout -->
+      <div class="callout" id="assessment-callout">
+        <div class="callout-icon" aria-hidden="true">‣</div>
+        <p id="assessment-text">—</p>
+      </div>
+    </section>
+
+    <!-- ============================ STAGE 1 ============================ -->
+    <section class="stage" aria-labelledby="stage1-heading">
+      <div class="stage-head">
+        <div>
+          <span class="stage-kicker">Stage 1</span>
+          <h2 id="stage1-heading">Interest-rate developments</h2>
+          <p class="stage-desc">Policy rate, the JGB yield curve (safe-asset yields), and
+            real interest rates by maturity. Short and medium real rates matter most for activity.</p>
+        </div>
+        <div class="stage-score" id="stage1-score-chip">
+          <span class="chip" data-role="chip">—</span>
+          <span class="stage-score-label" id="stage1-label">—</span>
+        </div>
+      </div>
+      <div class="chart-duo">
+        <div class="card">
+          <div class="card-head">
+            <h3>Real interest rates by maturity</h3>
+            <span class="hint">nominal − expected inflation, %</span>
+          </div>
+          <div class="chart-box"><canvas id="realRatesChart"></canvas></div>
+          <p class="note" id="real-rates-note">
+            Short/medium real rates remain clearly negative while the long-end real rate has turned positive.
+          </p>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <h3>Policy rate path &amp; 10Y JGB</h3>
+            <span class="hint">%</span>
+          </div>
+          <div class="chart-box"><canvas id="policyChart"></canvas></div>
+          <p class="note">Policy rate hiked to 1.00% (Jun 2026); the 10Y JGB has risen alongside.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ NATURAL RATE ============================ -->
+    <section class="stage" aria-labelledby="natrate-heading">
+      <div class="stage-head">
+        <div>
+          <span class="stage-kicker">Policy lens</span>
+          <h2 id="natrate-heading">Real policy rate vs. the natural rate</h2>
+          <p class="stage-desc">A real policy rate below the natural rate of interest signals an
+            accommodative stance. The six-model band carries wide uncertainty —
+            <em>“navigating by the stars under cloudy skies.”</em></p>
+        </div>
+        <div class="stage-score" id="rate-gap-chip">
+          <span class="chip" data-role="chip">—</span>
+          <span class="stage-score-label">gap vs midpoint</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <h3>Real policy rate against the natural-rate band</h3>
+          <span class="hint">band −0.85% … +0.55%, midpoint −0.15%</span>
+        </div>
+        <div class="chart-box tall"><canvas id="natRateChart"></canvas></div>
+      </div>
+    </section>
+
+    <!-- ============================ STAGE 2 ============================ -->
+    <section class="stage" aria-labelledby="stage2-heading">
+      <div class="stage-head">
+        <div>
+          <span class="stage-kicker">Stage 2</span>
+          <h2 id="stage2-heading">Funding environment</h2>
+          <p class="stage-desc">Four axes: funding costs, availability of funds, asset prices,
+            and funding volumes.</p>
+        </div>
+        <div class="stage-score" id="stage2-score-chip">
+          <span class="chip" data-role="chip">—</span>
+          <span class="stage-score-label" id="stage2-label">—</span>
+        </div>
+      </div>
+      <div class="axis-grid" id="axis-cards">
+        <!-- populated by JS -->
+      </div>
+    </section>
+
+    <!-- ============================ COMPOSITE FCI HISTORY ============================ -->
+    <section class="stage" aria-labelledby="fcihist-heading">
+      <div class="stage-head">
+        <div>
+          <h2 id="fcihist-heading">Composite FCI — history</h2>
+          <p class="stage-desc">Positive (green) = accommodative vs. 2005+ history; negative (red) = restrictive.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="chart-box tall"><canvas id="fciHistoryChart"></canvas></div>
+      </div>
+    </section>
+
+    <!-- ============================ AXIS COMPARISON ============================ -->
+    <section class="stage" aria-labelledby="axiscmp-heading">
+      <div class="stage-head">
+        <div>
+          <h2 id="axiscmp-heading">Axis comparison</h2>
+          <p class="stage-desc">Latest accommodation score by axis.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="chart-box"><canvas id="axisBarChart"></canvas></div>
+      </div>
+    </section>
+
+    <!-- ============================ EXPLORE SERIES ============================ -->
+    <section class="stage" aria-labelledby="explore-heading">
+      <div class="stage-head">
+        <div>
+          <h2 id="explore-heading">Explore series</h2>
+          <p class="stage-desc">Pick any underlying indicator to inspect its full history.</p>
+        </div>
+        <div class="explore-control">
+          <label for="series-select">Series</label>
+          <select id="series-select" aria-label="Select a data series"></select>
+        </div>
+      </div>
+      <div class="card">
+        <div class="explore-meta" id="explore-meta"><!-- populated by JS --></div>
+        <div class="chart-box tall"><canvas id="exploreChart"></canvas></div>
+        <p class="note" id="explore-notes"></p>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================ FOOTER / METHODOLOGY ============================ -->
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <div class="foot-col">
+        <h4>Methodology</h4>
+        <p>Each indicator is converted to an <strong>accommodation score</strong> — a z-score against
+          its own history since 2005, with the sign oriented so that a higher score always means
+          <strong>more accommodative</strong> financial conditions (polarity-adjusted). Scores are
+          aggregated into axes, two stages, and a single composite FCI.</p>
+        <p class="sign-key">
+          <span class="chip pos">≥ +0.15 accommodative</span>
+          <span class="chip neu">−0.15 … +0.15 broadly neutral</span>
+          <span class="chip neg">&lt; −0.15 restrictive</span>
+        </p>
+      </div>
+      <div class="foot-col">
+        <h4>Reference</h4>
+        <p>Bank of Japan Review <strong>2026-E-4</strong>, “Developments in the Natural Rate of
+          Interest and the Assessment of the Degree of Monetary Accommodation.”</p>
+        <p class="caveat" id="source-note">—</p>
+      </div>
+      <div class="foot-col">
+        <h4>Sources</h4>
+        <ul class="source-list">
+          <li>Bank of Japan (BoJ)</li>
+          <li>Ministry of Finance (MoF)</li>
+          <li>e-Stat / MIC</li>
+          <li>FRED</li>
+        </ul>
+        <p class="gen-stamp" id="gen-stamp"></p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Chart.js from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Local data (file:// friendly) loaded BEFORE app.js -->
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
