@@ -27,13 +27,13 @@ import os
 import urllib.request
 from datetime import date
 
-UA = "JapanFCITracker/1.0 (research; contact via repo)"
-TIMEOUT = 30
+UA = "Mozilla/5.0 (compatible; JapanFCITracker/1.0; research)"
+TIMEOUT = 60
 
 
-def _get(url: str) -> bytes:
+def _get(url: str, timeout: int = TIMEOUT) -> bytes:
     req = urllib.request.Request(url, headers={"User-Agent": UA})
-    with urllib.request.urlopen(req, timeout=TIMEOUT) as r:
+    with urllib.request.urlopen(req, timeout=timeout) as r:
         return r.read()
 
 
@@ -72,10 +72,13 @@ def to_yoy(monthly_levels):
 FRED_BASE = "https://api.stlouisfed.org/fred/series/observations"
 
 # catalog series_id -> (FRED series, transform)  transform in {level, monthly_avg, yoy_from_level}
+# Note: core_cpi_yoy here uses FRED's all-items CPI index as a reliable *fallback*
+# (headline proxy). When the e-Stat fetch succeeds it overwrites this with the
+# proper MIC "ex-fresh-food" core measure (fetch order: FRED then ESTAT).
 FRED_MAP = {
     "policy_rate": ("IRSTCB01JPM156N", "level"),     # central bank rate, Japan, monthly
     "jgb_10y":     ("IRLTLT01JPM156N", "level"),     # 10y govt bond yield, monthly
-    "core_cpi_yoy": ("JPNCPICORMINMEI", "yoy_from_level"),
+    "core_cpi_yoy": ("JPNCPIALLMINMEI", "yoy_from_level"),  # CPI all items index -> y/y (fallback)
     "usdjpy":      ("EXJPUS", "level"),              # monthly avg JPY per USD
     "nikkei225":   ("NIKKEI225", "monthly_avg"),     # daily index -> month avg
 }
@@ -94,29 +97,41 @@ def fetch_fred(fred_id: str, api_key: str):
 
 
 # ----------------------------------------------------------------- MoF -----
-MOF_HIST = "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/jgbcm_all.csv"
-MOF_CUR = "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/jgbcm.csv"
+# MoF reorganises these paths periodically, so try several known layouts and use
+# whatever responds. The historical file (1974~) is preferred for full coverage;
+# the current-year file is merged in for the latest fixings.
+MOF_BASES = [
+    "https://www.mof.go.jp/jgbs/reference/interest_rate/",            # JP site (canonical)
+    "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/",  # EN site
+]
+MOF_FILES = [
+    "historical/jgbcm_all.csv",   # all years, JP
+    "jgbcm_all.csv",              # all years (alt location)
+    "jgbcme.csv",                 # current year, EN (note trailing 'e')
+    "jgbcm.csv",                  # current year, JP
+]
 # column header (years) -> catalog series_id
 MOF_COL = {"1": "jgb_1y", "2": "jgb_2y", "5": "jgb_5y", "10": "jgb_10y", "30": "jgb_30y"}
 
 
-def fetch_mof_jgb():
-    """Return {catalog_series_id: [(month_end, yield)]} from MoF reference rates."""
-    try:
-        raw = _get(MOF_HIST)
-    except Exception:
-        raw = _get(MOF_CUR)
+def _parse_mof_csv(raw: bytes):
     text = raw.decode("shift_jis", errors="ignore")
-    reader = csv.reader(io.StringIO(text))
-    rows = [r for r in reader if r]
-    # find header row containing maturity labels like '1','2',... '10'
-    hdr_i = next(i for i, r in enumerate(rows) if any(c.strip() in MOF_COL for c in r))
+    rows = [r for r in csv.reader(io.StringIO(text)) if r]
+    # header row contains maturity labels like '1','2',...'10'
+    hdr_i = next((i for i, r in enumerate(rows)
+                  if sum(1 for c in r if c.strip() in MOF_COL) >= 3), None)
+    if hdr_i is None:
+        return {}
     hdr = [c.strip() for c in rows[hdr_i]]
     col_idx = {hdr[j]: j for j in range(len(hdr))}
     daily = {sid: [] for sid in MOF_COL.values()}
     for r in rows[hdr_i + 1:]:
-        d = r[0].strip().replace("/", "-")
-        if len(d) < 8:
+        parts = r[0].strip().replace("/", "-").split("-")
+        if len(parts) != 3 or not parts[0].isdigit():
+            continue
+        try:
+            d = date(int(parts[0]), int(parts[1]), int(parts[2])).isoformat()
+        except ValueError:
             continue
         for mat, sid in MOF_COL.items():
             j = col_idx.get(mat)
@@ -129,20 +144,83 @@ def fetch_mof_jgb():
                 daily[sid].append((d, float(val)))
             except ValueError:
                 pass
-    return {sid: monthly_avg(rows_) for sid, rows_ in daily.items()}
+    return daily
+
+
+def fetch_mof_jgb():
+    """Return {catalog_series_id: [(month_end, yield)]} from MoF reference rates.
+
+    Tries multiple candidate URLs (historical + current, JP + EN) and merges all
+    successful pulls, so it survives MoF path changes and always gets latest data.
+    """
+    merged = {sid: {} for sid in MOF_COL.values()}      # sid -> {iso_date: value}
+    got = []
+    for base in MOF_BASES:
+        for fn in MOF_FILES:
+            url = base + fn
+            try:
+                daily = _parse_mof_csv(_get(url))
+            except Exception:
+                continue
+            if any(daily.values()):
+                got.append(url)
+                for sid, rows_ in daily.items():
+                    for d, v in rows_:
+                        merged[sid][d] = v
+    if not got:
+        raise RuntimeError("all MoF candidate URLs failed")
+    return {sid: monthly_avg(sorted(dv.items())) for sid, dv in merged.items()}
 
 
 # --------------------------------------------------------------- e-Stat ----
 ESTAT_BASE = "https://api.e-stat.go.jp/rest/3.0/app/json/getStatsData"
+ESTAT_LIST = "https://api.e-stat.go.jp/rest/3.0/app/json/getStatsList"
+ESTAT_CPI_STATSCODE = "00200573"   # MIC "Consumer Price Index" stats provider code
 
 
-def fetch_estat(stats_data_id: str, app_id: str, cd_cat=None):
-    """Generic e-Stat getStatsData fetch -> [(iso_date, value)] for a CPI-style table."""
+def estat_find_cpi_table(app_id: str, timeout: int = TIMEOUT):
+    """Discover a monthly CPI statsDataId via getStatsList (so the ID self-heals).
+
+    Returns a list of (statsDataId, title) candidates, monthly tables first.
+    """
+    url = (f"{ESTAT_LIST}?appId={app_id}&statsCode={ESTAT_CPI_STATSCODE}"
+           f"&searchWord=%E5%93%81%E7%9B%AE%E5%88%A5&limit=100")  # 品目別 (by item)
+    data = json.loads(_get(url, timeout=timeout))
+    tables = data.get("GET_STATS_LIST", {}).get("DATALIST_INF", {}).get("TABLE_INF", [])
+    if isinstance(tables, dict):
+        tables = [tables]
+    out = []
+    for t in tables:
+        sid = str(t.get("@id", ""))
+        title = (t.get("TITLE", {}) or {})
+        title = title.get("$", title) if isinstance(title, dict) else title
+        cycle = t.get("SURVEY_DATE", "")
+        out.append((sid, str(title), str(cycle)))
+    # prefer monthly ("月次"/length-6 survey dates) tables
+    out.sort(key=lambda x: (0 if "月" in x[1] or len(x[2]) == 6 else 1))
+    return [(s, t) for s, t, _ in out]
+
+
+def fetch_estat(stats_data_id: str, app_id: str, cd_cat=None, cd_area=None,
+                limit=None, timeout: int = TIMEOUT):
+    """Generic e-Stat getStatsData fetch -> [(iso_date, value)] for a CPI-style table.
+
+    Narrowing params keep the payload small enough to avoid timeouts:
+      cd_cat  : category code (e.g. the 'all items, less fresh food' item code)
+      cd_area : area code (national = '00000')
+      limit   : max rows to return
+    """
     url = f"{ESTAT_BASE}?appId={app_id}&statsDataId={stats_data_id}&metaGetFlg=N&cntGetFlg=N"
     if cd_cat:
         url += f"&cdCat01={cd_cat}"
-    data = json.loads(_get(url))
+    if cd_area:
+        url += f"&cdArea={cd_area}"
+    if limit:
+        url += f"&limit={int(limit)}"
+    data = json.loads(_get(url, timeout=timeout))
     values = data["GET_STATS_DATA"]["STATISTICAL_DATA"]["DATA_INF"]["VALUE"]
+    if isinstance(values, dict):
+        values = [values]
     out = []
     for v in values:
         t = v.get("@time", "")        # e.g. 2026000505 (yyyy00mm) for monthly
@@ -150,7 +228,7 @@ def fetch_estat(stats_data_id: str, app_id: str, cd_cat=None):
             y, m = int(t[:4]), int(t[6:8])
             try:
                 out.append((_month_end(y, m), float(v["$"])))
-            except (ValueError, KeyError):
+            except (ValueError, KeyError, TypeError):
                 pass
     out.sort()
     return out
