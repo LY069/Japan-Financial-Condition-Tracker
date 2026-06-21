@@ -118,17 +118,19 @@ def realrate_horizons(conn):
         return (num / den) if den else None
 
     rows = []
-    for start, label in [("1974-01", "Full history (1974/86+)"), ("1990-01", "Since 1990"),
-                         ("1995-01", "Since 1995"), ("2000-01", "Since 2000")]:
+    specs = [("1974-01", "Full history (1974/86+) — headline", "headline"),
+             ("1990-01", "Since 1990", ""), ("1995-01", "Since 1995", ""),
+             ("2000-01", "Since 2000", "")]
+    for start, label, role in specs:
         sc = axis_score(start)
         rows.append({"window": label, "start": start, "basis": "ex-post (vs realized core CPI)",
-                     "score": round(sc, 2) if sc is not None else None,
+                     "role": role, "score": round(sc, 2) if sc is not None else None,
                      "label": label_for(sc) if sc is not None else "n/a"})
-    li = latest_ind(conn, "axis", "real_rate")
-    cur = round(li["score"], 2) if li else None
-    rows.append({"window": "Since 2005 — headline", "start": "2005-01",
-                 "basis": "ex-ante (vs expected inflation)", "score": cur,
-                 "label": label_for(cur) if cur is not None else "n/a"})
+    ref = latest_ind(conn, "composite", "real_rate_ref2005")
+    rc = round(ref["score"], 2) if ref else None
+    rows.append({"window": "Since 2005 (ex-ante) — reference", "start": "2005-01",
+                 "basis": "ex-ante (vs expected inflation)", "role": "reference", "score": rc,
+                 "label": label_for(rc) if rc is not None else "n/a"})
     return rows
 
 
@@ -151,11 +153,11 @@ def build_assessment(conn, headline):
         f"the six-model natural-rate band ({headline['natural_rate_low']:+.2f}% to "
         f"{headline['natural_rate_high']:+.2f}%) means this read carries wide uncertainty.")
     parts.append(
-        "Note on horizon: the headline scores are z-scores against 2005-present history, a window "
-        "dominated by ZIRP/NIRP, so a normalizing real rate scores as less accommodative than that "
-        "norm. On longer ex-post baselines the real-rate stance is horizon-sensitive — mildly "
-        "accommodative versus the full 1974+ history, broadly neutral versus 1990 — even though the "
-        "level-based natural-rate read keeps the policy stance accommodative (see the horizon table).")
+        "Horizon: the headline real-rate axis is now scored over its longest available history "
+        "(ex-post, since 1974/1986), not the ZIRP/NIRP-dominated 2005+ window (kept as a reference). "
+        "On that long baseline the real-rate stance is mildly accommodative; it reads broadly neutral "
+        "versus 1990 and mildly restrictive only versus post-1995 baselines (see the horizon table). "
+        "Other axes remain on 2005+ history.")
     return " ".join(parts)
 
 
@@ -187,10 +189,20 @@ def main():
     for a in AXES:
         li = latest_ind(conn, "axis", a)
         sc = round(li["score"], 4) if li else None
-        axes.append({"key": a, "label": AXIS_LABEL[a], "score": sc,
-                     "label_text": label_for(sc),
-                     "direction": direction(ind_series(conn, "axis", a)),
-                     "members": [r["series_id"] for r in cat if r["category"] == a and r["weight"] > 0]})
+        entry = {"key": a, "label": AXIS_LABEL[a], "score": sc,
+                 "label_text": label_for(sc),
+                 "direction": direction(ind_series(conn, "axis", a)),
+                 "members": [r["series_id"] for r in cat if r["category"] == a and r["weight"] > 0]}
+        if a == "real_rate":
+            entry["basis"] = "ex-post, longest available history (1974/86+)"
+            ref = latest_ind(conn, "composite", "real_rate_ref2005")
+            entry["reference"] = {
+                "label": "2005+ ex-ante", "score": round(ref["score"], 2) if ref else None,
+                "note": ("Reference only — biased toward 'restrictive'. Its 2005–present baseline is "
+                         "dominated by zero/negative interest-rate policy, so the average real rate "
+                         "is unusually low and any normalization scores above that depressed mean."),
+            }
+        axes.append(entry)
 
     stages = {}
     for st in ("stage1", "stage2"):
@@ -273,10 +285,11 @@ def main():
         "indicator_series": indicator_series,
         "real_rate_horizons": realrate_horizons(conn),
     }
-    doc["meta"]["score_window"] = ("Accommodation z-scores use Jan 2005–present (monthly), with the "
-                                   "real rate measured ex-ante (nominal − expected inflation). The "
-                                   "real-rate horizon table extends the baseline to 1974/1990 on an "
-                                   "ex-post basis (nominal − realized core CPI).")
+    doc["meta"]["score_window"] = ("Most axes are z-scored over Jan 2005–present (monthly). The "
+                                   "headline real-rate axis is scored over its LONGEST available "
+                                   "history on an ex-post basis (nominal − realized core CPI; 1Y/3Y "
+                                   "from 1974, 10Y from 1986); the 2005+ ex-ante read is shown as a "
+                                   "reference. See the real-rate horizon table.")
 
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as f:

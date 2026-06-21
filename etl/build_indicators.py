@@ -168,6 +168,56 @@ def main():
             "INSERT OR REPLACE INTO indicators(scope,key,date,score,value) VALUES(?,?,?,?,?)",
             payload)
 
+    # ---- Headline real-rate axis: longest-available ex-post history ----
+    # The real-rate axis is scored on ex-post real rates (nominal - realized core
+    # CPI) over each maturity's FULL history (1Y/3Y from 1974, 10Y from 1986),
+    # rather than the 2005+ window, which is dominated by ZIRP/NIRP. The 2005+
+    # ex-ante read is retained as a reference (composite 'real_rate_ref2005').
+    rr_members = {"real_1y_xp": 1.0, "real_3y_xp": 1.0, "real_10y_xp": 0.5}
+    rr_raw = {sid: {d: v for d, v in get_series(conn, sid)} for sid in rr_members}
+    rr_member_scores = {}
+    for sid in rr_members:
+        vals = [v for v in rr_raw[sid].values() if v is not None]
+        if len(vals) < 8:
+            rr_member_scores[sid] = {}
+            continue
+        mu = statistics.fmean(vals)
+        sd = statistics.pstdev(vals) or 1.0
+        rr_member_scores[sid] = {d: -(v - mu) / sd            # accommodation = -z (polarity -1)
+                                 for d, v in rr_raw[sid].items() if v is not None}
+        payload = [("series", sid, d, s, rr_raw[sid].get(d)) for d, s in rr_member_scores[sid].items()]
+        conn.executemany("INSERT OR REPLACE INTO indicators(scope,key,date,score,value) "
+                         "VALUES(?,?,?,?,?)", payload)
+    rr_dates = sorted(set().union(*[set(m) for m in rr_member_scores.values()]) if rr_member_scores else [])
+    rr_axis = {}
+    for d in rr_dates:
+        num = den = 0.0
+        for sid, w in rr_members.items():
+            s = rr_member_scores[sid].get(d)
+            if s is not None:
+                num += w * s
+                den += w
+        if den > 0:
+            rr_axis[d] = num / den
+    conn.execute("DELETE FROM indicators WHERE scope='axis' AND key='real_rate'")
+    conn.executemany("INSERT OR REPLACE INTO indicators(scope,key,date,score,value) VALUES('axis','real_rate',?,?,NULL)",
+                     list(rr_axis.items()))
+    axis_scores["real_rate"] = {d: rr_axis[d] for d in grid if d in rr_axis}
+
+    # 2005+ ex-ante reference axis (from the real_rate_exante members).
+    ref_members = [(sid, cat[sid]["weight"]) for sid in series_scores
+                   if cat[sid]["category"] == "real_rate_exante"]
+    for d in grid:
+        num = den = 0.0
+        for sid, w in ref_members:
+            s = series_scores[sid].get(d)
+            if s is not None:
+                num += w * s
+                den += w
+        if den > 0:
+            conn.execute("INSERT OR REPLACE INTO indicators(scope,key,date,score,value) "
+                         "VALUES('composite','real_rate_ref2005',?,?,NULL)", (d, num / den))
+
     # ---- Stage composites ----
     stage_map = {"stage1": ["real_rate"],
                  "stage2": ["funding_costs", "availability", "asset_prices", "funding_volumes"]}
