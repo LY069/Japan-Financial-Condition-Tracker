@@ -553,6 +553,24 @@
     draw(initial);
   }
 
+  // 3b: Real-rate horizon ladder --------------------------------------------
+  function renderHorizons(data) {
+    var rows = data.real_rate_horizons || [];
+    var el = document.getElementById("horizon-table");
+    if (!el || !rows.length) return;
+    setText("horizon-note", (data.meta && data.meta.score_window) || "");
+    var body = rows.map(function (r) {
+      var cls = scoreClass(r.score);
+      var head = r.window.indexOf("headline") >= 0 ? ' class="hz-head"' : "";
+      return "<tr" + head + "><td>" + r.window + '</td><td class="src">' + r.basis +
+        '</td><td class="num"><span class="chip ' + cls + '">' + fmtSignedScore(r.score) +
+        "</span></td><td>" + r.label + "</td></tr>";
+    }).join("");
+    el.innerHTML = '<table class="hz-tbl"><thead><tr><th>Baseline window</th>' +
+      "<th>Real-rate basis</th><th class=\"num\">Score</th><th>Assessment</th></tr></thead>" +
+      "<tbody>" + body + "</tbody></table>";
+  }
+
   // 9: Methodology table — weights & assumptions for every indicator ---------
   function renderMethodology(data) {
     var el = document.getElementById("methodology-table");
@@ -643,6 +661,7 @@
       renderGauge(data);
       renderMetricCards(data);
       renderStage1(data);
+      renderHorizons(data);
       renderNaturalRate(data);
       renderStage2(data);
       renderFciHistory(data);

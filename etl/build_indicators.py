@@ -108,6 +108,27 @@ def main():
     upsert_observations(conn, "real_3y", real_3y, "COMPUTED")
     upsert_observations(conn, "real_10y", real_10y, "COMPUTED")
     upsert_observations(conn, "real_policy_rate", real_pol, "COMPUTED")
+
+    # Ex-post real rates over the FULL available history (nominal - realized core
+    # CPI), used for long-horizon baseline analysis since expected-inflation data
+    # only starts in 2005. Computed directly from observations (not the 2005 grid).
+    def obs_map(sid):
+        return {d[:7]: v for d, v in get_series(conn, sid)}
+    nj1, nj2, nj5, nj10 = obs_map("jgb_1y"), obs_map("jgb_2y"), obs_map("jgb_5y"), obs_map("jgb_10y")
+    ncpi = obs_map("core_cpi_yoy")
+
+    def month_end_of(ym):
+        y, m = int(ym[:4]), int(ym[5:7])
+        return (date(y, 12, 31) if m == 12
+                else date.fromordinal(date(y, m + 1, 1).toordinal() - 1)).isoformat()
+
+    xp1 = [(month_end_of(m), nj1[m] - ncpi[m]) for m in sorted(nj1) if m in ncpi]
+    xp10 = [(month_end_of(m), nj10[m] - ncpi[m]) for m in sorted(nj10) if m in ncpi]
+    xp3 = [(month_end_of(m), (nj2[m] + (nj5[m] - nj2[m]) / 3.0) - ncpi[m])
+           for m in sorted(nj2) if m in nj5 and m in ncpi]
+    upsert_observations(conn, "real_1y_xp", xp1, "COMPUTED")
+    upsert_observations(conn, "real_3y_xp", xp3, "COMPUTED")
+    upsert_observations(conn, "real_10y_xp", xp10, "COMPUTED")
     for sid in ("real_1y", "real_3y", "real_10y"):
         raw[sid] = to_monthly(get_series(conn, sid), grid)
 

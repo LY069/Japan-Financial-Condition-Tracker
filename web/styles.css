@@ -288,6 +288,17 @@ main.wrap { padding-top: 28px; padding-bottom: 40px; }
 .nr-gap-val.neu { color: var(--slate); }
 .nr-gap-lbl { font-size: 11px; color: var(--slate-light); }
 
+/* --------------------- Real-rate horizon ladder table --------------------- */
+.hz-tbl { width: 100%; border-collapse: collapse; margin: 6px 0 4px; font-size: 13px; }
+.hz-tbl th, .hz-tbl td {
+  border-bottom: 1px solid var(--line); padding: 7px 10px; text-align: left; vertical-align: middle;
+}
+.hz-tbl th { color: var(--slate-light); font-weight: 600; font-size: 12px; }
+.hz-tbl .num { text-align: right; white-space: nowrap; }
+.hz-tbl .src { color: var(--slate-light); font-size: 12px; }
+.hz-tbl tr.hz-head td { background: #f6f8fc; font-weight: 650; }
+@media (max-width: 720px) { .hz-tbl .src { display: none; } }
+
 /* --------------------------- Footer methodology --------------------------- */
 .foot-methodology { padding: 8px 22px 30px; }
 .foot-methodology h4 { margin: 0 0 8px; font-size: 14px; color: #fff; letter-spacing: .3px; }

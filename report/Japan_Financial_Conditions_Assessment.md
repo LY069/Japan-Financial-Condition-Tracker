@@ -197,6 +197,18 @@ A watchlist tied to specific tracker indicators. The first column is the signal 
 
 **The composite FCI.** The FCI is a **z-score composite** computed against 2005-onward history, aggregated up the framework's five axes (real rates, funding costs, availability, asset prices, funding volumes) into Stage-1 and Stage-2 scores and a headline index. **It is an analytical synthesis on the BoJ framework's axes — not an official Bank of Japan index.** The BoJ publishes no single headline FCI; BoJ Review 2026-E-4 sets out a *qualitative* comprehensive judgment, and this tracker operationalizes that judgment quantitatively. Read the FCI as a structured summary of direction and degree, not as an official policy gauge. The asset-price axis in particular can be dominated by global factors; users should weight the underlying axes, not just the headline.
 
+**Baseline horizon — and why the real-rate read is horizon-sensitive.** The headline scores are z-scores over **January 2005–present (monthly, ~21 years)**, with the real rate measured **ex-ante** (nominal − expected inflation), because the BoJ-style composite inflation-expectations series only begins in 2005. That window is dominated by ZIRP/NIRP, so a *normalizing* real rate scores as less accommodative than the deflation-era norm — which is why the real-rate axis reads "mildly restrictive" (−0.26). To test fairness, the tracker also computes the real-rate stance on an **ex-post** basis (nominal − *realized* core CPI), the only real inflation series available far enough back (CPI from 1970; JGB yields from 1974, 10Y from 1986). Accommodation = −(z-score), weighted 1.0/1.0/0.5 across 1Y/3Y/10Y:
+
+| Baseline window | Real-rate basis | Axis score | Assessment |
+|---|---|---:|---|
+| Full history (1974/86+) | ex-post (vs realized core CPI) | **+0.19** | Mildly accommodative |
+| Since 1990 | ex-post | **−0.03** | Broadly neutral |
+| Since 1995 | ex-post | **−0.26** | Mildly restrictive |
+| Since 2000 | ex-post | **−0.35** | Mildly restrictive |
+| Since 2005 *(headline)* | ex-ante (vs expected inflation) | **−0.26** | Mildly restrictive |
+
+The verdict is genuinely **horizon-dependent**: against the full 1974+ history (which includes the high-real-rate 1970s–80s) the current stance is *mildly accommodative*; against 1990 it is *broadly neutral*; only on post-1995 baselines is it *mildly restrictive*. Crucially, the "restrictive" reading is **not merely a NIRP artifact** — Japan's deflation episodes (negative CPI in 2009–10 and the mid-2010s) produced *high* ex-post real rates, so the post-1995 average is not as low as intuition suggests, and the 10Y real rate has now risen to ~its long-run norm (ex-post z ≈ 0). The two lenses are best read together: the history-relative z-score is horizon-sensitive and currently neutral-to-mildly-restrictive, while the **level-based natural-rate read keeps the policy stance accommodative** (real policy rate ~0.83pp below the −0.15% midpoint, i.e. below the entire six-model band). Latest ex-post real rates: **1Y −0.4%, 3Y +0.1%, 10Y +1.1%**.
+
 **Seed-data caveat (verbatim from `web/data.json` `meta.source_note`).**
 > *"Seed values are illustrative approximations anchored to recent observations; run etl/fetch.py for authoritative data from BoJ/MoF/e-Stat/FRED."*
 
