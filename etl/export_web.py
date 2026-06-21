@@ -92,6 +92,46 @@ def direction(pairs, lag=DIR_LAG, eps=DIR_EPS, rising="Easing", falling="Tighten
     return {"label": label, "delta": round(delta, 3), "lag_date": lag_d}
 
 
+def realrate_horizons(conn):
+    """Real-rate axis accommodation score under several baseline windows.
+
+    Uses ex-post real rates (nominal - realized core CPI) so the baseline can run
+    back to 1974/1986, since expected-inflation data (the ex-ante measure used in
+    the headline) only begins in 2005. Accommodation = -(z-score), weighted
+    1.0/1.0/0.5 across 1Y/3Y/10Y to mirror the headline real-rate axis.
+    """
+    import statistics
+    members = {"real_1y_xp": 1.0, "real_3y_xp": 1.0, "real_10y_xp": 0.5}
+    data = {sid: {d[:7]: v for d, v in get_series(conn, sid)} for sid in members}
+
+    def axis_score(start):
+        num = den = 0.0
+        for sid, w in members.items():
+            items = sorted((m, v) for m, v in data[sid].items() if m >= start and v is not None)
+            if len(items) < 24:
+                continue
+            vals = [v for _, v in items]
+            mu = statistics.fmean(vals)
+            sd = statistics.pstdev(vals) or 1.0
+            num += w * (-(items[-1][1] - mu) / sd)   # accommodation = -z
+            den += w
+        return (num / den) if den else None
+
+    rows = []
+    for start, label in [("1974-01", "Full history (1974/86+)"), ("1990-01", "Since 1990"),
+                         ("1995-01", "Since 1995"), ("2000-01", "Since 2000")]:
+        sc = axis_score(start)
+        rows.append({"window": label, "start": start, "basis": "ex-post (vs realized core CPI)",
+                     "score": round(sc, 2) if sc is not None else None,
+                     "label": label_for(sc) if sc is not None else "n/a"})
+    li = latest_ind(conn, "axis", "real_rate")
+    cur = round(li["score"], 2) if li else None
+    rows.append({"window": "Since 2005 — headline", "start": "2005-01",
+                 "basis": "ex-ante (vs expected inflation)", "score": cur,
+                 "label": label_for(cur) if cur is not None else "n/a"})
+    return rows
+
+
 def build_assessment(conn, headline):
     pr = headline["policy_rate"]
     rp = headline["real_policy_rate"]
@@ -110,6 +150,12 @@ def build_assessment(conn, headline):
         f"so on the natural-rate lens the stance is still {'accommodative' if gap < 0 else 'restrictive'}; "
         f"the six-model natural-rate band ({headline['natural_rate_low']:+.2f}% to "
         f"{headline['natural_rate_high']:+.2f}%) means this read carries wide uncertainty.")
+    parts.append(
+        "Note on horizon: the headline scores are z-scores against 2005-present history, a window "
+        "dominated by ZIRP/NIRP, so a normalizing real rate scores as less accommodative than that "
+        "norm. On longer ex-post baselines the real-rate stance is horizon-sensitive — mildly "
+        "accommodative versus the full 1974+ history, broadly neutral versus 1990 — even though the "
+        "level-based natural-rate read keeps the policy stance accommodative (see the horizon table).")
     return " ".join(parts)
 
 
@@ -225,7 +271,12 @@ def main():
         "stages": stages,
         "series": series,
         "indicator_series": indicator_series,
+        "real_rate_horizons": realrate_horizons(conn),
     }
+    doc["meta"]["score_window"] = ("Accommodation z-scores use Jan 2005–present (monthly), with the "
+                                   "real rate measured ex-ante (nominal − expected inflation). The "
+                                   "real-rate horizon table extends the baseline to 1974/1990 on an "
+                                   "ex-post basis (nominal − realized core CPI).")
 
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w", encoding="utf-8") as f:
