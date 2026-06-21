@@ -78,6 +78,24 @@
     el.textContent = text != null ? text : fmtSignedScore(score);
   }
 
+  // Direction (momentum) chip: ▲ easing / ▼ tightening / → stable.
+  function dirChip(dir) {
+    if (!dir || dir.label == null || dir.label === "n/a") return "";
+    var map = { Easing: ["dir-pos", "▲"], Tightening: ["dir-neg", "▼"], Stable: ["dir-neu", "→"] };
+    var m = map[dir.label] || ["dir-neu", "→"];
+    var d = dir.delta == null ? "" : (dir.delta >= 0 ? "+" : "") + Number(dir.delta).toFixed(2);
+    var since = dir.lag_date ? " since " + String(dir.lag_date).slice(0, 7) : "";
+    return '<span class="dirchip ' + m[0] + '" title="6-month change in score: ' + d + since +
+      '">' + m[1] + " " + dir.label + "</span>";
+  }
+  // One gap readout for the natural-rate second read (negative = below = accommodative).
+  function gapItem(label, v) {
+    if (v == null || isNaN(v)) return "";
+    var cls = v < 0 ? "pos" : v > 0 ? "neg" : "neu";
+    return '<div class="nr-gap"><span class="nr-gap-val ' + cls + '">' +
+      (v >= 0 ? "+" : "") + v.toFixed(2) + 'pp</span><span class="nr-gap-lbl">' + label + "</span></div>";
+  }
+
   // Convert [[date,val],...] pairs into Chart.js {x,y} points (date kept as label).
   function toXY(pairs) {
     return (pairs || []).map(function (p) { return { x: p[0], y: p[1] }; });
@@ -147,6 +165,8 @@
     var lblEl = document.getElementById("gauge-label");
     lblEl.textContent = data.headline.fci_label || labelByScore(score);
     lblEl.style.color = colorByScore(score);
+    var dEl = document.getElementById("gauge-dir");
+    if (dEl) dEl.innerHTML = dirChip(data.headline.fci_direction);
 
     // Custom semicircle gauge built on a doughnut. Scale −3 … +3.
     var lo = -3, hi = 3, span = hi - lo;
@@ -224,6 +244,7 @@
     var s = data.stages.stage1;
     paintChip(qChip("stage1-score-chip"), s.score, fmtSignedScore(s.score));
     setText("stage1-label", s.label_text);
+    setHTML("stage1-dir", dirChip(s.direction));
 
     var S = data.series;
     // Real rates by maturity
@@ -264,6 +285,24 @@
   function renderNaturalRate(data) {
     var h = data.headline, S = data.series;
     paintChip(qChip("rate-gap-chip"), -h.rate_gap, fmtPct(h.rate_gap));
+
+    // Second read (level-based): where the real policy rate sits in the band.
+    var b = h.rstar_band, rd = document.getElementById("natrate-read");
+    if (b && rd) {
+      rd.innerHTML =
+        '<div class="nr-read-main">' +
+          '<span class="chip ' + scoreClass(b.band_score) + ' big">' + fmtSignedScore(b.band_score) + "</span>" +
+          '<div><div class="nr-stance">' + b.stance + dirChip(b.direction) + "</div>" +
+            '<div class="nr-sub">Real policy rate <strong>' + fmtPct(b.real_policy_rate) +
+              "</strong> vs band " + fmtPct(b.low) + " … " + fmtPct(b.high) +
+              " (midpoint " + fmtPct(b.mid) + ")</div></div>" +
+        "</div>" +
+        '<div class="nr-gaps">' +
+          gapItem("vs lower bound", b.gap_to_low) +
+          gapItem("vs midpoint", b.gap_to_mid) +
+          gapItem("vs upper bound", b.gap_to_high) +
+        "</div>";
+    }
 
     var labels = dates(S.real_policy_rate.observations);
     new Chart(document.getElementById("natRateChart"), Object.assign({}, baseLineOpts, {
@@ -311,6 +350,7 @@
     var s = data.stages.stage2;
     paintChip(qChip("stage2-score-chip"), s.score, fmtSignedScore(s.score));
     setText("stage2-label", s.label_text);
+    setHTML("stage2-dir", dirChip(s.direction));
 
     var container = document.getElementById("axis-cards");
     container.innerHTML = "";
@@ -333,7 +373,7 @@
           '<span class="chip ' + mcls + ' member-chip">' + fmtSignedScore(s.score) + '</span>';
         return '<li><span class="member-name">' + s.name + '</span>' +
           '<span class="member-val">' + fmtValue(s.latest_value, s.unit) + '</span>' +
-          chip + '</li>';
+          chip + dirChip(s.direction) + '</li>';
       }).join("");
 
       var card = document.createElement("div");
@@ -342,7 +382,7 @@
         '<div class="card-head"><h3>' + axis.label + '</h3>' +
           '<span class="chip ' + cls + '">' + fmtSignedScore(axis.score) + '</span></div>' +
         '<p class="note" style="margin-top:0;border:0;padding:0;color:var(--slate)">' +
-          axis.label_text + '</p>' +
+          axis.label_text + dirChip(axis.direction) + '</p>' +
         '<div class="axis-spark"><canvas></canvas></div>' +
         '<ul class="axis-members">' + members + '</ul>';
       container.appendChild(card);
@@ -472,7 +512,7 @@
       var scoreBit = s.score == null ? "" :
         '<span><b>Score:</b> <span class="chip ' + scoreClass(s.score) + '">' +
         fmtSignedScore(s.score) + " · " + (s.accommodation || labelByScore(s.score)) +
-        "</span></span>";
+        "</span>" + dirChip(s.direction) + "</span>";
       meta.innerHTML =
         '<span class="em-name">' + s.name + '</span>' +
         '<span><b>Latest:</b> ' + fmtValue(s.latest_value, s.unit) +
@@ -513,12 +553,55 @@
     draw(initial);
   }
 
+  // 9: Methodology table — weights & assumptions for every indicator ---------
+  function renderMethodology(data) {
+    var el = document.getElementById("methodology-table");
+    if (!el) return;
+    var axisByKey = {};
+    data.axes.forEach(function (a) { axisByKey[a.key] = a; });
+
+    var listed = {}, groups = [];
+    (data.meta.axis_order || []).forEach(function (k) {
+      var ax = axisByKey[k];
+      if (!ax) return;
+      var rows = ax.members.map(function (id) { listed[id] = 1; return data.series[id]; })
+        .filter(Boolean);
+      if (rows.length) groups.push({ title: ax.label, rows: rows });
+    });
+    var ctx = Object.keys(data.series).filter(function (id) { return !listed[id]; })
+      .map(function (id) { return data.series[id]; });
+    if (ctx.length) groups.push({ title: "Context — not scored", rows: ctx });
+
+    function polText(p) {
+      return p > 0 ? "higher ⇒ easier" : p < 0 ? "higher ⇒ tighter" : "context only";
+    }
+    function wtText(w) {
+      return (w && w > 0) ? String(Number(w).toFixed(2)).replace(/\.00$/, "").replace(/0$/, "") : "—";
+    }
+
+    el.innerHTML = groups.map(function (g) {
+      var body = g.rows.map(function (s) {
+        return "<tr><td>" + s.name + '</td><td class="num">' + wtText(s.weight) +
+          "</td><td>" + polText(s.polarity) + '</td><td class="src">' + (s.source || "") +
+          '</td><td class="assump">' + (s.notes || "") + "</td></tr>";
+      }).join("");
+      return '<table class="method-tbl"><caption>' + g.title + "</caption>" +
+        '<thead><tr><th>Indicator</th><th class="num">Weight</th><th>Polarity</th>' +
+        "<th>Source</th><th>Assumption / definition</th></tr></thead><tbody>" +
+        body + "</tbody></table>";
+    }).join("");
+  }
+
   /* ----------------------------------------------------------------------
      Small DOM helpers
      ---------------------------------------------------------------------- */
   function setText(id, txt) {
     var el = document.getElementById(id);
     if (el) el.textContent = (txt == null ? "—" : txt);
+  }
+  function setHTML(id, html) {
+    var el = document.getElementById(id);
+    if (el) el.innerHTML = html || "";
   }
   function qChip(wrapId) {
     var w = document.getElementById(wrapId);
@@ -565,6 +648,7 @@
       renderFciHistory(data);
       renderAxisBar(data);
       renderExplore(data);
+      renderMethodology(data);
     } catch (err) {
       console.error("Dashboard render error:", err);
     }

@@ -2,7 +2,7 @@
   "meta": {
     "title": "Japan Financial Conditions Tracker",
     "framework": "Bank of Japan Review 2026-E-4 (two-stage assessment of financial conditions)",
-    "generated_utc": "2026-06-21T02:31:35+00:00",
+    "generated_utc": "2026-06-21T10:19:41+00:00",
     "data_mode": "LIVE (official sources) + SEED fallback for un-fetched series",
     "latest_date": "2026-06-30",
     "source_note": "Seed values are illustrative approximations anchored to recent observations; run etl/fetch.py for authoritative data from BoJ/MoF/e-Stat/FRED.",
@@ -28,6 +28,27 @@
     "natural_rate_high": 0.55,
     "core_cpi_yoy": 1.5095,
     "jgb_10y": 2.6514,
+    "fci_direction": {
+      "label": "Tightening",
+      "delta": -0.119,
+      "lag_date": "2025-12-31"
+    },
+    "rstar_band": {
+      "real_policy_rate": -0.9793,
+      "low": -0.85,
+      "mid": -0.15,
+      "high": 0.55,
+      "band_score": 1.18,
+      "stance": "Accommodative — below the natural-rate band",
+      "gap_to_low": -0.13,
+      "gap_to_mid": -0.83,
+      "gap_to_high": -1.53,
+      "direction": {
+        "label": "Tightening",
+        "delta": 0.295,
+        "lag_date": "2025-12-31"
+      }
+    },
     "assessment": "The composite Financial Conditions Index reads +0.71 (accommodative relative to its 2005+ history), indicating that financial conditions remain accommodative even after the policy rate was raised to 1.00%. The real policy rate is about -0.98%, roughly 0.83pp below the midpoint natural-rate estimate (-0.15%), so on the natural-rate lens the stance is still accommodative; the six-model natural-rate band (-0.85% to +0.55%) means this read carries wide uncertainty."
   },
   "axes": [
@@ -36,6 +57,11 @@
       "label": "Real interest rates (Stage 1)",
       "score": -0.2619,
       "label_text": "Mildly restrictive",
+      "direction": {
+        "label": "Tightening",
+        "delta": -0.663,
+        "lag_date": "2025-12-31"
+      },
       "members": [
         "real_1y",
         "real_3y",
@@ -47,6 +73,11 @@
       "label": "Funding costs",
       "score": -0.8917,
       "label_text": "Restrictive",
+      "direction": {
+        "label": "Tightening",
+        "delta": -0.475,
+        "lag_date": "2025-12-31"
+      },
       "members": [
         "lending_rate",
         "cp_rate",
@@ -58,6 +89,11 @@
       "label": "Availability of funds",
       "score": 1.0864,
       "label_text": "Accommodative",
+      "direction": {
+        "label": "Stable",
+        "delta": -0.053,
+        "lag_date": "2025-12-31"
+      },
       "members": [
         "tankan_lend_large",
         "tankan_lend_small",
@@ -70,6 +106,11 @@
       "label": "Asset prices",
       "score": 3.0457,
       "label_text": "Accommodative",
+      "direction": {
+        "label": "Easing",
+        "delta": 0.661,
+        "lag_date": "2025-12-31"
+      },
       "members": [
         "topix",
         "nikkei225",
@@ -81,6 +122,11 @@
       "label": "Funding volumes",
       "score": 0.5507,
       "label_text": "Accommodative",
+      "direction": {
+        "label": "Stable",
+        "delta": -0.067,
+        "lag_date": "2025-12-31"
+      },
       "members": [
         "bank_lending_yoy",
         "cp_corpbond_yoy"
@@ -90,11 +136,21 @@
   "stages": {
     "stage1": {
       "score": -0.2619,
-      "label_text": "Mildly restrictive"
+      "label_text": "Mildly restrictive",
+      "direction": {
+        "label": "Tightening",
+        "delta": -0.663,
+        "lag_date": "2025-12-31"
+      }
     },
     "stage2": {
       "score": 0.9478,
-      "label_text": "Accommodative"
+      "label_text": "Accommodative",
+      "direction": {
+        "label": "Stable",
+        "delta": 0.016,
+        "lag_date": "2025-12-31"
+      }
     }
   },
   "series": {
@@ -114,6 +170,11 @@
       "latest_value": 1.0,
       "score": null,
       "accommodation": null,
+      "direction": {
+        "label": "n/a",
+        "delta": null,
+        "lag_date": null
+      },
       "observations": [
         [
           "2004-01-01",
@@ -2125,6 +2186,11 @@
       "latest_value": 1.14,
       "score": null,
       "accommodation": null,
+      "direction": {
+        "label": "n/a",
+        "delta": null,
+        "lag_date": null
+      },
       "observations": [
         [
           "1974-09-30",
@@ -4528,6 +4594,11 @@
       "latest_value": 1.4101,
       "score": null,
       "accommodation": null,
+      "direction": {
+        "label": "n/a",
+        "delta": null,
+        "lag_date": null
+      },
       "observations": [
         [
           "1974-09-30",
@@ -6979,6 +7050,11 @@
       "latest_value": 1.9396,
       "score": null,
       "accommodation": null,
+      "direction": {
+        "label": "n/a",
+        "delta": null,
+        "lag_date": null
+      },
       "observations": [
         [
           "1974-09-30",
@@ -9486,6 +9562,11 @@
       "latest_value": 2.6514,
       "score": null,
       "accommodation": null,
+      "direction": {
+        "label": "n/a",
+        "delta": null,
+        "lag_date": null
+      },
       "observations": [
         [
           "1986-07-31",
@@ -12501,6 +12582,11 @@
       "latest_value": 3.7987,
       "score": null,
       "accommodation": null,
+      "direction": {
+        "label": "n/a",
+        "delta": null,
+        "lag_date": null
+      },
       "observations": [
         [
           "1999-09-30",
@@ -13808,6 +13894,11 @@
       "latest_value": 1.9793,
       "score": null,
       "accommodation": null,
+      "direction": {
+        "label": "n/a",
+        "delta": null,
+        "lag_date": null
+      },
       "observations": [
         [
           "2005-01-31",
@@ -14859,6 +14950,11 @@
       "latest_value": 1.8605,
       "score": null,
       "accommodation": null,
+      "direction": {
+        "label": "n/a",
+        "delta": null,
+        "lag_date": null
+      },
       "observations": [
         [
           "2005-01-31",
@@ -15910,6 +16006,11 @@
       "latest_value": 1.7988,
       "score": null,
       "accommodation": null,
+      "direction": {
+        "label": "n/a",
+        "delta": null,
+        "lag_date": null
+      },
       "observations": [
         [
           "2005-01-31",
@@ -16961,6 +17062,11 @@
       "latest_value": -0.8393,
       "score": 0.2725,
       "accommodation": "Mildly accommodative",
+      "direction": {
+        "label": "Tightening",
+        "delta": -0.543,
+        "lag_date": "2025-12-31"
+      },
       "observations": [
         [
           "2005-01-31",
@@ -18012,6 +18118,11 @@
       "latest_value": -0.2739,
       "score": -0.4066,
       "accommodation": "Mildly restrictive",
+      "direction": {
+        "label": "Tightening",
+        "delta": -0.711,
+        "lag_date": "2025-12-31"
+      },
       "observations": [
         [
           "2005-01-31",
@@ -19063,6 +19174,11 @@
       "latest_value": 0.8526,
       "score": -1.0415,
       "accommodation": "Restrictive",
+      "direction": {
+        "label": "Tightening",
+        "delta": -0.804,
+        "lag_date": "2025-12-31"
+      },
       "observations": [
         [
           "2005-01-31",
@@ -20114,6 +20230,11 @@
       "latest_value": -0.9793,
       "score": null,
       "accommodation": null,
+      "direction": {
+        "label": "n/a",
+        "delta": null,
+        "lag_date": null
+      },
       "observations": [
         [
           "2005-01-31",
@@ -21165,6 +21286,11 @@
       "latest_value": 1.1708,
       "score": -0.3124,
       "accommodation": "Mildly restrictive",
+      "direction": {
+        "label": "Tightening",
+        "delta": -0.363,
+        "lag_date": "2025-12-31"
+      },
       "observations": [
         [
           "2005-01-31",
@@ -22216,6 +22342,11 @@
       "latest_value": 1.1071,
       "score": -3.7121,
       "accommodation": "Restrictive",
+      "direction": {
+        "label": "Tightening",
+        "delta": -1.001,
+        "lag_date": "2025-12-31"
+      },
       "observations": [
         [
           "2005-01-31",
@@ -23267,6 +23398,11 @@
       "latest_value": 0.3091,
       "score": 0.7701,
       "accommodation": "Accommodative",
+      "direction": {
+        "label": "Tightening",
+        "delta": -0.173,
+        "lag_date": "2025-12-31"
+      },
       "observations": [
         [
           "2005-01-31",
@@ -24318,6 +24454,11 @@
       "latest_value": 23.651,
       "score": 0.9422,
       "accommodation": "Accommodative",
+      "direction": {
+        "label": "Tightening",
+        "delta": -0.113,
+        "lag_date": "2025-12-31"
+      },
       "observations": [
         [
           "2005-03-31",
@@ -24681,6 +24822,11 @@
       "latest_value": 17.5803,
       "score": 1.1307,
       "accommodation": "Accommodative",
+      "direction": {
+        "label": "Stable",
+        "delta": 0.013,
+        "lag_date": "2025-12-31"
+      },
       "observations": [
         [
           "2005-03-31",
@@ -25044,6 +25190,11 @@
       "latest_value": 21.5477,
       "score": 1.1184,
       "accommodation": "Accommodative",
+      "direction": {
+        "label": "Stable",
+        "delta": 0.03,
+        "lag_date": "2025-12-31"
+      },
       "observations": [
         [
           "2005-03-31",
@@ -25407,6 +25558,11 @@
       "latest_value": 13.7049,
       "score": 1.1877,
       "accommodation": "Accommodative",
+      "direction": {
+        "label": "Tightening",
+        "delta": -0.147,
+        "lag_date": "2025-12-31"
+      },
       "observations": [
         [
           "2005-03-31",
@@ -25770,6 +25926,11 @@
       "latest_value": 3957.6278,
       "score": 3.1468,
       "accommodation": "Accommodative",
+      "direction": {
+        "label": "Easing",
+        "delta": 0.574,
+        "lag_date": "2025-12-31"
+      },
       "observations": [
         [
           "2005-01-31",
@@ -26821,6 +26982,11 @@
       "latest_value": 67394.3413,
       "score": 4.3101,
       "accommodation": "Accommodative",
+      "direction": {
+        "label": "Easing",
+        "delta": 1.588,
+        "lag_date": "2025-12-31"
+      },
       "observations": [
         [
           "2004-01-31",
@@ -27920,6 +28086,11 @@
       "latest_value": 161.498,
       "score": 2.0681,
       "accommodation": "Accommodative",
+      "direction": {
+        "label": "Easing",
+        "delta": 0.159,
+        "lag_date": "2025-12-31"
+      },
       "observations": [
         [
           "2004-01-01",
@@ -30047,6 +30218,11 @@
       "latest_value": 3.1152,
       "score": 0.5318,
       "accommodation": "Accommodative",
+      "direction": {
+        "label": "Tightening",
+        "delta": -0.144,
+        "lag_date": "2025-12-31"
+      },
       "observations": [
         [
           "2005-01-31",
@@ -31098,6 +31274,11 @@
       "latest_value": 6.362,
       "score": 0.5761,
       "accommodation": "Accommodative",
+      "direction": {
+        "label": "Stable",
+        "delta": 0.037,
+        "lag_date": "2025-12-31"
+      },
       "observations": [
         [
           "2005-01-31",
@@ -32149,6 +32330,11 @@
       "latest_value": 1.5095,
       "score": null,
       "accommodation": null,
+      "direction": {
+        "label": "n/a",
+        "delta": null,
+        "lag_date": null
+      },
       "observations": [
         [
           "1970-12-31",
@@ -34836,6 +35022,11 @@
       "latest_value": 0.7099,
       "score": null,
       "accommodation": null,
+      "direction": {
+        "label": "n/a",
+        "delta": null,
+        "lag_date": null
+      },
       "observations": [
         [
           "2005-03-31",
@@ -35199,6 +35390,11 @@
       "latest_value": -0.85,
       "score": null,
       "accommodation": null,
+      "direction": {
+        "label": "n/a",
+        "delta": null,
+        "lag_date": null
+      },
       "observations": [
         [
           "2005-03-31",
@@ -35562,6 +35758,11 @@
       "latest_value": -0.15,
       "score": null,
       "accommodation": null,
+      "direction": {
+        "label": "n/a",
+        "delta": null,
+        "lag_date": null
+      },
       "observations": [
         [
           "2005-03-31",
@@ -35925,6 +36126,11 @@
       "latest_value": 0.55,
       "score": null,
       "accommodation": null,
+      "direction": {
+        "label": "n/a",
+        "delta": null,
+        "lag_date": null
+      },
       "observations": [
         [
           "2005-03-31",

@@ -47,6 +47,7 @@
             <div class="gauge-readout">
               <div class="gauge-score" id="gauge-score">—</div>
               <div class="gauge-label" id="gauge-label">—</div>
+              <div class="gauge-dir" id="gauge-dir"></div>
             </div>
           </div>
           <div class="gauge-scale">
@@ -79,6 +80,7 @@
         <div class="stage-score" id="stage1-score-chip">
           <span class="chip" data-role="chip">—</span>
           <span class="stage-score-label" id="stage1-label">—</span>
+          <span class="stage-dir" id="stage1-dir"></span>
         </div>
       </div>
       <div class="chart-duo">
@@ -118,12 +120,17 @@
           <span class="stage-score-label">gap vs midpoint</span>
         </div>
       </div>
+      <!-- Second read: level-based stance against the band -->
+      <div class="natrate-read" id="natrate-read"></div>
       <div class="card">
         <div class="card-head">
           <h3>Real policy rate against the natural-rate band</h3>
           <span class="hint">band −0.85% … +0.55%, midpoint −0.15%</span>
         </div>
         <div class="chart-box tall"><canvas id="natRateChart"></canvas></div>
+        <p class="note">Two complementary reads: the <strong>level</strong> read above (where the
+          real policy rate sits inside the six-model band) and the <strong>direction</strong> chip
+          (whether that gap is widening = easing, or closing = tightening).</p>
       </div>
     </section>
 
@@ -139,6 +146,7 @@
         <div class="stage-score" id="stage2-score-chip">
           <span class="chip" data-role="chip">—</span>
           <span class="stage-score-label" id="stage2-label">—</span>
+          <span class="stage-dir" id="stage2-dir"></span>
         </div>
       </div>
       <div class="axis-grid" id="axis-cards">
@@ -206,6 +214,10 @@
           <span class="chip neu">−0.15 … +0.15 broadly neutral</span>
           <span class="chip neg">&lt; −0.15 restrictive</span>
         </p>
+        <p><strong>Direction</strong> (▲ easing / ▼ tightening / → stable) is the trailing
+          6-month change in each accommodation score — i.e. whether a signal is turning more easy
+          or more restrictive, shown alongside its level. The <strong>natural-rate panel</strong>
+          adds a level-based second read: where the real policy rate sits inside the six-model band.</p>
       </div>
       <div class="foot-col">
         <h4>Reference</h4>
@@ -223,6 +235,18 @@
         </ul>
         <p class="gen-stamp" id="gen-stamp"></p>
       </div>
+    </div>
+
+    <!-- Full weights & assumptions for every indicator -->
+    <div class="wrap foot-methodology">
+      <h4>Indicator weights &amp; assumptions</h4>
+      <p class="foot-note">Each axis score is a <strong>weight-weighted mean</strong> of its member
+        accommodation scores; the composite FCI is the equal-weight mean of the five axes. Weights
+        follow the BoJ framework — short/medium real rates and the core funding-environment gauges
+        carry full weight (1.0); longer-horizon or secondary gauges are down-weighted (0.5–0.75)
+        because they have a relatively smaller direct impact on near-term activity. Polarity orients
+        each series so a higher score always means more accommodative.</p>
+      <div id="methodology-table"></div>
     </div>
   </footer>
 

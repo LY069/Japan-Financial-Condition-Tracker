@@ -62,6 +62,36 @@ def latest_obs(conn, sid):
     return (r["date"], r["value"]) if r else (None, None)
 
 
+# --- Direction (momentum) -------------------------------------------------
+# Whether a signal is turning more easy or more restrictive, measured as the
+# change over the trailing window on the (monthly, contiguous) score series.
+DIR_LAG = 6          # months lookback
+DIR_EPS = 0.10       # min |change| to call a direction (z-score units / pp)
+
+
+def series_score_hist(conn, sid):
+    cur = conn.execute(
+        "SELECT date, score FROM indicators WHERE scope='series' AND key=? ORDER BY date", (sid,))
+    return [[r["date"], r["score"]] for r in cur.fetchall() if r["score"] is not None]
+
+
+def direction(pairs, lag=DIR_LAG, eps=DIR_EPS, rising="Easing", falling="Tightening"):
+    """Classify the trailing change of a score/level series.
+
+    `rising`/`falling` are the labels for an increase/decrease. For accommodation
+    scores (higher = easier) the defaults read correctly; for a level series like
+    the real-rate-vs-r* gap (higher = tighter) pass rising='Tightening'.
+    """
+    vals = [(d, v) for d, v in (pairs or []) if v is not None]
+    if len(vals) < 2:
+        return {"label": "n/a", "delta": None, "lag_date": None}
+    last_d, last_v = vals[-1]
+    lag_d, lag_v = vals[max(0, len(vals) - 1 - lag)]
+    delta = last_v - lag_v
+    label = rising if delta >= eps else falling if delta <= -eps else "Stable"
+    return {"label": label, "delta": round(delta, 3), "lag_date": lag_d}
+
+
 def build_assessment(conn, headline):
     pr = headline["policy_rate"]
     rp = headline["real_policy_rate"]
@@ -103,6 +133,7 @@ def main():
             "source_url": r["source_url"], "notes": r["notes"],
             "latest_date": obs[-1][0], "latest_value": obs[-1][1],
             "score": score, "accommodation": label_for(score) if score is not None else None,
+            "direction": direction(series_score_hist(conn, sid)),
             "observations": obs,
         }
 
@@ -112,13 +143,15 @@ def main():
         sc = round(li["score"], 4) if li else None
         axes.append({"key": a, "label": AXIS_LABEL[a], "score": sc,
                      "label_text": label_for(sc),
+                     "direction": direction(ind_series(conn, "axis", a)),
                      "members": [r["series_id"] for r in cat if r["category"] == a and r["weight"] > 0]})
 
     stages = {}
     for st in ("stage1", "stage2"):
         li = latest_ind(conn, "stage", st)
         sc = round(li["score"], 4) if li else None
-        stages[st] = {"score": sc, "label_text": label_for(sc)}
+        stages[st] = {"score": sc, "label_text": label_for(sc),
+                      "direction": direction(ind_series(conn, "stage", st))}
 
     fci = latest_ind(conn, "composite", "fci")
     rg = latest_ind(conn, "composite", "rate_gap")
@@ -141,7 +174,30 @@ def main():
         "natural_rate_high": lv("natural_rate_high"),
         "core_cpi_yoy": lv("core_cpi_yoy"),
         "jgb_10y": lv("jgb_10y"),
+        "fci_direction": direction(ind_series(conn, "composite", "fci")),
     }
+
+    # Second read (level-based): the real policy rate against the natural-rate band.
+    rp = headline["real_policy_rate"]
+    lo, mid, hi = headline["natural_rate_low"], headline["natural_rate_mid"], headline["natural_rate_high"]
+    if None not in (rp, lo, mid, hi):
+        half = max((hi - lo) / 2.0, 0.05)
+        band_score = (mid - rp) / half          # + = accommodative (real rate below midpoint)
+        if rp < lo:
+            stance = "Accommodative — below the natural-rate band"
+        elif rp <= hi:
+            stance = "Within the natural-rate band — near neutral"
+        else:
+            stance = "Restrictive — above the natural-rate band"
+        # Direction from the real-policy-rate-vs-r* gap: a rising gap = tightening.
+        band_dir = direction(ind_series(conn, "composite", "rate_gap"),
+                             eps=DIR_EPS, rising="Tightening", falling="Easing")
+        headline["rstar_band"] = {
+            "real_policy_rate": rp, "low": lo, "mid": mid, "high": hi,
+            "band_score": round(band_score, 2), "stance": stance,
+            "gap_to_low": round(rp - lo, 2), "gap_to_mid": round(rp - mid, 2),
+            "gap_to_high": round(rp - hi, 2), "direction": band_dir,
+        }
     headline["assessment"] = build_assessment(conn, headline)
 
     indicator_series = {
