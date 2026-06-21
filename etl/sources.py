@@ -238,20 +238,28 @@ def estat_find_cpi_table(app_id: str, timeout: int = TIMEOUT):
     return [(s, t) for s, t, _ in out]
 
 
-def fetch_estat(stats_data_id: str, app_id: str, cd_cat=None, cd_area=None,
-                limit=None, timeout: int = TIMEOUT):
-    """Generic e-Stat getStatsData fetch -> [(iso_date, value)] for a CPI-style table.
+def _cd_param(class_id: str) -> str:
+    """Map an e-Stat class id to its query param ('cat01'->'cdCat01', 'area'->'cdArea')."""
+    return "cd" + class_id[:1].upper() + class_id[1:]
 
-    Narrowing params keep the payload small enough to avoid timeouts:
-      cd_cat  : category code (e.g. the 'all items, less fresh food' item code)
-      cd_area : area code (national = '00000')
-      limit   : max rows to return
+
+def fetch_estat(stats_data_id: str, app_id: str, filters=None, cd_cat=None, cd_area=None,
+                limit=None, timeout: int = TIMEOUT):
+    """e-Stat getStatsData -> [(iso_date, value)] for a CPI-style table.
+
+    filters : {class_id: code} narrowing applied to the matching cdCatNN/cdArea
+              params (e.g. {'cat01': '0002', 'area': '00000'}), so a multi-dimension
+              table collapses to one monthly series. cd_cat/cd_area are shorthands.
     """
-    url = f"{ESTAT_BASE}?appId={app_id}&statsDataId={stats_data_id}&metaGetFlg=N&cntGetFlg=N"
+    f = dict(filters or {})
     if cd_cat:
-        url += f"&cdCat01={cd_cat}"
+        f.setdefault("cat01", cd_cat)
     if cd_area:
-        url += f"&cdArea={cd_area}"
+        f.setdefault("area", cd_area)
+    url = f"{ESTAT_BASE}?appId={app_id}&statsDataId={stats_data_id}&metaGetFlg=N&cntGetFlg=N"
+    for class_id, code in f.items():
+        if code:
+            url += f"&{_cd_param(class_id)}={code}"
     if limit:
         url += f"&limit={int(limit)}"
     data = json.loads(_get(url, timeout=timeout))
