@@ -2,7 +2,7 @@
   "meta": {
     "title": "Japan Financial Conditions Tracker",
     "framework": "Bank of Japan Review 2026-E-4 (two-stage assessment of financial conditions)",
-    "generated_utc": "2026-06-21T02:13:35+00:00",
+    "generated_utc": "2026-06-21T02:19:03+00:00",
     "data_mode": "LIVE (official sources) + SEED fallback for un-fetched series",
     "latest_date": "2026-06-30",
     "source_note": "Seed values are illustrative approximations anchored to recent observations; run etl/fetch.py for authoritative data from BoJ/MoF/e-Stat/FRED.",
