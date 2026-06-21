@@ -257,6 +257,54 @@ main.wrap { padding-top: 28px; padding-bottom: 40px; }
 .source-list li { padding: 3px 0; }
 .gen-stamp { margin-top: 12px; font-size: 11.5px; color: #8fa0c5; }
 
+/* ----------------------- Direction (momentum) chips ----------------------- */
+.dirchip {
+  display: inline-flex; align-items: center; gap: .25em;
+  font-size: 11.5px; font-weight: 650; line-height: 1;
+  padding: 3px 8px; border-radius: 999px; margin-left: 7px; white-space: nowrap;
+  vertical-align: middle;
+}
+.dir-pos { background: var(--green-soft); color: var(--green); }
+.dir-neg { background: var(--red-soft);   color: var(--red); }
+.dir-neu { background: #eef1f6;            color: var(--slate); }
+.gauge-dir { margin-top: 6px; text-align: center; }
+.gauge-dir .dirchip { margin-left: 0; }
+.stage-dir { display: inline-block; }
+
+/* --------------------- Natural-rate second (level) read ------------------- */
+.natrate-read {
+  display: flex; flex-wrap: wrap; gap: 18px 26px; justify-content: space-between;
+  align-items: center; background: #f6f8fc; border: 1px solid var(--line);
+  border-radius: 12px; padding: 16px 18px; margin-bottom: 16px;
+}
+.nr-read-main { display: flex; align-items: center; gap: 14px; }
+.nr-stance { font-weight: 700; color: var(--navy); }
+.nr-sub { font-size: 13px; color: var(--slate); margin-top: 3px; }
+.nr-gaps { display: flex; gap: 22px; }
+.nr-gap { text-align: center; }
+.nr-gap-val { display: block; font-weight: 700; font-size: 15px; }
+.nr-gap-val.pos { color: var(--green); }
+.nr-gap-val.neg { color: var(--red); }
+.nr-gap-val.neu { color: var(--slate); }
+.nr-gap-lbl { font-size: 11px; color: var(--slate-light); }
+
+/* --------------------------- Footer methodology --------------------------- */
+.foot-methodology { padding: 8px 22px 30px; }
+.foot-methodology h4 { margin: 0 0 8px; font-size: 14px; color: #fff; letter-spacing: .3px; }
+.foot-note { color: #c3cee3; font-size: 12.5px; margin: 0 0 16px; max-width: 95ch; line-height: 1.6; }
+.method-tbl { width: 100%; border-collapse: collapse; margin: 0 0 18px; font-size: 12px; }
+.method-tbl caption {
+  text-align: left; font-weight: 700; color: #fff; padding: 6px 0; font-size: 13px;
+}
+.method-tbl th, .method-tbl td {
+  border-bottom: 1px solid rgba(255,255,255,.12); padding: 6px 8px;
+  text-align: left; vertical-align: top; color: #cdd7ea;
+}
+.method-tbl th { color: #9fb0d0; font-weight: 600; }
+.method-tbl .num { text-align: right; white-space: nowrap; }
+.method-tbl .src { white-space: nowrap; color: #9fb0d0; }
+.method-tbl .assump { color: #b9c4dc; }
+
 /* ----------------------------- Responsive ----------------------------- */
 @media (max-width: 960px) {
   .hero-grid { grid-template-columns: 1fr; }
@@ -273,4 +321,6 @@ main.wrap { padding-top: 28px; padding-bottom: 40px; }
   .stage-score { text-align: left; }
   #series-select { min-width: 0; width: 100%; }
   .explore-control { width: 100%; }
+  .natrate-read { flex-direction: column; align-items: flex-start; }
+  .method-tbl .src { display: none; }
 }
