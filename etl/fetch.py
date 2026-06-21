@@ -80,12 +80,27 @@ def run_estat(conn):
     stats_id = os.environ.get("ESTAT_CPI_CORE_ID", "0003427113")
     cd_cat = os.environ.get("ESTAT_CPI_CAT")        # ex-fresh-food item code (table-specific)
     cd_area = os.environ.get("ESTAT_CPI_AREA", "00000")   # national
+
+    # The default table is the full 2020-base CPI database (many items). Narrow it
+    # to the genuine 'ex-fresh-food total', national series via metadata lookup.
+    if not cd_cat:
+        try:
+            codes = S.estat_meta_find(stats_id, app, ["生鮮食品を除く総合"])
+            cat_codes = {k: v for k, v in codes.items() if k.startswith("cat")}
+            if cat_codes:
+                cd_cat = next(iter(cat_codes.values()))
+                area = S.estat_meta_find(stats_id, app, ["全国"])
+                if any(k == "area" for k in area):
+                    cd_area = area["area"]
+                print(f"  [ESTAT] resolved ex-fresh-food code={cd_cat}, area={cd_area}")
+        except Exception as e:
+            print(f"  [ESTAT] metadata lookup failed ({e}); querying without item narrowing")
     try:
         levels = S.fetch_estat(stats_id, app, cd_cat=cd_cat, cd_area=cd_area, limit=2000)
         rows = S.to_yoy(levels)
         if rows:
             n += upsert_observations(conn, sid, rows, "ESTAT")
-            print(f"  [ESTAT] {sid}: {len(rows)} obs (id={stats_id})")
+            print(f"  [ESTAT] {sid}: {len(rows)} obs (id={stats_id}, cat={cd_cat}, area={cd_area})")
             return n
         print(f"  [ESTAT] {sid}: id={stats_id} returned no usable rows; trying discovery")
     except Exception as e:

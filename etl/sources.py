@@ -101,28 +101,35 @@ def fetch_fred(fred_id: str, api_key: str):
 # whatever responds. The historical file (1974~) is preferred for full coverage;
 # the current-year file is merged in for the latest fixings.
 MOF_BASES = [
-    "https://www.mof.go.jp/jgbs/reference/interest_rate/",            # JP site (canonical)
-    "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/",  # EN site
+    "https://www.mof.go.jp/jgbs/reference/interest_rate/",                  # JP site
+    "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/",   # EN site
 ]
 MOF_FILES = [
-    "historical/jgbcm_all.csv",   # all years, JP
-    "jgbcm_all.csv",              # all years (alt location)
-    "jgbcme.csv",                 # current year, EN (note trailing 'e')
-    "jgbcm.csv",                  # current year, JP
+    "data/jgbcm_all.csv",          # all years, JP (bare-number headers, parser-friendly)
+    "historical/jgbcme_all.csv",   # all years, EN (note trailing 'e')
+    "historical/jgbcm_all.csv",    # all years (alt)
+    "jgbcm_all.csv",               # all years (alt)
+    "jgbcme.csv",                  # current year, EN
+    "jgbcm.csv",                   # current year, JP
 ]
 # column header (years) -> catalog series_id
 MOF_COL = {"1": "jgb_1y", "2": "jgb_2y", "5": "jgb_5y", "10": "jgb_10y", "30": "jgb_30y"}
 
 
+def _norm_mat(cell: str) -> str:
+    """Normalize a header cell to a bare maturity number ('10Y'->'10', '1年'->'1')."""
+    return cell.strip().upper().rstrip("Y").rstrip("年").strip()
+
+
 def _parse_mof_csv(raw: bytes):
     text = raw.decode("shift_jis", errors="ignore")
     rows = [r for r in csv.reader(io.StringIO(text)) if r]
-    # header row contains maturity labels like '1','2',...'10'
+    # header row contains maturity labels like '1','2','10' or '1Y','10Y'
     hdr_i = next((i for i, r in enumerate(rows)
-                  if sum(1 for c in r if c.strip() in MOF_COL) >= 3), None)
+                  if sum(1 for c in r if _norm_mat(c) in MOF_COL) >= 3), None)
     if hdr_i is None:
         return {}
-    hdr = [c.strip() for c in rows[hdr_i]]
+    hdr = [_norm_mat(c) for c in rows[hdr_i]]
     col_idx = {hdr[j]: j for j in range(len(hdr))}
     daily = {sid: [] for sid in MOF_COL.values()}
     for r in rows[hdr_i + 1:]:
@@ -154,28 +161,58 @@ def fetch_mof_jgb():
     successful pulls, so it survives MoF path changes and always gets latest data.
     """
     merged = {sid: {} for sid in MOF_COL.values()}      # sid -> {iso_date: value}
-    got = []
+    got, diag = [], []
     for base in MOF_BASES:
         for fn in MOF_FILES:
             url = base + fn
             try:
                 daily = _parse_mof_csv(_get(url))
-            except Exception:
+            except Exception as e:
+                diag.append(f"{fn}@{base.split('//')[1].split('/')[0]}: {type(e).__name__} {e}")
                 continue
             if any(daily.values()):
                 got.append(url)
                 for sid, rows_ in daily.items():
                     for d, v in rows_:
                         merged[sid][d] = v
+            else:
+                diag.append(f"{url}: fetched but no maturity columns parsed")
     if not got:
-        raise RuntimeError("all MoF candidate URLs failed")
+        raise RuntimeError("all MoF candidate URLs failed -> " + " | ".join(diag))
     return {sid: monthly_avg(sorted(dv.items())) for sid, dv in merged.items()}
 
 
 # --------------------------------------------------------------- e-Stat ----
 ESTAT_BASE = "https://api.e-stat.go.jp/rest/3.0/app/json/getStatsData"
 ESTAT_LIST = "https://api.e-stat.go.jp/rest/3.0/app/json/getStatsList"
+ESTAT_META = "https://api.e-stat.go.jp/rest/3.0/app/json/getMetaInfo"
 ESTAT_CPI_STATSCODE = "00200573"   # MIC "Consumer Price Index" stats provider code
+
+
+def estat_meta_find(stats_data_id: str, app_id: str, want, timeout: int = TIMEOUT):
+    """Return {class_id: code} for the class entries whose name matches all of `want`.
+
+    Used to pin the 'ex-fresh-food total' item code and the national area code so
+    the big CPI table can be narrowed to a single clean monthly series.
+    """
+    url = f"{ESTAT_META}?appId={app_id}&statsDataId={stats_data_id}"
+    data = json.loads(_get(url, timeout=timeout))
+    objs = (data.get("GET_META_INFO", {}).get("METADATA_INF", {})
+            .get("CLASS_INF", {}).get("CLASS_OBJ", []))
+    if isinstance(objs, dict):
+        objs = [objs]
+    found = {}
+    for obj in objs:
+        cid = obj.get("@id", "")
+        classes = obj.get("CLASS", [])
+        if isinstance(classes, dict):
+            classes = [classes]
+        for c in classes:
+            name = c.get("@name", "")
+            if all(w in name for w in want):
+                found[cid] = c.get("@code", "")
+                break
+    return found
 
 
 def estat_find_cpi_table(app_id: str, timeout: int = TIMEOUT):
