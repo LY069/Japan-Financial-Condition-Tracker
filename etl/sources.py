@@ -92,7 +92,12 @@ def fetch_fred(fred_id: str, api_key: str):
     for o in data.get("observations", []):
         if o["value"] in (".", "", None):
             continue
-        out.append((o["date"], float(o["value"])))
+        # FRED dates monthly series to month-start; snap to month-end so they
+        # align with (and overwrite) the month-end convention used elsewhere.
+        d = o["date"]
+        y, m = int(d[:4]), int(d[5:7])
+        nd = date(y + 1, 1, 1) if m == 12 else date(y, m + 1, 1)
+        out.append((date.fromordinal(nd.toordinal() - 1).isoformat(), float(o["value"])))
     return out
 
 

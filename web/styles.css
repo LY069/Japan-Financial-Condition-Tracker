@@ -37,6 +37,7 @@
 
 html { -webkit-text-size-adjust: 100%; }
 
+html, body { max-width: 100%; overflow-x: hidden; }
 body {
   margin: 0;
   font-family: var(--sans);
@@ -45,6 +46,11 @@ body {
   line-height: 1.5;
   font-size: 15px;
 }
+
+/* Never let a chart canvas or wide table push the page wider than the viewport. */
+canvas { max-width: 100%; }
+.chart-box { width: 100%; }
+#horizon-table, #methodology-table { max-width: 100%; overflow-x: auto; }
 
 .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 22px; }
 

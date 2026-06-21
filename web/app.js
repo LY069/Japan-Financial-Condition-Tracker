@@ -103,6 +103,22 @@
   function dates(pairs) { return (pairs || []).map(function (p) { return p[0]; }); }
   function values(pairs) { return (pairs || []).map(function (p) { return p[1]; }); }
 
+  // Map an observations array onto a given label (date) axis by date, so series
+  // of different lengths/ranges never misalign by index. Missing -> null.
+  function alignTo(labels, pairs) {
+    var m = {};
+    (pairs || []).forEach(function (p) { m[p[0]] = p[1]; });
+    return labels.map(function (L) { return L in m ? m[L] : null; });
+  }
+  // Union of dates across several observation arrays, sorted.
+  function unionDates() {
+    var set = {};
+    for (var i = 0; i < arguments.length; i++) {
+      (arguments[i] || []).forEach(function (p) { set[p[0]] = 1; });
+    }
+    return Object.keys(set).sort();
+  }
+
   /* ----------------------------------------------------------------------
      Chart.js shared defaults
      ---------------------------------------------------------------------- */
@@ -260,12 +276,14 @@
     var ds, labels, cfgPlugins = { legend: { position: "bottom" }, annotationZero: true };
 
     if (mode === "all" || !S[mode]) {
-      labels = dates(S.real_1y_xp.observations);
+      labels = unionDates(S.real_1y_xp.observations, S.real_3y_xp.observations,
+        S.real_10y_xp.observations);
       ds = [
-        lineDS("Real 1Y", values(S.real_1y_xp.observations), COLORS.green),
-        lineDS("Real 3Y", values(S.real_3y_xp.observations), COLORS.amber),
-        lineDS("Real 10Y", values(S.real_10y_xp.observations), COLORS.navy)
+        lineDS("Real 1Y", alignTo(labels, S.real_1y_xp.observations), COLORS.green),
+        lineDS("Real 3Y", alignTo(labels, S.real_3y_xp.observations), COLORS.amber),
+        lineDS("Real 10Y", alignTo(labels, S.real_10y_xp.observations), COLORS.navy)
       ];
+      ds.forEach(function (d) { d.spanGaps = true; });
       if (readout) readout.innerHTML = "";
     } else {
       var s = S[mode], vals = values(s.observations), st = meanStd(vals);
@@ -324,14 +342,16 @@
       sel.addEventListener("change", function () { renderRealRates(data, sel.value); });
     }
 
-    // Policy rate + 10Y JGB
+    // Policy rate + 10Y JGB — on the policy-rate date axis (2004+), 10Y mapped
+    // onto it by date so the two series stay aligned.
+    var pLabels = dates(S.policy_rate.observations);
     new Chart(document.getElementById("policyChart"), Object.assign({}, baseLineOpts, {
       type: "line",
       data: {
-        labels: dates(S.policy_rate.observations),
+        labels: pLabels,
         datasets: [
           lineDS("Policy rate", values(S.policy_rate.observations), COLORS.navy),
-          lineDS("10Y JGB", values(S.jgb_10y.observations), COLORS.red)
+          lineDS("10Y JGB", alignTo(pLabels, S.jgb_10y.observations), COLORS.red)
         ]
       },
       options: Object.assign({}, baseLineOpts, {
