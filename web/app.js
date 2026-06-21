@@ -199,7 +199,8 @@
       { label: "Real policy rate", value: fmtPct(h.real_policy_rate),
         sub: "policy − 1y exp. inflation", cls: scoreClass(-h.real_policy_rate) },
       { label: "Rate gap vs natural", value: fmtPct(h.rate_gap),
-        sub: "real rate − midpoint (−0.15%)", cls: scoreClass(-h.rate_gap), band: true },
+        sub: "real policy rate − r* midpoint (" + fmtPct(h.natural_rate_mid) + ")",
+        cls: scoreClass(-h.rate_gap), band: true },
       { label: "Core CPI (y/y)", value: fmtPct(h.core_cpi_yoy), sub: "ex-fresh food", cls: "neu" },
       { label: "10Y JGB yield", value: fmtPct(h.jgb_10y), sub: "benchmark long rate", cls: "neu" }
     ];
@@ -228,7 +229,8 @@
       return Math.max(0, Math.min(100, ((v - vmin) / (vmax - vmin)) * 100));
     };
     var rangeL = pos(lo), rangeR = pos(hi);
-    return '<div class="band-viz" title="Natural-rate band −0.85% … +0.55%, midpoint −0.15%">' +
+    return '<div class="band-viz" title="Natural-rate band ' + lo.toFixed(2) + ' … ' + hi.toFixed(2) +
+      ', midpoint ' + mid.toFixed(2) + '">' +
       '<div class="band-track">' +
         '<span class="band-range" style="left:' + rangeL + '%;width:' + (rangeR - rangeL) + '%"></span>' +
         '<span class="band-mid" style="left:' + pos(mid) + '%"></span>' +
@@ -239,6 +241,73 @@
     '</div>';
   }
 
+  // Mean / std of an array (ignoring nulls).
+  function meanStd(arr) {
+    var v = arr.filter(function (x) { return x != null && !isNaN(x); });
+    if (!v.length) return { mean: 0, sd: 1, n: 0 };
+    var m = v.reduce(function (a, b) { return a + b; }, 0) / v.length;
+    var sd = Math.sqrt(v.reduce(function (a, b) { return a + (b - m) * (b - m); }, 0) / v.length) || 1;
+    return { mean: m, sd: sd, n: v.length };
+  }
+
+  var _rrChart = null;
+  var RR_LABELS = { real_1y_xp: "1Y", real_3y_xp: "3Y", real_10y_xp: "10Y" };
+  // Real-rate-by-maturity chart: "all" (3 lines) or a single maturity with its
+  // long-run average and ±1σ / ±2σ bands. Uses ex-post series (long history).
+  function renderRealRates(data, mode) {
+    var S = data.series, readout = document.getElementById("realrate-readout");
+    if (_rrChart) { _rrChart.destroy(); _rrChart = null; }
+    var ds, labels, cfgPlugins = { legend: { position: "bottom" }, annotationZero: true };
+
+    if (mode === "all" || !S[mode]) {
+      labels = dates(S.real_1y_xp.observations);
+      ds = [
+        lineDS("Real 1Y", values(S.real_1y_xp.observations), COLORS.green),
+        lineDS("Real 3Y", values(S.real_3y_xp.observations), COLORS.amber),
+        lineDS("Real 10Y", values(S.real_10y_xp.observations), COLORS.navy)
+      ];
+      if (readout) readout.innerHTML = "";
+    } else {
+      var s = S[mode], vals = values(s.observations), st = meanStd(vals);
+      labels = dates(s.observations);
+      var latest = s.latest_value, z = (latest - st.mean) / st.sd, acc = -z;
+      var col = colorByScore(acc);
+      var flat = function (y) { return labels.map(function () { return y; }); };
+      ds = [
+        { label: "+1σ", data: flat(st.mean + st.sd), borderColor: "rgba(31,56,100,.25)",
+          borderWidth: 0, pointRadius: 0, fill: "+1", backgroundColor: "rgba(31,56,100,.07)" },
+        { label: "-1σ", data: flat(st.mean - st.sd), borderColor: "rgba(31,56,100,.25)",
+          borderWidth: 0, pointRadius: 0, fill: false },
+        { label: "+2σ", data: flat(st.mean + 2 * st.sd), borderColor: "rgba(31,56,100,.18)",
+          borderWidth: 1, borderDash: [3, 3], pointRadius: 0, fill: false },
+        { label: "-2σ", data: flat(st.mean - 2 * st.sd), borderColor: "rgba(31,56,100,.18)",
+          borderWidth: 1, borderDash: [3, 3], pointRadius: 0, fill: false },
+        { label: "Long-run average", data: flat(st.mean), borderColor: COLORS.slate,
+          borderWidth: 1.5, borderDash: [6, 4], pointRadius: 0 },
+        lineDS("Real " + RR_LABELS[mode], vals, col, 2.5)
+      ];
+      cfgPlugins.legend = { position: "bottom",
+        labels: { filter: function (it) { return ["+1σ", "-1σ", "+2σ", "-2σ"].indexOf(it.text) === -1; } } };
+      if (readout) {
+        readout.innerHTML =
+          '<span class="rr-stat"><b>Latest</b> ' + fmtPct(latest) + "</span>" +
+          '<span class="rr-stat"><b>Long-run avg</b> ' + fmtPct(st.mean) +
+            " <span class='rr-since'>(since " + (labels[0] || "").slice(0, 7) + ", n=" + st.n + ")</span></span>" +
+          '<span class="rr-stat"><b>σ</b> ' + st.sd.toFixed(2) + "pp</span>" +
+          '<span class="rr-stat"><b>z</b> ' + fmtSignedScore(z) + "</span>" +
+          '<span class="chip ' + scoreClass(acc) + '">' + fmtSignedScore(acc) + " · " + labelByScore(acc) + "</span>";
+      }
+    }
+    _rrChart = new Chart(document.getElementById("realRatesChart"), {
+      type: "line",
+      data: { labels: labels, datasets: ds },
+      options: Object.assign({}, baseLineOpts, {
+        plugins: cfgPlugins,
+        scales: { x: timeScale(), y: yScale({ title: { display: true, text: "%" } }) }
+      })
+    });
+  }
+
   // 3: Stage 1 ---------------------------------------------------------------
   function renderStage1(data) {
     var s = data.stages.stage1;
@@ -247,22 +316,13 @@
     setHTML("stage1-dir", dirChip(s.direction));
 
     var S = data.series;
-    // Real rates by maturity
-    new Chart(document.getElementById("realRatesChart"), Object.assign({}, baseLineOpts, {
-      type: "line",
-      data: {
-        labels: dates(S.real_1y.observations),
-        datasets: [
-          lineDS("Real 1Y", values(S.real_1y.observations), COLORS.green),
-          lineDS("Real 3Y", values(S.real_3y.observations), COLORS.amber),
-          lineDS("Real 10Y", values(S.real_10y.observations), COLORS.navy)
-        ]
-      },
-      options: Object.assign({}, baseLineOpts, {
-        plugins: { legend: { position: "bottom" }, annotationZero: true },
-        scales: { x: timeScale(), y: yScale({ title: { display: true, text: "%" } }) }
-      })
-    }));
+    // Real rates by maturity — with an All / single-maturity pulldown.
+    renderRealRates(data, "all");
+    var sel = document.getElementById("realrate-mode");
+    if (sel && !sel._wired) {
+      sel._wired = true;
+      sel.addEventListener("change", function () { renderRealRates(data, sel.value); });
+    }
 
     // Policy rate + 10Y JGB
     new Chart(document.getElementById("policyChart"), Object.assign({}, baseLineOpts, {
@@ -304,33 +364,38 @@
         "</div>";
     }
 
-    var labels = dates(S.real_policy_rate.observations);
+    // Monthly-aligned series (band ffilled to the same x-axis as the policy rate).
+    var nc = data.natrate_chart || { labels: dates(S.real_policy_rate.observations),
+      high: values(S.natural_rate_high.observations), low: values(S.natural_rate_low.observations),
+      mid: values(S.natural_rate_mid.observations), real_policy_rate: values(S.real_policy_rate.observations) };
     new Chart(document.getElementById("natRateChart"), Object.assign({}, baseLineOpts, {
       type: "line",
       data: {
-        labels: labels,
+        labels: nc.labels,
         datasets: [
           // band drawn as two stacked-style area lines (high w/ fill down to low)
           {
             label: "Natural-rate band (high)",
-            data: values(S.natural_rate_high.observations),
+            data: nc.high,
             borderColor: "rgba(31,56,100,.35)", borderWidth: 1,
             borderDash: [4, 3], pointRadius: 0, fill: "+1",
-            backgroundColor: "rgba(31,56,100,.08)"
+            backgroundColor: "rgba(31,56,100,.08)", spanGaps: true
           },
           {
             label: "Natural-rate band (low)",
-            data: values(S.natural_rate_low.observations),
+            data: nc.low,
             borderColor: "rgba(31,56,100,.35)", borderWidth: 1,
-            borderDash: [4, 3], pointRadius: 0, fill: false
+            borderDash: [4, 3], pointRadius: 0, fill: false, spanGaps: true
           },
           {
             label: "Natural rate (midpoint)",
-            data: values(S.natural_rate_mid.observations),
+            data: nc.mid,
             borderColor: COLORS.slate, borderWidth: 1.5, pointRadius: 0,
-            borderDash: [2, 2]
+            borderDash: [2, 2], spanGaps: true
           },
-          lineDS("Real policy rate", values(S.real_policy_rate.observations), COLORS.navy, 2.5)
+          { label: "Real policy rate", data: nc.real_policy_rate,
+            borderColor: COLORS.navy, backgroundColor: COLORS.navy, borderWidth: 2.5,
+            pointRadius: 0, tension: .15, fill: false, spanGaps: true }
         ]
       },
       options: Object.assign({}, baseLineOpts, {

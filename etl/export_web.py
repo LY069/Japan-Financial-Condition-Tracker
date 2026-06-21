@@ -134,6 +134,44 @@ def realrate_horizons(conn):
     return rows
 
 
+def natrate_chart(conn):
+    """Build a single monthly-aligned series for the natural-rate panel so the
+    quarterly band and the monthly real policy rate share one x-axis (fixes the
+    index-misalignment that truncated the band). Band is forward-filled; the real
+    policy rate is placed by date (null before it exists)."""
+    rpr = {d[:7]: v for d, v in get_series(conn, "real_policy_rate")}
+    band = {k: {d[:7]: v for d, v in get_series(conn, "natural_rate_" + k)}
+            for k in ("low", "mid", "high")}
+    keys = set(rpr)
+    for k in band:
+        keys |= set(band[k])
+    if not keys:
+        return {"labels": [], "low": [], "mid": [], "high": [], "real_policy_rate": []}
+    start, end = min(keys), max(keys)
+    sy, sm = int(start[:4]), int(start[5:7])
+    ey, em = int(end[:4]), int(end[5:7])
+    labels, ym = [], (sy, sm)
+    while ym <= (ey, em):
+        y, m = ym
+        last = (date(y, 12, 31) if m == 12
+                else date.fromordinal(date(y, m + 1, 1).toordinal() - 1)).isoformat()
+        labels.append(last)
+        ym = (y + 1, 1) if m == 12 else (y, m + 1)
+
+    def ffill(series):
+        out, last = [], None
+        for L in labels:
+            if L[:7] in series:
+                last = series[L[:7]]
+            out.append(last)
+        return out
+    return {
+        "labels": labels,
+        "low": ffill(band["low"]), "mid": ffill(band["mid"]), "high": ffill(band["high"]),
+        "real_policy_rate": [rpr.get(L[:7]) for L in labels],
+    }
+
+
 def build_assessment(conn, headline):
     pr = headline["policy_rate"]
     rp = headline["real_policy_rate"]
@@ -284,6 +322,7 @@ def main():
         "series": series,
         "indicator_series": indicator_series,
         "real_rate_horizons": realrate_horizons(conn),
+        "natrate_chart": natrate_chart(conn),
     }
     doc["meta"]["score_window"] = ("Most axes are z-scored over Jan 2005–present (monthly). The "
                                    "headline real-rate axis is scored over its LONGEST available "

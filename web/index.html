@@ -87,11 +87,18 @@
         <div class="card">
           <div class="card-head">
             <h3>Real interest rates by maturity</h3>
-            <span class="hint">nominal − expected inflation, %</span>
+            <select id="realrate-mode" class="mini-select" aria-label="Real-rate view">
+              <option value="all">All maturities</option>
+              <option value="real_1y_xp">1-year — separate</option>
+              <option value="real_3y_xp">3-year — separate</option>
+              <option value="real_10y_xp">10-year — separate</option>
+            </select>
           </div>
           <div class="chart-box"><canvas id="realRatesChart"></canvas></div>
+          <div class="rr-readout" id="realrate-readout"></div>
           <p class="note" id="real-rates-note">
-            Short/medium real rates remain clearly negative while the long-end real rate has turned positive.
+            Ex-post real rates (nominal − realized core CPI). Pick a single maturity to see its
+            long-run average and ±1σ / ±2σ bands — a point below the average is accommodative.
           </p>
         </div>
         <div class="card">
@@ -141,7 +148,7 @@
       <div class="card">
         <div class="card-head">
           <h3>Real policy rate against the natural-rate band</h3>
-          <span class="hint">band −0.85% … +0.55%, midpoint −0.15%</span>
+          <span class="hint">BoJ six-model estimates, quarterly 1992–2025</span>
         </div>
         <div class="chart-box tall"><canvas id="natRateChart"></canvas></div>
         <p class="note">Two complementary reads: the <strong>level</strong> read above (where the
