@@ -78,29 +78,36 @@ def run_estat(conn):
     # MIC CPI: core (ex-fresh food), national, monthly. statsDataId is configurable.
     sid = "core_cpi_yoy"
     stats_id = os.environ.get("ESTAT_CPI_CORE_ID", "0003427113")
-    cd_cat = os.environ.get("ESTAT_CPI_CAT")        # ex-fresh-food item code (table-specific)
-    cd_area = os.environ.get("ESTAT_CPI_AREA", "00000")   # national
+    # A single national monthly series spans only a few hundred months; if a query
+    # returns more, the narrowing didn't bite and the series is contaminated, so we
+    # discard it and keep the clean FRED CPI fallback already in the DB.
+    MAX_MONTHS = 900
 
-    # The default table is the full 2020-base CPI database (many items). Narrow it
-    # to the genuine 'ex-fresh-food total', national series via metadata lookup.
-    if not cd_cat:
+    # Build narrowing filters mapped to the table's ACTUAL class dimensions.
+    filters = {}
+    cat_env = os.environ.get("ESTAT_CPI_CAT")
+    if cat_env:
+        filters["cat01"] = cat_env
+    else:
         try:
-            codes = S.estat_meta_find(stats_id, app, ["生鮮食品を除く総合"])
-            cat_codes = {k: v for k, v in codes.items() if k.startswith("cat")}
-            if cat_codes:
-                cd_cat = next(iter(cat_codes.values()))
-                area = S.estat_meta_find(stats_id, app, ["全国"])
-                if any(k == "area" for k in area):
-                    cd_area = area["area"]
-                print(f"  [ESTAT] resolved ex-fresh-food code={cd_cat}, area={cd_area}")
+            filters.update(S.estat_meta_find(stats_id, app, ["生鮮食品を除く総合"]))
+            filters.update(S.estat_meta_find(stats_id, app, ["全国"]))
         except Exception as e:
-            print(f"  [ESTAT] metadata lookup failed ({e}); querying without item narrowing")
+            print(f"  [ESTAT] metadata lookup failed ({e}); will guard on row count")
+    filters.setdefault("area", os.environ.get("ESTAT_CPI_AREA", "00000"))
+    print(f"  [ESTAT] narrowing filters: {filters}")
+
     try:
-        levels = S.fetch_estat(stats_id, app, cd_cat=cd_cat, cd_area=cd_area, limit=2000)
+        levels = S.fetch_estat(stats_id, app, filters=filters, limit=2000)
         rows = S.to_yoy(levels)
-        if rows:
+        if rows and len(rows) <= MAX_MONTHS:
             n += upsert_observations(conn, sid, rows, "ESTAT")
-            print(f"  [ESTAT] {sid}: {len(rows)} obs (id={stats_id}, cat={cd_cat}, area={cd_area})")
+            print(f"  [ESTAT] {sid}: {len(rows)} obs (id={stats_id}, filters={filters})")
+            return n
+        if rows:
+            print(f"  [ESTAT] {sid}: {len(rows)} rows > {MAX_MONTHS} -> not narrowed; "
+                  f"keeping FRED CPI fallback. Inspect getMetaInfo for {stats_id} and set "
+                  f"ESTAT_CPI_CAT to the ex-fresh-food item code.")
             return n
         print(f"  [ESTAT] {sid}: id={stats_id} returned no usable rows; trying discovery")
     except Exception as e:
@@ -112,9 +119,9 @@ def run_estat(conn):
         print(f"  [ESTAT] discovery found {len(candidates)} CPI tables; trying top 3")
         for cid, title in candidates[:3]:
             try:
-                levels = S.fetch_estat(cid, app, cd_area=cd_area, limit=2000)
+                levels = S.fetch_estat(cid, app, filters=filters, limit=2000)
                 rows = S.to_yoy(levels)
-                if rows:
+                if rows and len(rows) <= MAX_MONTHS:
                     n += upsert_observations(conn, sid, rows, "ESTAT")
                     print(f"  [ESTAT] {sid}: {len(rows)} obs via discovered id={cid} ({title[:40]})")
                     print(f"          set ESTAT_CPI_CORE_ID={cid} to lock this in.")
