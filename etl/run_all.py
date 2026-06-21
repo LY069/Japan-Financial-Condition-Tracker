@@ -41,6 +41,7 @@ def main():
         run("seed_data.py")
     if not args.no_fetch:
         run("fetch.py")
+    run("dedupe_monthly.py")   # one row per series-month (month-end); guards chart alignment
     run("build_indicators.py")
     run("export_web.py")
     run("export_excel.py")
