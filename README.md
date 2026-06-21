@@ -12,9 +12,11 @@ It answers two questions the BoJ itself poses:
 
 The tracker ships as **four connected artifacts**:
 
+> 🌐 **Live dashboard:** https://ly069.github.io/Japan-Financial-Condition-Tracker/ — auto-redeployed by GitHub Pages after every data refresh.
+
 | Artifact | File | What it is |
 |---|---|---|
-| 📊 **Web dashboard** | `web/index.html` | Interactive single-page app mirroring the BoJ two-stage framework. Open directly in a browser. |
+| 📊 **Web dashboard** | `web/index.html` ([live](https://ly069.github.io/Japan-Financial-Condition-Tracker/)) | Interactive single-page app mirroring the BoJ two-stage framework. Open directly in a browser. |
 | 🗄️ **Database** | `data/jfct.db` | SQLite single-source-of-truth: catalog, observations, computed indicators. |
 | 📒 **Excel workbook** | `Japan_FCI_Tracker.xlsx` | Refreshable workbook (Dashboard + per-stage sheets + wide data + indicators + catalog). |
 | 📝 **Assessment report** | `report/Japan_Financial_Conditions_Assessment.md` | Economist's assessment of conditions, hike impact, and the rate-path verdict. |
