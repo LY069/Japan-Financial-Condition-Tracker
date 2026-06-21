@@ -27,6 +27,13 @@ jobs:
         env:
           FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
           ESTAT_APP_ID: ${{ secrets.ESTAT_APP_ID }}
+          # Pinned e-Stat CPI codes (2020-base table 0003427113): the genuine
+          # ex-fresh-food core, index presentation, national. Keeps core_cpi_yoy
+          # deterministic instead of relying on name-matching each run.
+          ESTAT_CPI_CORE_ID: "0003427113"
+          ESTAT_CPI_CAT: "0161"
+          ESTAT_CPI_TAB: "1"
+          ESTAT_CPI_AREA: "00000"
         run: python etl/run_all.py
 
       - name: Commit refreshed artifacts
