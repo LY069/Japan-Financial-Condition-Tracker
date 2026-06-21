@@ -258,19 +258,8 @@ def build():
         ("2020-09-30", 0.05), ("2022-06-30", 0.45), ("2024-06-30", 0.6),
         ("2026-03-31", 0.7),
     ], qdates, noise=0.03)
-    # Natural rate band (six-model range), recently edging up.
-    series["natural_rate_low"] = interp([
-        ("2005-03-31", -1.0), ("2013-06-30", -1.3), ("2020-06-30", -1.2),
-        ("2023-03-31", -1.0), ("2025-09-30", -0.9), ("2026-03-31", -0.85),
-    ], qdates, noise=0.0)
-    series["natural_rate_mid"] = interp([
-        ("2005-03-31", -0.1), ("2013-06-30", -0.5), ("2020-06-30", -0.45),
-        ("2023-03-31", -0.25), ("2025-09-30", -0.20), ("2026-03-31", -0.15),
-    ], qdates, noise=0.0)
-    series["natural_rate_high"] = interp([
-        ("2005-03-31", 0.8), ("2013-06-30", 0.3), ("2020-06-30", 0.35),
-        ("2023-03-31", 0.5), ("2025-09-30", 0.5), ("2026-03-31", 0.55),
-    ], qdates, noise=0.0)
+    # Natural-rate band is loaded from REAL BoJ six-model data (see main()), not
+    # synthesized here.
 
     return series
 
@@ -283,6 +272,12 @@ def main():
     total = 0
     for sid, rows in series.items():
         total += upsert_observations(conn, sid, rows, source="SEED")
+    # Real BoJ six-model natural-rate band (data/seed/natural_rate_band.csv).
+    try:
+        from load_neutral_rate import read_csv, load_band
+        load_band(conn, read_csv())
+    except Exception as e:
+        print(f"  (natural-rate band not loaded: {e})")
     set_meta(conn, "seeded", "true")
     set_meta(conn, "data_mode", "SEED (illustrative; run etl/fetch.py for live data)")
     print(f"Seeded {len(series)} series, {total} observations into the DB.")
