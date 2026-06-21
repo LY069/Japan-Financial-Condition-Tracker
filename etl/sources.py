@@ -189,11 +189,12 @@ ESTAT_META = "https://api.e-stat.go.jp/rest/3.0/app/json/getMetaInfo"
 ESTAT_CPI_STATSCODE = "00200573"   # MIC "Consumer Price Index" stats provider code
 
 
-def estat_meta_find(stats_data_id: str, app_id: str, want, timeout: int = TIMEOUT):
-    """Return {class_id: code} for the class entries whose name matches all of `want`.
+def estat_meta(stats_data_id: str, app_id: str, timeout: int = TIMEOUT):
+    """Read a table's full dimension metadata via getMetaInfo.
 
-    Used to pin the 'ex-fresh-food total' item code and the national area code so
-    the big CPI table can be narrowed to a single clean monthly series.
+    Returns {class_id: {"name": dimension_name, "items": [(code, name), ...]}} for
+    every dimension (tab / cat01 / area / time ...). One call, reused to pin the
+    item, index-tab and area codes and to log candidates.
     """
     url = f"{ESTAT_META}?appId={app_id}&statsDataId={stats_data_id}"
     data = json.loads(_get(url, timeout=timeout))
@@ -201,17 +202,35 @@ def estat_meta_find(stats_data_id: str, app_id: str, want, timeout: int = TIMEOU
             .get("CLASS_INF", {}).get("CLASS_OBJ", []))
     if isinstance(objs, dict):
         objs = [objs]
-    found = {}
+    meta = {}
     for obj in objs:
         cid = obj.get("@id", "")
         classes = obj.get("CLASS", [])
         if isinstance(classes, dict):
             classes = [classes]
-        for c in classes:
-            name = c.get("@name", "")
-            if all(w in name for w in want):
-                found[cid] = c.get("@code", "")
-                break
+        items = [(c.get("@code", ""), c.get("@name", "")) for c in classes]
+        meta[cid] = {"name": obj.get("@name", ""), "items": items}
+    return meta
+
+
+def meta_pick(meta, class_id, want, avoid=()):
+    """Return the code in `meta[class_id]` whose name contains all `want` and none
+    of `avoid`; None if not found."""
+    for code, name in meta.get(class_id, {}).get("items", []):
+        if all(w in name for w in want) and not any(a in name for a in avoid):
+            return code
+    return None
+
+
+def estat_meta_find(stats_data_id: str, app_id: str, want, timeout: int = TIMEOUT):
+    """Backwards-compatible helper: {class_id: code} for the first item per
+    dimension whose name contains all of `want`."""
+    meta = estat_meta(stats_data_id, app_id, timeout=timeout)
+    found = {}
+    for cid in meta:
+        code = meta_pick(meta, cid, want)
+        if code is not None:
+            found[cid] = code
     return found
 
 

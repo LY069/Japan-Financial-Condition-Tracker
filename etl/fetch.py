@@ -4,6 +4,11 @@ Usage
 -----
     export FRED_API_KEY=xxxx        # https://fred.stlouisfed.org/docs/api/api_key.html
     export ESTAT_APP_ID=yyyy        # https://www.e-stat.go.jp/api/ (free)
+    # Optional e-Stat CPI overrides (auto-resolved from getMetaInfo otherwise):
+    #   ESTAT_CPI_CORE_ID  CPI table id (default 0003427113)
+    #   ESTAT_CPI_CAT      ex-fresh-food item code (e.g. 9205)
+    #   ESTAT_CPI_TAB      presentation-tab code for the index (e.g. 01)
+    #   ESTAT_CPI_AREA     area code (default 00000 = national)
     python etl/fetch.py             # refresh everything available
     python etl/fetch.py --only mof  # just MoF JGB curve
     python etl/fetch.py --boj-dir ./boj_exports   # ingest BoJ CSV exports
@@ -84,16 +89,39 @@ def run_estat(conn):
     MAX_MONTHS = 900
 
     # Build narrowing filters mapped to the table's ACTUAL class dimensions.
+    # The CPI table is split by item (cat01), presentation tab (index vs y/y vs
+    # contribution) and area, so pinning all three collapses it to one monthly
+    # series. We read the metadata once and resolve each code by name.
     filters = {}
-    cat_env = os.environ.get("ESTAT_CPI_CAT")
-    if cat_env:
-        filters["cat01"] = cat_env
-    else:
-        try:
-            filters.update(S.estat_meta_find(stats_id, app, ["生鮮食品を除く総合"]))
-            filters.update(S.estat_meta_find(stats_id, app, ["全国"]))
-        except Exception as e:
-            print(f"  [ESTAT] metadata lookup failed ({e}); will guard on row count")
+    try:
+        meta = S.estat_meta(stats_id, app)
+        # Identify dimension ids by their item contents (robust to id naming).
+        item_dim = next((cid for cid in meta
+                         if S.meta_pick(meta, cid, ["生鮮食品を除く総合"])), None)
+        tab_dim = next((cid for cid in meta if S.meta_pick(meta, cid, ["指数"])), None)
+        area_dim = next((cid for cid in meta if S.meta_pick(meta, cid, ["全国"])), None)
+        if item_dim:
+            filters[item_dim] = S.meta_pick(meta, item_dim, ["生鮮食品を除く総合"])
+        if tab_dim:
+            # index only, excluding y/y change and contribution presentations
+            filters[tab_dim] = S.meta_pick(meta, tab_dim, ["指数"],
+                                           avoid=["前年", "前月", "寄与"])
+        if area_dim:
+            filters[area_dim] = S.meta_pick(meta, area_dim, ["全国"])
+        # Self-reveal: log the candidate ex-fresh-food item codes for pinning.
+        if item_dim:
+            cands = [f"{c}={nm}" for c, nm in meta[item_dim]["items"]
+                     if ("除く" in nm and "総合" in nm)][:6]
+            print(f"  [ESTAT] item dim '{item_dim}' ex-food candidates: {cands}")
+            print(f"  [ESTAT] to pin, set ESTAT_CPI_CAT (item) / ESTAT_CPI_TAB / ESTAT_CPI_AREA")
+    except Exception as e:
+        print(f"  [ESTAT] metadata lookup failed ({e}); will guard on row count")
+
+    # Explicit env overrides win over auto-resolution.
+    if os.environ.get("ESTAT_CPI_CAT"):
+        filters["cat01"] = os.environ["ESTAT_CPI_CAT"]
+    if os.environ.get("ESTAT_CPI_TAB"):
+        filters["tab"] = os.environ["ESTAT_CPI_TAB"]
     filters.setdefault("area", os.environ.get("ESTAT_CPI_AREA", "00000"))
     print(f"  [ESTAT] narrowing filters: {filters}")
 
