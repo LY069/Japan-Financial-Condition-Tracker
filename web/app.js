@@ -561,14 +561,19 @@
     setText("horizon-note", (data.meta && data.meta.score_window) || "");
     var body = rows.map(function (r) {
       var cls = scoreClass(r.score);
-      var head = r.window.indexOf("headline") >= 0 ? ' class="hz-head"' : "";
-      return "<tr" + head + "><td>" + r.window + '</td><td class="src">' + r.basis +
+      var rowCls = r.role === "headline" ? ' class="hz-head"'
+        : r.role === "reference" ? ' class="hz-ref"' : "";
+      var mark = r.role === "reference" ? ' <sup>*</sup>' : "";
+      return "<tr" + rowCls + "><td>" + r.window + mark + '</td><td class="src">' + r.basis +
         '</td><td class="num"><span class="chip ' + cls + '">' + fmtSignedScore(r.score) +
         "</span></td><td>" + r.label + "</td></tr>";
     }).join("");
+    var rr = (data.axes || []).filter(function (a) { return a.key === "real_rate"; })[0];
+    var refNote = rr && rr.reference && rr.reference.note ? rr.reference.note : "";
+    var foot = refNote ? '<p class="hz-foot"><sup>*</sup> ' + refNote + "</p>" : "";
     el.innerHTML = '<table class="hz-tbl"><thead><tr><th>Baseline window</th>' +
       "<th>Real-rate basis</th><th class=\"num\">Score</th><th>Assessment</th></tr></thead>" +
-      "<tbody>" + body + "</tbody></table>";
+      "<tbody>" + body + "</tbody></table>" + foot;
   }
 
   // 9: Methodology table — weights & assumptions for every indicator ---------
