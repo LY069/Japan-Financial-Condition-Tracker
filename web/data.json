@@ -2,7 +2,7 @@
   "meta": {
     "title": "Japan Financial Conditions Tracker",
     "framework": "Bank of Japan Review 2026-E-4 (two-stage assessment of financial conditions)",
-    "generated_utc": "2026-06-26T22:20:02+00:00",
+    "generated_utc": "2026-06-29T22:15:36+00:00",
     "data_mode": "LIVE (official sources) + SEED fallback for un-fetched series",
     "latest_date": "2026-06-30",
     "source_note": "Seed values are illustrative approximations anchored to recent observations; run etl/fetch.py for authoritative data from BoJ/MoF/e-Stat/FRED.",
@@ -18,17 +18,17 @@
   "headline": {
     "latest_date": "2026-06-30",
     "policy_rate": 1.0,
-    "fci_score": 0.8452,
+    "fci_score": 0.8454,
     "fci_label": "Accommodative",
-    "stage1_score": 0.3188,
-    "stage2_score": 0.9768,
+    "stage1_score": 0.3189,
+    "stage2_score": 0.9771,
     "real_policy_rate": -0.9793,
     "rate_gap": -0.6233,
     "natural_rate_low": -0.935,
     "natural_rate_mid": -0.356,
     "natural_rate_high": 0.53,
     "core_cpi_yoy": 1.5095,
-    "jgb_10y": 2.6551,
+    "jgb_10y": 2.6528,
     "fci_direction": {
       "label": "Stable",
       "delta": 0.081,
@@ -56,7 +56,7 @@
     {
       "key": "real_rate",
       "label": "Real interest rates (Stage 1)",
-      "score": 0.3188,
+      "score": 0.3189,
       "label_text": "Mildly accommodative",
       "direction": {
         "label": "Easing",
@@ -111,11 +111,11 @@
     {
       "key": "asset_prices",
       "label": "Asset prices",
-      "score": 3.1617,
+      "score": 3.1628,
       "label_text": "Accommodative",
       "direction": {
         "label": "Easing",
-        "delta": 0.714,
+        "delta": 0.716,
         "lag_date": "2025-12-31"
       },
       "members": [
@@ -142,7 +142,7 @@
   ],
   "stages": {
     "stage1": {
-      "score": 0.3188,
+      "score": 0.3189,
       "label_text": "Mildly accommodative",
       "direction": {
         "label": "Easing",
@@ -151,7 +151,7 @@
       }
     },
     "stage2": {
-      "score": 0.9768,
+      "score": 0.9771,
       "label_text": "Accommodative",
       "direction": {
         "label": "Stable",
@@ -1278,7 +1278,7 @@
       "source_url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/",
       "notes": "MoF reference interest rates (daily) aggregated to monthly.",
       "latest_date": "2026-06-30",
-      "latest_value": 1.1473,
+      "latest_value": 1.1486,
       "score": null,
       "accommodation": null,
       "direction": {
@@ -3669,7 +3669,7 @@
         ],
         [
           "2026-06-30",
-          1.1473
+          1.1486
         ]
       ]
     },
@@ -3686,7 +3686,7 @@
       "source_url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/",
       "notes": "MoF reference interest rates.",
       "latest_date": "2026-06-30",
-      "latest_value": 1.4128,
+      "latest_value": 1.4126,
       "score": null,
       "accommodation": null,
       "direction": {
@@ -6125,7 +6125,7 @@
         ],
         [
           "2026-06-30",
-          1.4128
+          1.4126
         ]
       ]
     },
@@ -6142,7 +6142,7 @@
       "source_url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/",
       "notes": "MoF reference interest rates.",
       "latest_date": "2026-06-30",
-      "latest_value": 1.9399,
+      "latest_value": 1.9387,
       "score": null,
       "accommodation": null,
       "direction": {
@@ -8637,7 +8637,7 @@
         ],
         [
           "2026-06-30",
-          1.9399
+          1.9387
         ]
       ]
     },
@@ -8654,7 +8654,7 @@
       "source_url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/",
       "notes": "Benchmark long-term rate.",
       "latest_date": "2026-06-30",
-      "latest_value": 2.6551,
+      "latest_value": 2.6528,
       "score": null,
       "accommodation": null,
       "direction": {
@@ -10581,7 +10581,7 @@
         ],
         [
           "2026-06-30",
-          2.6551
+          2.6528
         ]
       ]
     },
@@ -10598,7 +10598,7 @@
       "source_url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/",
       "notes": "Super-long maturity.",
       "latest_date": "2026-06-30",
-      "latest_value": 3.7971,
+      "latest_value": 3.7952,
       "score": null,
       "accommodation": null,
       "direction": {
@@ -11893,7 +11893,7 @@
         ],
         [
           "2026-06-30",
-          3.7971
+          3.7952
         ]
       ]
     },
@@ -15078,12 +15078,12 @@
       "source_url": "",
       "notes": "Nominal 1y minus 1y expected inflation. 2005+ reference (ex-ante).",
       "latest_date": "2026-06-30",
-      "latest_value": -0.832,
-      "score": 0.2619,
+      "latest_value": -0.8307,
+      "score": 0.2599,
       "accommodation": "Mildly accommodative",
       "direction": {
         "label": "Tightening",
-        "delta": -0.554,
+        "delta": -0.556,
         "lag_date": "2025-12-31"
       },
       "observations": [
@@ -16117,7 +16117,7 @@
         ],
         [
           "2026-06-30",
-          -0.832
+          -0.8307
         ]
       ]
     },
@@ -16134,12 +16134,12 @@
       "source_url": "",
       "notes": "Medium real rate (3y interpolated). 2005+ reference (ex-ante).",
       "latest_date": "2026-06-30",
-      "latest_value": -0.272,
-      "score": -0.4099,
+      "latest_value": -0.2725,
+      "score": -0.409,
       "accommodation": "Mildly restrictive",
       "direction": {
         "label": "Tightening",
-        "delta": -0.715,
+        "delta": -0.714,
         "lag_date": "2025-12-31"
       },
       "observations": [
@@ -17173,7 +17173,7 @@
         ],
         [
           "2026-06-30",
-          -0.272
+          -0.2725
         ]
       ]
     },
@@ -17190,12 +17190,12 @@
       "source_url": "",
       "notes": "Long real rate. 2005+ reference (ex-ante).",
       "latest_date": "2026-06-30",
-      "latest_value": 0.8563,
-      "score": -1.0668,
+      "latest_value": 0.854,
+      "score": -1.0639,
       "accommodation": "Restrictive",
       "direction": {
         "label": "Tightening",
-        "delta": -0.708,
+        "delta": -0.705,
         "lag_date": "2025-12-31"
       },
       "observations": [
@@ -18229,7 +18229,7 @@
         ],
         [
           "2026-06-30",
-          0.8563
+          0.854
         ]
       ]
     },
@@ -19302,8 +19302,8 @@
       "source_url": "",
       "notes": "Headline real 1y: nominal minus realized core CPI. Scored over longest history (1974+).",
       "latest_date": "2026-06-30",
-      "latest_value": -0.3622,
-      "score": 0.4321,
+      "latest_value": -0.3609,
+      "score": 0.4315,
       "accommodation": "Mildly accommodative",
       "direction": {
         "label": "Easing",
@@ -21693,7 +21693,7 @@
         ],
         [
           "2026-06-30",
-          -0.3622
+          -0.3609
         ]
       ]
     },
@@ -21710,8 +21710,8 @@
       "source_url": "",
       "notes": "Headline real 3y (2y-5y interp minus realized core CPI). Scored over longest history (1974+).",
       "latest_date": "2026-06-30",
-      "latest_value": 0.079,
-      "score": 0.3228,
+      "latest_value": 0.0785,
+      "score": 0.323,
       "accommodation": "Mildly accommodative",
       "direction": {
         "label": "Easing",
@@ -24149,7 +24149,7 @@
         ],
         [
           "2026-06-30",
-          0.079
+          0.0785
         ]
       ]
     },
@@ -24166,12 +24166,12 @@
       "source_url": "",
       "notes": "Headline real 10y: nominal minus realized core CPI. Scored over longest history (1986+).",
       "latest_date": "2026-06-30",
-      "latest_value": 1.1456,
-      "score": 0.0844,
+      "latest_value": 1.1433,
+      "score": 0.0855,
       "accommodation": "Broadly neutral",
       "direction": {
         "label": "Easing",
-        "delta": 0.238,
+        "delta": 0.239,
         "lag_date": "2025-12-31"
       },
       "observations": [
@@ -26093,7 +26093,7 @@
         ],
         [
           "2026-06-30",
-          1.1456
+          1.1433
         ]
       ]
     },
@@ -31806,12 +31806,12 @@
       "source_url": "https://www.jpx.co.jp/english/",
       "notes": "Headline equity index.",
       "latest_date": "2026-06-30",
-      "latest_value": 68197.9825,
-      "score": 4.3785,
+      "latest_value": 68258.4648,
+      "score": 4.3836,
       "accommodation": "Accommodative",
       "direction": {
         "label": "Easing",
-        "delta": 1.66,
+        "delta": 1.666,
         "lag_date": "2025-12-31"
       },
       "observations": [
@@ -32893,7 +32893,7 @@
         ],
         [
           "2026-06-30",
-          68197.9825
+          68258.4648
         ]
       ]
     },
@@ -41190,7 +41190,7 @@
       ],
       [
         "2011-09-30",
-        -0.6266
+        -0.6265
       ],
       [
         "2011-10-31",
@@ -41262,7 +41262,7 @@
       ],
       [
         "2013-03-31",
-        -0.2534
+        -0.2533
       ],
       [
         "2013-04-30",
@@ -41702,11 +41702,11 @@
       ],
       [
         "2022-05-31",
-        0.6091
+        0.609
       ],
       [
         "2022-06-30",
-        0.6862
+        0.6861
       ],
       [
         "2022-07-31",
@@ -41766,7 +41766,7 @@
       ],
       [
         "2023-09-30",
-        0.9912
+        0.9911
       ],
       [
         "2023-10-31",
@@ -41798,11 +41798,11 @@
       ],
       [
         "2024-05-31",
-        1.0777
+        1.0776
       ],
       [
         "2024-06-30",
-        1.1048
+        1.1047
       ],
       [
         "2024-07-31",
@@ -41826,7 +41826,7 @@
       ],
       [
         "2024-12-31",
-        1.0395
+        1.0394
       ],
       [
         "2025-01-31",
@@ -41858,11 +41858,11 @@
       ],
       [
         "2025-08-31",
-        0.9423
+        0.9422
       ],
       [
         "2025-09-30",
-        0.9544
+        0.9543
       ],
       [
         "2025-10-31",
@@ -41898,7 +41898,7 @@
       ],
       [
         "2026-06-30",
-        0.8452
+        0.8454
       ]
     ],
     "rate_gap": [
@@ -43958,7 +43958,7 @@
       ],
       [
         "2026-06-30",
-        0.3188
+        0.3189
       ]
     ],
     "stage2": [
@@ -44220,7 +44220,7 @@
       ],
       [
         "2010-05-31",
-        -1.4319
+        -1.4318
       ],
       [
         "2010-06-30",
@@ -44892,7 +44892,7 @@
       ],
       [
         "2024-05-31",
-        1.0227
+        1.0226
       ],
       [
         "2024-06-30",
@@ -44960,7 +44960,7 @@
       ],
       [
         "2025-10-31",
-        0.9374
+        0.9373
       ],
       [
         "2025-11-30",
@@ -44968,15 +44968,15 @@
       ],
       [
         "2025-12-31",
-        0.947
+        0.9469
       ],
       [
         "2026-01-31",
-        0.9566
+        0.9565
       ],
       [
         "2026-02-28",
-        0.9599
+        0.9598
       ],
       [
         "2026-03-31",
@@ -44992,7 +44992,7 @@
       ],
       [
         "2026-06-30",
-        0.9768
+        0.9771
       ]
     ],
     "axis::real_rate": [
@@ -45814,7 +45814,7 @@
       ],
       [
         "1992-11-30",
-        -0.3532
+        -0.3533
       ],
       [
         "1992-12-31",
@@ -47426,7 +47426,7 @@
       ],
       [
         "2026-06-30",
-        0.3188
+        0.3189
       ]
     ],
     "axis::funding_costs": [
@@ -49516,7 +49516,7 @@
       ],
       [
         "2005-07-31",
-        -0.4033
+        -0.4032
       ],
       [
         "2005-08-31",
@@ -49656,7 +49656,7 @@
       ],
       [
         "2008-06-30",
-        -0.5193
+        -0.5192
       ],
       [
         "2008-07-31",
@@ -49696,19 +49696,19 @@
       ],
       [
         "2009-04-30",
-        -1.0048
+        -1.0047
       ],
       [
         "2009-05-31",
-        -1.0307
+        -1.0306
       ],
       [
         "2009-06-30",
-        -1.0042
+        -1.0041
       ],
       [
         "2009-07-31",
-        -1.0612
+        -1.0611
       ],
       [
         "2009-08-31",
@@ -49752,7 +49752,7 @@
       ],
       [
         "2010-06-30",
-        -1.1073
+        -1.1072
       ],
       [
         "2010-07-31",
@@ -49760,7 +49760,7 @@
       ],
       [
         "2010-08-31",
-        -1.2111
+        -1.211
       ],
       [
         "2010-09-30",
@@ -49784,7 +49784,7 @@
       ],
       [
         "2011-02-28",
-        -1.2263
+        -1.2262
       ],
       [
         "2011-03-31",
@@ -49832,15 +49832,15 @@
       ],
       [
         "2012-02-29",
-        -1.3105
+        -1.3104
       ],
       [
         "2012-03-31",
-        -1.228
+        -1.2279
       ],
       [
         "2012-04-30",
-        -1.2519
+        -1.2518
       ],
       [
         "2012-05-31",
@@ -49908,7 +49908,7 @@
       ],
       [
         "2013-09-30",
-        -0.7152
+        -0.7151
       ],
       [
         "2013-10-31",
@@ -49936,7 +49936,7 @@
       ],
       [
         "2014-04-30",
-        -0.5427
+        -0.5426
       ],
       [
         "2014-05-31",
@@ -50168,7 +50168,7 @@
       ],
       [
         "2019-02-28",
-        -0.0087
+        -0.0088
       ],
       [
         "2019-03-31",
@@ -50240,7 +50240,7 @@
       ],
       [
         "2020-08-31",
-        -0.1207
+        -0.1208
       ],
       [
         "2020-09-30",
@@ -50280,7 +50280,7 @@
       ],
       [
         "2021-06-30",
-        0.3182
+        0.3181
       ],
       [
         "2021-07-31",
@@ -50292,7 +50292,7 @@
       ],
       [
         "2021-09-30",
-        0.4269
+        0.4268
       ],
       [
         "2021-10-31",
@@ -50320,11 +50320,11 @@
       ],
       [
         "2022-04-30",
-        0.6585
+        0.6584
       ],
       [
         "2022-05-31",
-        0.7062
+        0.7061
       ],
       [
         "2022-06-30",
@@ -50336,7 +50336,7 @@
       ],
       [
         "2022-08-31",
-        0.8646
+        0.8645
       ],
       [
         "2022-09-30",
@@ -50360,7 +50360,7 @@
       ],
       [
         "2023-02-28",
-        0.8493
+        0.8492
       ],
       [
         "2023-03-31",
@@ -50388,7 +50388,7 @@
       ],
       [
         "2023-09-30",
-        1.283
+        1.2829
       ],
       [
         "2023-10-31",
@@ -50412,7 +50412,7 @@
       ],
       [
         "2024-03-31",
-        1.6356
+        1.6355
       ],
       [
         "2024-04-30",
@@ -50420,7 +50420,7 @@
       ],
       [
         "2024-05-31",
-        1.7458
+        1.7457
       ],
       [
         "2024-06-30",
@@ -50432,7 +50432,7 @@
       ],
       [
         "2024-08-31",
-        1.6359
+        1.6358
       ],
       [
         "2024-09-30",
@@ -50448,19 +50448,19 @@
       ],
       [
         "2024-12-31",
-        1.8884
+        1.8883
       ],
       [
         "2025-01-31",
-        1.963
+        1.9629
       ],
       [
         "2025-02-28",
-        1.8954
+        1.8953
       ],
       [
         "2025-03-31",
-        1.8482
+        1.8481
       ],
       [
         "2025-04-30",
@@ -50468,7 +50468,7 @@
       ],
       [
         "2025-05-31",
-        1.819
+        1.8189
       ],
       [
         "2025-06-30",
@@ -50476,15 +50476,15 @@
       ],
       [
         "2025-07-31",
-        1.9698
+        1.9697
       ],
       [
         "2025-08-31",
-        2.0399
+        2.0398
       ],
       [
         "2025-09-30",
-        2.109
+        2.1089
       ],
       [
         "2025-10-31",
@@ -50496,7 +50496,7 @@
       ],
       [
         "2025-12-31",
-        2.4474
+        2.4473
       ],
       [
         "2026-01-31",
@@ -50512,15 +50512,15 @@
       ],
       [
         "2026-04-30",
-        2.7947
+        2.7946
       ],
       [
         "2026-05-31",
-        2.953
+        2.9529
       ],
       [
         "2026-06-30",
-        3.1617
+        3.1628
       ]
     ],
     "axis::funding_volumes": [
