@@ -2,7 +2,7 @@
   "meta": {
     "title": "Japan Financial Conditions Tracker",
     "framework": "Bank of Japan Review 2026-E-4 (two-stage assessment of financial conditions)",
-    "generated_utc": "2026-08-28T05:10:59+00:00",
+    "generated_utc": "2026-08-29T03:07:54+00:00",
     "data_mode": "LIVE (official sources) + SEED fallback for un-fetched series",
     "latest_date": "2026-08-31",
     "source_note": "Seed values are illustrative approximations anchored to recent observations; run etl/fetch.py for authoritative data from BoJ/MoF/e-Stat/FRED.",
@@ -111,7 +111,7 @@
     {
       "key": "asset_prices",
       "label": "Asset prices",
-      "score": 3.0005,
+      "score": 3.0006,
       "label_text": "Accommodative",
       "direction": {
         "label": "Easing",
@@ -31890,8 +31890,8 @@
       "source_url": "https://www.jpx.co.jp/english/",
       "notes": "Headline equity index.",
       "latest_date": "2026-08-31",
-      "latest_value": 66379.9289,
-      "score": 3.9335,
+      "latest_value": 66381.2779,
+      "score": 3.9336,
       "accommodation": "Accommodative",
       "direction": {
         "label": "Easing",
@@ -32985,7 +32985,7 @@
         ],
         [
           "2026-08-31",
-          66379.9289
+          66381.2779
         ]
       ]
     },
@@ -50676,7 +50676,7 @@
       ],
       [
         "2026-08-31",
-        3.0005
+        3.0006
       ]
     ],
     "axis::funding_volumes": [
