@@ -2,7 +2,7 @@
   "meta": {
     "title": "Japan Financial Conditions Tracker",
     "framework": "Bank of Japan Review 2026-E-4 (two-stage assessment of financial conditions)",
-    "generated_utc": "2026-09-07T23:25:12+00:00",
+    "generated_utc": "2026-09-08T23:17:33+00:00",
     "data_mode": "LIVE (official sources) + SEED fallback for un-fetched series",
     "latest_date": "2026-09-30",
     "source_note": "Seed values are illustrative approximations anchored to recent observations; run etl/fetch.py for authoritative data from BoJ/MoF/e-Stat/FRED.",
@@ -28,7 +28,7 @@
     "natural_rate_mid": -0.356,
     "natural_rate_high": 0.53,
     "core_cpi_yoy": 1.7921,
-    "jgb_10y": 2.9672,
+    "jgb_10y": 2.9608,
     "fci_direction": {
       "label": "Easing",
       "delta": 0.106,
@@ -111,7 +111,7 @@
     {
       "key": "asset_prices",
       "label": "Asset prices",
-      "score": 2.8664,
+      "score": 2.8665,
       "label_text": "Accommodative",
       "direction": {
         "label": "Easing",
@@ -1278,7 +1278,7 @@
       "source_url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/",
       "notes": "MoF reference interest rates (daily) aggregated to monthly.",
       "latest_date": "2026-09-30",
-      "latest_value": 1.549,
+      "latest_value": 1.552,
       "score": null,
       "accommodation": null,
       "direction": {
@@ -3681,7 +3681,7 @@
         ],
         [
           "2026-09-30",
-          1.549
+          1.552
         ]
       ]
     },
@@ -3698,7 +3698,7 @@
       "source_url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/",
       "notes": "MoF reference interest rates.",
       "latest_date": "2026-09-30",
-      "latest_value": 1.834,
+      "latest_value": 1.8376,
       "score": null,
       "accommodation": null,
       "direction": {
@@ -6149,7 +6149,7 @@
         ],
         [
           "2026-09-30",
-          1.834
+          1.8376
         ]
       ]
     },
@@ -6166,7 +6166,7 @@
       "source_url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/",
       "notes": "MoF reference interest rates.",
       "latest_date": "2026-09-30",
-      "latest_value": 2.2912,
+      "latest_value": 2.2874,
       "score": null,
       "accommodation": null,
       "direction": {
@@ -8673,7 +8673,7 @@
         ],
         [
           "2026-09-30",
-          2.2912
+          2.2874
         ]
       ]
     },
@@ -8690,7 +8690,7 @@
       "source_url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/",
       "notes": "Benchmark long-term rate.",
       "latest_date": "2026-09-30",
-      "latest_value": 2.9672,
+      "latest_value": 2.9608,
       "score": null,
       "accommodation": null,
       "direction": {
@@ -10629,7 +10629,7 @@
         ],
         [
           "2026-09-30",
-          2.9672
+          2.9608
         ]
       ]
     },
@@ -10646,7 +10646,7 @@
       "source_url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/",
       "notes": "Super-long maturity.",
       "latest_date": "2026-09-30",
-      "latest_value": 4.0675,
+      "latest_value": 4.0558,
       "score": null,
       "accommodation": null,
       "direction": {
@@ -11953,7 +11953,7 @@
         ],
         [
           "2026-09-30",
-          4.0675
+          4.0558
         ]
       ]
     },
@@ -15138,12 +15138,12 @@
       "source_url": "",
       "notes": "Nominal 1y minus 1y expected inflation. 2005+ reference (ex-ante).",
       "latest_date": "2026-09-30",
-      "latest_value": -0.4303,
-      "score": -0.3269,
+      "latest_value": -0.4273,
+      "score": -0.3313,
       "accommodation": "Mildly restrictive",
       "direction": {
         "label": "Tightening",
-        "delta": -0.833,
+        "delta": -0.838,
         "lag_date": "2026-03-31"
       },
       "observations": [
@@ -16189,7 +16189,7 @@
         ],
         [
           "2026-09-30",
-          -0.4303
+          -0.4273
         ]
       ]
     },
@@ -16206,12 +16206,12 @@
       "source_url": "",
       "notes": "Medium real rate (3y interpolated). 2005+ reference (ex-ante).",
       "latest_date": "2026-09-30",
-      "latest_value": 0.1259,
-      "score": -1.0882,
+      "latest_value": 0.127,
+      "score": -1.0901,
       "accommodation": "Restrictive",
       "direction": {
         "label": "Tightening",
-        "delta": -1.059,
+        "delta": -1.061,
         "lag_date": "2026-03-31"
       },
       "observations": [
@@ -17257,7 +17257,7 @@
         ],
         [
           "2026-09-30",
-          0.1259
+          0.127
         ]
       ]
     },
@@ -17274,12 +17274,12 @@
       "source_url": "",
       "notes": "Long real rate. 2005+ reference (ex-ante).",
       "latest_date": "2026-09-30",
-      "latest_value": 1.1684,
-      "score": -1.4473,
+      "latest_value": 1.162,
+      "score": -1.4391,
       "accommodation": "Restrictive",
       "direction": {
         "label": "Tightening",
-        "delta": -0.775,
+        "delta": -0.767,
         "lag_date": "2026-03-31"
       },
       "observations": [
@@ -18325,7 +18325,7 @@
         ],
         [
           "2026-09-30",
-          1.1684
+          1.162
         ]
       ]
     },
@@ -31926,12 +31926,12 @@
       "source_url": "https://www.jpx.co.jp/english/",
       "notes": "Headline equity index.",
       "latest_date": "2026-09-30",
-      "latest_value": 65235.248,
-      "score": 3.7235,
+      "latest_value": 65240.9283,
+      "score": 3.724,
       "accommodation": "Accommodative",
       "direction": {
         "label": "Easing",
-        "delta": 0.952,
+        "delta": 0.953,
         "lag_date": "2026-03-31"
       },
       "observations": [
@@ -33025,7 +33025,7 @@
         ],
         [
           "2026-09-30",
-          65235.248
+          65240.9283
         ]
       ]
     },
@@ -41814,7 +41814,7 @@
       ],
       [
         "2021-09-30",
-        0.251
+        0.2509
       ],
       [
         "2021-10-31",
@@ -45160,7 +45160,7 @@
       ],
       [
         "2026-05-31",
-        0.9018
+        0.9017
       ],
       [
         "2026-06-30",
@@ -50740,11 +50740,11 @@
       ],
       [
         "2026-08-31",
-        2.8879
+        2.8878
       ],
       [
         "2026-09-30",
-        2.8664
+        2.8665
       ]
     ],
     "axis::funding_volumes": [
