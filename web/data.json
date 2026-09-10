@@ -2,8 +2,8 @@
   "meta": {
     "title": "Japan Financial Conditions Tracker",
     "framework": "Bank of Japan Review 2026-E-4 (two-stage assessment of financial conditions)",
-    "generated_utc": "2026-09-10T08:36:44+00:00",
-    "data_mode": "LIVE (official sources) + SEED fallback for un-fetched series",
+    "generated_utc": "2026-09-10T08:37:54+00:00",
+    "data_mode": "SEED (illustrative; run etl/fetch.py for live data)",
     "latest_date": "2026-09-30",
     "source_note": "Seed values are illustrative approximations anchored to recent observations; run etl/fetch.py for authoritative data from BoJ/MoF/e-Stat/FRED.",
     "axis_order": [
@@ -175,6 +175,7 @@
       "notes": "BoJ target policy rate. Hiked to 0.50 Jan2025; 0.75 Dec2025; 1.00 Jun2026.",
       "latest_date": "2026-09-30",
       "latest_value": 1.0,
+      "latest_source": "SEED",
       "score": null,
       "accommodation": null,
       "direction": {
@@ -1291,6 +1292,7 @@
       "notes": "MoF reference interest rates (daily) aggregated to monthly.",
       "latest_date": "2026-09-30",
       "latest_value": 1.5534,
+      "latest_source": "MOF",
       "score": null,
       "accommodation": null,
       "direction": {
@@ -3711,6 +3713,7 @@
       "notes": "MoF reference interest rates.",
       "latest_date": "2026-09-30",
       "latest_value": 1.8384,
+      "latest_source": "MOF",
       "score": null,
       "accommodation": null,
       "direction": {
@@ -6179,6 +6182,7 @@
       "notes": "MoF reference interest rates.",
       "latest_date": "2026-09-30",
       "latest_value": 2.2769,
+      "latest_source": "MOF",
       "score": null,
       "accommodation": null,
       "direction": {
@@ -8703,6 +8707,7 @@
       "notes": "Benchmark long-term rate.",
       "latest_date": "2026-09-30",
       "latest_value": 2.9416,
+      "latest_source": "MOF",
       "score": null,
       "accommodation": null,
       "direction": {
@@ -10659,6 +10664,7 @@
       "notes": "Super-long maturity.",
       "latest_date": "2026-09-30",
       "latest_value": 4.028,
+      "latest_source": "MOF",
       "score": null,
       "accommodation": null,
       "direction": {
@@ -11983,6 +11989,7 @@
       "notes": "Composite index of inflation expectations (staff-style). Used to deflate nominal rates.",
       "latest_date": "2026-06-30",
       "latest_value": 1.9793,
+      "latest_source": "SEED",
       "score": null,
       "accommodation": null,
       "direction": {
@@ -13039,6 +13046,7 @@
       "notes": "Composite index of inflation expectations.",
       "latest_date": "2026-06-30",
       "latest_value": 1.8605,
+      "latest_source": "SEED",
       "score": null,
       "accommodation": null,
       "direction": {
@@ -14095,6 +14103,7 @@
       "notes": "Composite index of inflation expectations.",
       "latest_date": "2026-06-30",
       "latest_value": 1.7988,
+      "latest_source": "SEED",
       "score": null,
       "accommodation": null,
       "direction": {
@@ -15151,6 +15160,7 @@
       "notes": "Nominal 1y minus 1y expected inflation. 2005+ reference (ex-ante).",
       "latest_date": "2026-09-30",
       "latest_value": -0.4259,
+      "latest_source": "COMPUTED",
       "score": -0.3334,
       "accommodation": "Mildly restrictive",
       "direction": {
@@ -16219,6 +16229,7 @@
       "notes": "Medium real rate (3y interpolated). 2005+ reference (ex-ante).",
       "latest_date": "2026-09-30",
       "latest_value": 0.1241,
+      "latest_source": "COMPUTED",
       "score": -1.085,
       "accommodation": "Restrictive",
       "direction": {
@@ -17287,6 +17298,7 @@
       "notes": "Long real rate. 2005+ reference (ex-ante).",
       "latest_date": "2026-09-30",
       "latest_value": 1.1428,
+      "latest_source": "COMPUTED",
       "score": -1.4147,
       "accommodation": "Restrictive",
       "direction": {
@@ -18355,6 +18367,7 @@
       "notes": "Real ex-ante policy rate. Compared with the natural rate to gauge the policy stance.",
       "latest_date": "2026-09-30",
       "latest_value": -0.9793,
+      "latest_source": "COMPUTED",
       "score": null,
       "accommodation": null,
       "direction": {
@@ -19423,6 +19436,7 @@
       "notes": "Headline real 1y: nominal minus realized core CPI. Scored over longest history (1974+).",
       "latest_date": "2026-07-31",
       "latest_value": -0.5886,
+      "latest_source": "COMPUTED",
       "score": -0.011,
       "accommodation": "Broadly neutral",
       "direction": {
@@ -21835,6 +21849,7 @@
       "notes": "Headline real 3y (2y-5y interp minus realized core CPI). Scored over longest history (1974+).",
       "latest_date": "2026-07-31",
       "latest_value": -0.1589,
+      "latest_source": "COMPUTED",
       "score": -0.2264,
       "accommodation": "Mildly restrictive",
       "direction": {
@@ -24295,6 +24310,7 @@
       "notes": "Headline real 10y: nominal minus realized core CPI. Scored over longest history (1986+).",
       "latest_date": "2026-07-31",
       "latest_value": 0.9812,
+      "latest_source": "COMPUTED",
       "score": -0.6046,
       "accommodation": "Restrictive",
       "direction": {
@@ -26243,6 +26259,7 @@
       "notes": "Average contracted rate on new loans and discounts (domestic banks).",
       "latest_date": "2026-06-30",
       "latest_value": 1.1708,
+      "latest_source": "SEED",
       "score": -0.3104,
       "accommodation": "Mildly restrictive",
       "direction": {
@@ -27299,6 +27316,7 @@
       "notes": "Commercial paper issuance rate.",
       "latest_date": "2026-06-30",
       "latest_value": 1.1071,
+      "latest_source": "SEED",
       "score": -3.4291,
       "accommodation": "Restrictive",
       "direction": {
@@ -28355,6 +28373,7 @@
       "notes": "Issuance/secondary spread over JGB. Lower spread = more accommodative.",
       "latest_date": "2026-06-30",
       "latest_value": 0.3091,
+      "latest_source": "SEED",
       "score": 0.763,
       "accommodation": "Accommodative",
       "direction": {
@@ -29411,6 +29430,7 @@
       "notes": "DI = accommodative minus severe. Positive = accommodative.",
       "latest_date": "2026-03-31",
       "latest_value": 22.3845,
+      "latest_source": "SEED",
       "score": 0.8073,
       "accommodation": "Accommodative",
       "direction": {
@@ -29775,6 +29795,7 @@
       "notes": "DI = accommodative minus severe. Positive = accommodative.",
       "latest_date": "2026-03-31",
       "latest_value": 16.4394,
+      "latest_source": "SEED",
       "score": 1.0097,
       "accommodation": "Accommodative",
       "direction": {
@@ -30139,6 +30160,7 @@
       "notes": "DI = easy minus tight. Positive = easy.",
       "latest_date": "2026-03-31",
       "latest_value": 20.2507,
+      "latest_source": "SEED",
       "score": 0.9585,
       "accommodation": "Accommodative",
       "direction": {
@@ -30503,6 +30525,7 @@
       "notes": "DI = easy minus tight. Positive = easy.",
       "latest_date": "2026-03-31",
       "latest_value": 12.1188,
+      "latest_source": "SEED",
       "score": 1.0055,
       "accommodation": "Accommodative",
       "direction": {
@@ -30867,6 +30890,7 @@
       "notes": "Broad equity index. Higher = more accommodative (balance-sheet/wealth channel).",
       "latest_date": "2026-08-31",
       "latest_value": 4156.29,
+      "latest_source": "SEED",
       "score": 3.1968,
       "accommodation": "Accommodative",
       "direction": {
@@ -31931,6 +31955,7 @@
       "notes": "Headline equity index.",
       "latest_date": "2026-09-30",
       "latest_value": 65226.9071,
+      "latest_source": "FRED",
       "score": 3.7229,
       "accommodation": "Accommodative",
       "direction": {
@@ -33047,6 +33072,7 @@
       "notes": "Higher USDJPY = weaker yen = more accommodative for exporters/profits.",
       "latest_date": "2026-08-31",
       "latest_value": 158.8476,
+      "latest_source": "FRED",
       "score": 2.1642,
       "accommodation": "Accommodative",
       "direction": {
@@ -34159,6 +34185,7 @@
       "notes": "Lending by domestic commercial banks (avg amounts outstanding) y/y.",
       "latest_date": "2026-08-31",
       "latest_value": 5.8,
+      "latest_source": "SEED",
       "score": 1.7083,
       "accommodation": "Accommodative",
       "direction": {
@@ -35223,6 +35250,7 @@
       "notes": "CP and corporate bonds outstanding (end of period) y/y.",
       "latest_date": "2026-06-30",
       "latest_value": 6.362,
+      "latest_source": "SEED",
       "score": 0.5717,
       "accommodation": "Accommodative",
       "direction": {
@@ -36279,6 +36307,7 @@
       "notes": "MIC CPI core (ex-fresh food). Context for 2% target.",
       "latest_date": "2026-07-31",
       "latest_value": 1.7921,
+      "latest_source": "ESTAT",
       "score": null,
       "accommodation": null,
       "direction": {
@@ -38975,6 +39004,7 @@
       "notes": "BoJ staff estimate. Key driver of natural rate in structural models.",
       "latest_date": "2026-03-31",
       "latest_value": 0.6982,
+      "latest_source": "SEED",
       "score": null,
       "accommodation": null,
       "direction": {
@@ -39339,6 +39369,7 @@
       "notes": "Min across 6 models. ~-0.9pct as of 2025Q3.",
       "latest_date": "2025-09-30",
       "latest_value": -0.935,
+      "latest_source": "BOJ",
       "score": null,
       "accommodation": null,
       "direction": {
@@ -39903,6 +39934,7 @@
       "notes": "Midpoint of 6-model range. ~-0.2pct as of 2025Q3 (range center).",
       "latest_date": "2025-09-30",
       "latest_value": -0.356,
+      "latest_source": "BOJ",
       "score": null,
       "accommodation": null,
       "direction": {
@@ -40467,6 +40499,7 @@
       "notes": "Max across 6 models. ~+0.5pct as of 2025Q3.",
       "latest_date": "2025-09-30",
       "latest_value": 0.53,
+      "latest_source": "BOJ",
       "score": null,
       "accommodation": null,
       "direction": {

@@ -2,8 +2,8 @@
   "meta": {
     "title": "Japan Monetary & Liquidity Conditions Tracker",
     "framework": "Monetary conditions (rates, money & credit, FX, balance sheet) and liquidity conditions (central-bank, funding, market)",
-    "generated_utc": "2026-09-10T08:36:44+00:00",
-    "data_mode": "LIVE (official sources) + SEED fallback for un-fetched series",
+    "generated_utc": "2026-09-10T08:37:54+00:00",
+    "data_mode": "SEED (illustrative; run etl/fetch.py for live data)",
     "latest_date": "2026-09-30",
     "score_window": "Each indicator is z-scored over its longest available history (polarity-signed so + = easier / more liquid); axes are weighted means of members; MCI / LCI are equal-weight means of their axes; the combined MLCI averages the two.",
     "source_note": "Live where mapped (FRED mirrors of BoJ/BIS series); BoJ-only series (money-market spreads, JGB market functioning, balance-sheet shares) are illustrative seed anchored to recent observations until BoJ CSVs are ingested.",
@@ -236,6 +236,7 @@
       "notes": "Lending by domestic commercial banks (avg amounts outstanding) y/y.",
       "latest_date": "2026-08-31",
       "latest_value": 5.8,
+      "latest_source": "SEED",
       "score": 1.7083,
       "accommodation": "Accommodative",
       "direction": {
@@ -1301,6 +1302,7 @@
       "notes": "Balance-sheet stance: expansion (QQE) = easier; contraction (JGB-purchase taper from Aug-2024) = tighter.",
       "latest_date": "2026-09-30",
       "latest_value": -8.2436,
+      "latest_source": "SEED",
       "score": -1.1551,
       "accommodation": "Restrictive",
       "direction": {
@@ -2370,6 +2372,7 @@
       "notes": "Reserves held at the BoJ (excess reserves). Growth = more system liquidity.",
       "latest_date": "2026-09-30",
       "latest_value": -14.5263,
+      "latest_source": "SEED",
       "score": -1.15,
       "accommodation": "Restrictive",
       "direction": {
@@ -3439,6 +3442,7 @@
       "notes": "Central-bank absorption of the market; higher share = thinner free float",
       "latest_date": "2026-09-30",
       "latest_value": 48.9082,
+      "latest_source": "SEED",
       "score": -1.1191,
       "accommodation": "Restrictive",
       "direction": {
@@ -3812,6 +3816,7 @@
       "notes": "Funding liquidity / rate control: TONA trading above target signals reserve scarcity or funding stress (polarity -1).",
       "latest_date": "2026-09-30",
       "latest_value": 0.0141,
+      "latest_source": "SEED",
       "score": 0.1812,
       "accommodation": "Mildly accommodative",
       "direction": {
@@ -4881,6 +4886,7 @@
       "notes": "Super-long term premium / fiscal-risk gauge from MoF yields. Steeper = more term-premium stress in the super-long zone (polarity -1).",
       "latest_date": "2026-09-30",
       "latest_value": 1.0864,
+      "latest_source": "COMPUTED",
       "score": -0.9268,
       "accommodation": "Restrictive",
       "direction": {
@@ -6206,6 +6212,7 @@
       "notes": "Computed from MoF yields. Higher volatility = impaired market liquidity / term-premium stress (IMF GFSR Apr-2026; June-2025 taper slowdown trigger).",
       "latest_date": "2026-09-30",
       "latest_value": 10.1965,
+      "latest_source": "COMPUTED",
       "score": 0.2946,
       "accommodation": "Mildly accommodative",
       "direction": {
@@ -8115,6 +8122,7 @@
       "notes": "BoJ 'Liquidity Indicators in the JGB Markets' style measure. Wider = less liquid (polarity -1).",
       "latest_date": "2026-09-30",
       "latest_value": 1.2932,
+      "latest_source": "SEED",
       "score": 1.2392,
       "accommodation": "Accommodative",
       "direction": {
@@ -9184,6 +9192,7 @@
       "notes": "Degree of bond-market functioning (high minus low; negative = impaired). Fell to -64 in Feb-2023 under YCC; recovering since exit.",
       "latest_date": "2026-09-30",
       "latest_value": -13.9793,
+      "latest_source": "SEED",
       "score": 0.9758,
       "accommodation": "Accommodative",
       "direction": {
@@ -9397,6 +9406,7 @@
       "notes": "Dollar-funding cost for Japanese banks; more negative = scarcer dollar liquidity (polarity +1: less negative = easier).",
       "latest_date": "2026-09-30",
       "latest_value": -29.7446,
+      "latest_source": "SEED",
       "score": 1.1272,
       "accommodation": "Accommodative",
       "direction": {
@@ -10466,6 +10476,7 @@
       "notes": "Broad money growth (BoJ Money Stock). Faster growth = easier monetary conditions; a leading inflation signal in the 'money view'.",
       "latest_date": "2026-09-30",
       "latest_value": 2.1779,
+      "latest_source": "SEED",
       "score": -0.5654,
       "accommodation": "Restrictive",
       "direction": {
@@ -11535,6 +11546,7 @@
       "notes": "Broadest money aggregate growth (BoJ). Secondary to M2.",
       "latest_date": "2026-09-30",
       "latest_value": 1.7282,
+      "latest_source": "SEED",
       "score": -0.3374,
       "accommodation": "Mildly restrictive",
       "direction": {
@@ -12604,6 +12616,7 @@
       "notes": "Central-bank liquidity: base money growth (BoJ). Negative since 2024 as the balance sheet shrinks.",
       "latest_date": "2026-09-30",
       "latest_value": -13.0829,
+      "latest_source": "SEED",
       "score": -1.5081,
       "accommodation": "Restrictive",
       "direction": {
@@ -13673,6 +13686,7 @@
       "notes": "Implied equity volatility; spikes coincide with liquidity withdrawal (polarity -1).",
       "latest_date": "2026-09-30",
       "latest_value": 20.552,
+      "latest_source": "SEED",
       "score": 1.7339,
       "accommodation": "Accommodative",
       "direction": {
@@ -14742,6 +14756,7 @@
       "notes": "Headline real 1y: nominal minus realized core CPI. Scored over longest history (1974+).",
       "latest_date": "2026-07-31",
       "latest_value": -0.5886,
+      "latest_source": "COMPUTED",
       "score": 0.5319,
       "accommodation": "Accommodative",
       "direction": {
@@ -17155,6 +17170,7 @@
       "notes": "Monetary conditions: ex-post real policy rate (policy rate minus realized core CPI). Lower = easier. History from 2004.",
       "latest_date": "2026-07-31",
       "latest_value": -0.7921,
+      "latest_source": "COMPUTED",
       "score": 0.3241,
       "accommodation": "Mildly accommodative",
       "direction": {
@@ -18264,6 +18280,7 @@
       "notes": "Classic MCI input. Higher REER = stronger yen = tighter monetary conditions (polarity -1).",
       "latest_date": "2026-09-30",
       "latest_value": 63.5506,
+      "latest_source": "SEED",
       "score": 1.8904,
       "accommodation": "Accommodative",
       "direction": {
@@ -19381,6 +19398,7 @@
       "notes": "Bank unsecured funding premium. Wider = tighter funding liquidity.",
       "latest_date": "2026-09-30",
       "latest_value": 0.1907,
+      "latest_source": "SEED",
       "score": 0.1299,
       "accommodation": "Broadly neutral",
       "direction": {
@@ -20450,6 +20468,7 @@
       "notes": "Higher USDJPY = weaker yen = more accommodative for exporters/profits.",
       "latest_date": "2026-08-31",
       "latest_value": 158.8476,
+      "latest_source": "FRED",
       "score": 2.2207,
       "accommodation": "Accommodative",
       "direction": {
@@ -21563,6 +21582,7 @@
       "notes": "BoJ target policy rate. Hiked to 0.50 Jan2025; 0.75 Dec2025; 1.00 Jun2026.",
       "latest_date": "2026-09-30",
       "latest_value": 1.0,
+      "latest_source": "SEED",
       "score": null,
       "accommodation": null,
       "direction": {
@@ -22679,6 +22699,7 @@
       "notes": "MIC CPI core (ex-fresh food). Context for 2% target.",
       "latest_date": "2026-07-31",
       "latest_value": 1.7921,
+      "latest_source": "ESTAT",
       "score": null,
       "accommodation": null,
       "direction": {
@@ -25375,6 +25396,7 @@
       "notes": "Benchmark long-term rate.",
       "latest_date": "2026-09-30",
       "latest_value": 2.9416,
+      "latest_source": "MOF",
       "score": null,
       "accommodation": null,
       "direction": {

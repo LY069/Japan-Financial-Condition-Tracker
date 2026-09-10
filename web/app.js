@@ -686,16 +686,18 @@
     var asof = data.headline.latest_date || data.meta.latest_date;
     var rows = Object.keys(data.series).map(function (id) {
       var s = data.series[id];
-      return { name: s.name, src: s.source || "", v: vintageOf(s, asof) };
+      return { name: s.name, seed: s.latest_source === "SEED", v: vintageOf(s, asof) };
     });
+    var seeded = rows.filter(function (r) { return r.seed; }).length;
     var lagging = rows.filter(function (r) { return r.v.stale; })
                       .sort(function (a, b) { return b.v.lag - a.v.lag; });
     var current = rows.length - lagging.length;
     var html = "<p class=\"foot-note\"><strong>Data vintage.</strong> The dashboard is dated " +
       asof + ", and " + current + " of " + rows.length +
       " series carry an observation within their normal publication lag of that date. " +
-      "Each indicator is scored on its own latest observation, so the composite blends " +
-      "vintages; the As-of column below dates every one of them.";
+      seeded + " of " + rows.length + " still come from the illustrative seed rather than a " +
+      "live feed. Each indicator is scored on its own latest observation, so the composite " +
+      "blends vintages; the As-of column below dates every one of them and names its source.";
     if (lagging.length) {
       var shown = lagging.slice(0, 6).map(function (r) {
         return r.name + " (" + r.v.date + ")";
@@ -739,6 +741,10 @@
           "</td><td>" + polText(s.polarity) + '</td><td class="src">' + (s.source || "") +
           '</td><td class="asof' + (v.stale ? " stale" : "") + '">' + (v.date || "—") +
           (v.stale ? ' <span title="behind its normal publication lag">•</span>' : "") +
+          (s.latest_source ? '<br><span class="prov' +
+            (s.latest_source === "SEED" ? " seed" : "") + '">' +
+            (s.latest_source === "SEED" ? "seed" : String(s.latest_source).toLowerCase()) +
+            "</span>" : "") +
           '</td><td class="assump">' + (s.notes || "") + "</td></tr>";
       }).join("");
       return '<table class="method-tbl"><caption>' + g.title + "</caption>" +

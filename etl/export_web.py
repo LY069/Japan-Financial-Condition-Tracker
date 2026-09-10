@@ -27,6 +27,14 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "web", "data.json")
 
 
+def latest_source(conn, sid):
+    """Source of the newest observation for a series (MOF/FRED/ESTAT/BOJ/COMPUTED/SEED)."""
+    r = conn.execute(
+        "SELECT source FROM observations WHERE series_id=? ORDER BY date DESC LIMIT 1",
+        (sid,)).fetchone()
+    return (r[0] if r else None)
+
+
 def label_for(score):
     if score is None:
         return "n/a"
@@ -220,6 +228,10 @@ def main():
             "polarity": r["polarity"], "weight": r["weight"], "source": r["source"],
             "source_url": r["source_url"], "notes": r["notes"],
             "latest_date": obs[-1][0], "latest_value": obs[-1][1],
+            # Where the newest observation actually came from, as distinct from
+            # the catalog's intended source: SEED here means the series has no
+            # live connector yet, and the dashboard says so per indicator.
+            "latest_source": latest_source(conn, sid),
             "score": score, "accommodation": label_for(score) if score is not None else None,
             "direction": direction(series_score_hist(conn, sid)),
             "observations": obs,
