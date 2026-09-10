@@ -9,10 +9,11 @@ Providers
 MOF   : Ministry of Finance JGB reference yields (daily CSV, fully open).      [authoritative, no key]
 ESTAT : e-Stat REST API (MIC CPI, etc.). Requires ESTAT_APP_ID.               [authoritative, free key]
 FRED  : St. Louis Fed API; mirrors JGB/CPI/FX/policy-rate series. FRED_API_KEY. [fallback, free key]
-BOJ   : BoJ Time-Series Data Search has no open REST API; series such as the
-        Tankan DIs and the composite inflation-expectations index are ingested
-        from CSVs exported from https://www.stat-search.boj.or.jp/ (see
-        load_boj_csv). FRED covers the rest automatically.
+BOJ   : BoJ Time-Series Data Search API, public since February 2026 and open  [authoritative, no key]
+        (no registration, no key): https://www.stat-search.boj.or.jp/api/v1.
+        See etl/boj_api.py for the client and BOJ_API_SERIES below for the
+        pinned codes. CSVs exported by hand still load via load_boj_csv, and
+        FRED covers the rest automatically.
 
 Every connector returns a list of (iso_date, float_value) tuples, or raises.
 Network failures are caught by the orchestrator (fetch.py), which then leaves
@@ -104,6 +105,27 @@ def fetch_fred(fred_id: str, api_key: str):
         nd = date(y + 1, 1, 1) if m == 12 else date(y, m + 1, 1)
         out.append((date.fromordinal(nd.toordinal() - 1).isoformat(), float(o["value"])))
     return out
+
+
+# ------------------------------------------------------------- BoJ API -----
+# Codes confirmed against getMetadata / getDataCode on a runner (2026-09-10);
+# see the BoJ connector probe workflow for the evidence.
+#   catalog series_id -> (database, series code)
+BOJ_API_SERIES = {
+    # Average Contract Interest Rates on Loans and Discounts, monthly, % p.a.
+    "lending_rate":      ("IR04", "DLLR2CIDBNL1"),
+    # TANKAN judgement survey, quarterly, % points (accommodative minus severe)
+    "tankan_lend_large": ("CO", "TK99F0000612GCQ01000"),
+    "tankan_lend_small": ("CO", "TK99F0000612GCQ03000"),
+}
+
+
+def fetch_boj_api(series_id: str):
+    """Fetch one pinned BoJ series as [(month_end_iso, value)]."""
+    import boj_api  # local module; imported lazily so offline runs need not load it
+
+    db, code = BOJ_API_SERIES[series_id]
+    return boj_api.fetch_series(db, code)
 
 
 # ----------------------------------------------------------------- MoF -----

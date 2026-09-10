@@ -56,6 +56,21 @@ def run_mof(conn):
     return n
 
 
+def run_boj_api(conn):
+    """Pinned BoJ Time-Series Data Search series (public API, no key)."""
+    n = 0
+    for sid in S.BOJ_API_SERIES:
+        try:
+            rows = S.fetch_boj_api(sid)
+        except Exception as e:  # noqa: BLE001 - one bad series must not stop the rest
+            print(f"  [BOJ] {sid}: skipped: {e}")
+            continue
+        if rows:
+            n += upsert_observations(conn, sid, rows, "BOJ")
+            print(f"  [BOJ] {sid}: {len(rows)} obs, latest {rows[-1][0]} = {rows[-1][1]}")
+    return n
+
+
 def run_fred(conn):
     key = os.environ.get("FRED_API_KEY")
     if not key:
@@ -199,6 +214,8 @@ def main():
         total += run_fred(conn)
     if args.only in (None, "estat"):
         total += run_estat(conn)
+    if args.only in (None, "boj"):
+        total += run_boj_api(conn)
     if (args.only in (None, "boj")) and args.boj_dir:
         total += run_boj_dir(conn, args.boj_dir)
 
