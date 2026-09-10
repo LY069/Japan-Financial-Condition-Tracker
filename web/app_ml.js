@@ -592,9 +592,44 @@
   }
 
   // 10: Methodology table — weights (ml_weight) & assumptions ---------------
+  /* Data vintage (mirrors the financial-conditions dashboard) ------------ */
+  function monthsBetween(a, b) {
+    if (!a || !b) return 0;
+    return (Number(b.slice(0, 4)) - Number(a.slice(0, 4))) * 12 +
+           (Number(b.slice(5, 7)) - Number(a.slice(5, 7)));
+  }
+  function vintageOf(s, asof) {
+    var lag = monthsBetween(s.latest_date, asof);
+    var allowed = (s.frequency === "quarterly") ? 5 : 2;
+    return { lag: lag, stale: lag > allowed, date: s.latest_date };
+  }
+  function renderVintage(data) {
+    var el = document.getElementById("vintage-panel");
+    if (!el) return;
+    var asof = data.headline.latest_date || data.meta.latest_date;
+    var rows = Object.keys(data.series).map(function (id) {
+      var s = data.series[id];
+      return { name: s.name, v: vintageOf(s, asof) };
+    });
+    var lagging = rows.filter(function (r) { return r.v.stale; })
+                      .sort(function (a, b) { return b.v.lag - a.v.lag; });
+    var html = "<p class=\"foot-note\"><strong>Data vintage.</strong> The dashboard is dated " +
+      asof + ", and " + (rows.length - lagging.length) + " of " + rows.length +
+      " series carry an observation within their normal publication lag of that date. " +
+      "Each indicator is scored on its own latest observation, so the composite blends " +
+      "vintages; the As-of column below dates every one of them.";
+    if (lagging.length) {
+      var shown = lagging.slice(0, 6).map(function (r) { return r.name + " (" + r.v.date + ")"; }).join("; ");
+      html += " Behind their normal cadence: " + shown +
+        (lagging.length > 6 ? "; and " + (lagging.length - 6) + " more" : "") + ".";
+    }
+    el.innerHTML = html;
+  }
+
   function renderMethodology(data) {
     var el = document.getElementById("methodology-table");
     if (!el) return;
+    var asof = data.headline.latest_date || data.meta.latest_date;
     var axisByKey = {};
     data.axes.forEach(function (a) { axisByKey[a.key] = a; });
     var stageLabel = function (a) {
@@ -624,13 +659,17 @@
     el.innerHTML = groups.map(function (g) {
       var scored = g.axis !== "—";
       var body = g.rows.map(function (s) {
+        var v = vintageOf(s, asof);
         return "<tr><td>" + s.name + "</td><td>" + g.axis + '</td><td class="num">' +
           wtText(s.ml_weight) + "</td><td>" + polText(s, scored) +
-          '</td><td class="src">' + (s.source || "") + '</td><td class="assump">' + (s.notes || "") + "</td></tr>";
+          '</td><td class="src">' + (s.source || "") +
+          '</td><td class="asof' + (v.stale ? " stale" : "") + '">' + (v.date || "—") +
+          (v.stale ? ' <span title="behind its normal publication lag">•</span>' : "") +
+          '</td><td class="assump">' + (s.notes || "") + "</td></tr>";
       }).join("");
       return '<table class="method-tbl"><caption>' + g.title + "</caption>" +
         '<thead><tr><th>Indicator</th><th>Axis</th><th class="num">Weight</th><th>Polarity</th>' +
-        "<th>Source</th><th>Assumption / definition</th></tr></thead><tbody>" + body + "</tbody></table>";
+        "<th>Source</th><th>As of</th><th>Assumption / definition</th></tr></thead><tbody>" + body + "</tbody></table>";
     }).join("");
   }
 
@@ -682,6 +721,7 @@
       renderCompositeHistory(data);
       renderAxisBar(data);
       renderExplore(data);
+      renderVintage(data);
       renderMethodology(data);
     } catch (err) {
       console.error("Dashboard render error:", err);

@@ -442,6 +442,7 @@
 
     // Only the four Stage-2 axes (exclude real_rate which belongs to Stage 1).
     var stage2Keys = ["funding_costs", "availability", "asset_prices", "funding_volumes"];
+    var asof = data.headline.latest_date || data.meta.latest_date;
     var axisByKey = {};
     data.axes.forEach(function (a) { axisByKey[a.key] = a; });
 
@@ -662,6 +663,50 @@
   }
 
   // 9: Methodology table — weights & assumptions for every indicator ---------
+  /* Data vintage -------------------------------------------------------- */
+  function monthsBetween(a, b) {
+    if (!a || !b) return 0;
+    return (Number(b.slice(0, 4)) - Number(a.slice(0, 4))) * 12 +
+           (Number(b.slice(5, 7)) - Number(a.slice(5, 7)));
+  }
+  // A series is "behind" when it lags the dashboard date by more than its own
+  // publication cadence explains. The dashboard date is the current month-end,
+  // so a monthly statistic for the prior month is on time (allowance 2) and a
+  // quarterly one for the prior quarter is on time (allowance 5). Anything
+  // further back is genuinely waiting on data, not on the calendar.
+  function vintageOf(s, asof) {
+    var lag = monthsBetween(s.latest_date, asof);
+    var allowed = (s.frequency === "quarterly") ? 5 : 2;
+    return { lag: lag, stale: lag > allowed, date: s.latest_date };
+  }
+
+  function renderVintage(data) {
+    var el = document.getElementById("vintage-panel");
+    if (!el) return;
+    var asof = data.headline.latest_date || data.meta.latest_date;
+    var rows = Object.keys(data.series).map(function (id) {
+      var s = data.series[id];
+      return { name: s.name, src: s.source || "", v: vintageOf(s, asof) };
+    });
+    var lagging = rows.filter(function (r) { return r.v.stale; })
+                      .sort(function (a, b) { return b.v.lag - a.v.lag; });
+    var current = rows.length - lagging.length;
+    var html = "<p class=\"foot-note\"><strong>Data vintage.</strong> The dashboard is dated " +
+      asof + ", and " + current + " of " + rows.length +
+      " series carry an observation within their normal publication lag of that date. " +
+      "Each indicator is scored on its own latest observation, so the composite blends " +
+      "vintages; the As-of column below dates every one of them.";
+    if (lagging.length) {
+      var shown = lagging.slice(0, 6).map(function (r) {
+        return r.name + " (" + r.v.date + ")";
+      }).join("; ");
+      html += " Behind their normal cadence: " + shown +
+        (lagging.length > 6 ? "; and " + (lagging.length - 6) + " more" : "") + ".";
+    }
+    html += "</p>";
+    el.innerHTML = html;
+  }
+
   function renderMethodology(data) {
     var el = document.getElementById("methodology-table");
     if (!el) return;
@@ -689,13 +734,16 @@
 
     el.innerHTML = groups.map(function (g) {
       var body = g.rows.map(function (s) {
+        var v = vintageOf(s, asof);
         return "<tr><td>" + s.name + '</td><td class="num">' + wtText(s.weight) +
           "</td><td>" + polText(s.polarity) + '</td><td class="src">' + (s.source || "") +
+          '</td><td class="asof' + (v.stale ? " stale" : "") + '">' + (v.date || "—") +
+          (v.stale ? ' <span title="behind its normal publication lag">•</span>' : "") +
           '</td><td class="assump">' + (s.notes || "") + "</td></tr>";
       }).join("");
       return '<table class="method-tbl"><caption>' + g.title + "</caption>" +
         '<thead><tr><th>Indicator</th><th class="num">Weight</th><th>Polarity</th>' +
-        "<th>Source</th><th>Assumption / definition</th></tr></thead><tbody>" +
+        "<th>Source</th><th>As of</th><th>Assumption / definition</th></tr></thead><tbody>" +
         body + "</tbody></table>";
     }).join("");
   }
@@ -757,6 +805,7 @@
       renderFciHistory(data);
       renderAxisBar(data);
       renderExplore(data);
+      renderVintage(data);
       renderMethodology(data);
     } catch (err) {
       console.error("Dashboard render error:", err);

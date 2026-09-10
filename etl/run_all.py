@@ -23,22 +23,16 @@ def run(mod, *a):
         sys.exit(r.returncode)
 
 
-def has_observations():
-    sys.path.insert(0, HERE)
-    from db import connect, init_db
-    conn = connect(); init_db(conn)
-    n = conn.execute("SELECT COUNT(*) FROM observations").fetchone()[0]
-    return n > 0
-
-
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--seed", action="store_true", help="force reseed before building")
+    ap.add_argument("--seed", action="store_true", help="(kept for compatibility; seeding is now always attempted and is guarded)")
     ap.add_argument("--no-fetch", action="store_true", help="skip the live fetch step")
     args = ap.parse_args()
 
-    if args.seed or not has_observations():
-        run("seed_data.py")
+    # seed_data is per-series guarded (a series with live observations is never
+    # reseeded), so it runs every time: that lets corrected/extended seed anchors
+    # reach series that still have no live connector, instead of only at first build.
+    run("seed_data.py")
     if not args.no_fetch:
         run("fetch.py")
     run("seed_data_ml.py")     # Monetary & Liquidity series (guarded: never overwrites live data)
