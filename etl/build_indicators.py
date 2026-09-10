@@ -138,7 +138,7 @@ def main():
     series_scores = {}      # sid -> {date: score}
     for r in catalog_rows(conn):
         sid = r["series_id"]
-        if r["weight"] <= 0 or r["polarity"] == 0:
+        if r["weight"] <= 0 or r["polarity"] == 0 or (r["stage"] or "").startswith("ml_"):
             continue
         z = zscores(raw.get(sid, {}))
         signed = {d: (None if v is None else v * r["polarity"]) for d, v in z.items()}

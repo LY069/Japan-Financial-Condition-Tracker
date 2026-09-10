@@ -356,3 +356,12 @@ main.wrap { padding-top: 28px; padding-bottom: 40px; }
   .natrate-read { flex-direction: column; align-items: flex-start; }
   .method-tbl .src { display: none; }
 }
+
+/* ------------------------------ Top nav ------------------------------ */
+.topnav { display: flex; gap: 6px; flex-wrap: wrap; }
+.topnav a {
+  color: #dbe2f0; text-decoration: none; font-size: 13px; font-weight: 600;
+  padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.22);
+}
+.topnav a:hover { background: rgba(255,255,255,.10); }
+.topnav a.active { background: var(--amber); color: #2a1d00; border-color: var(--amber); }

@@ -81,6 +81,11 @@ FRED_MAP = {
     "core_cpi_yoy": ("JPNCPIALLMINMEI", "yoy_from_level"),  # CPI all items index -> y/y (fallback)
     "usdjpy":      ("EXJPUS", "level"),              # monthly avg JPY per USD
     "nikkei225":   ("NIKKEI225", "monthly_avg"),     # daily index -> month avg
+    # --- Monetary & Liquidity tracker ---
+    "m2_yoy":      ("MYAGM2JPM189N", "yoy_from_level"),  # M2 money stock (BoJ) -> y/y
+    "m3_yoy":      ("MABMM301JPM189S", "yoy_from_level"),# M3 money stock (BoJ) -> y/y
+    "boj_assets_yoy": ("JPNASSETS", "yoy_from_level"),   # BoJ total assets -> y/y
+    "reer":        ("RBJPBIS", "level"),                 # BIS real broad effective FX (2020=100)
 }
 
 
