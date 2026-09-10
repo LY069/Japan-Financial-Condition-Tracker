@@ -387,6 +387,39 @@ FINDS = [
 DB_LIST_PROBE = [("getMetadata", {"lang": "EN"}), ("getMetadata", {"db": "*", "lang": "EN"})]
 
 
+# Candidate database identifiers. The API needs a db and the manual is not
+# reachable from every network, so the namespace is mapped by asking.
+DB_CANDIDATES = [
+    "BS01", "BS02", "MD01", "MD02", "MD10", "FM01", "FM02", "FM08",
+    "IR01", "IR02", "IR03", "IR04", "ST01", "CO", "PR01", "SJ01",
+    "DL01", "DL02", "LA01", "FF01", "BP01", "TK01", "NME", "MB01",
+]
+
+# What we still want to source, as keywords to grep every reachable catalogue for.
+SCAN_WANTED = ["call rate", "topix", "loans and bills discounted", "commercial paper"]
+
+
+def dbscan(limit_per_hit: int = 4):
+    """Map which databases exist and which hold the series still outstanding."""
+    for db in DB_CANDIDATES:
+        try:
+            rows = metadata_rows(db)
+        except Exception as e:  # noqa: BLE001
+            print(f"  {db:<6} unavailable ({type(e).__name__})")
+            continue
+        print(f"  {db:<6} {len(rows):>7} rows")
+        for kw in SCAN_WANTED:
+            hits = [r for r in rows
+                    if kw in str(r.get("NAME_OF_TIME_SERIES") or "").lower()
+                    and r.get("SERIES_CODE")]
+            for r in hits[:limit_per_hit]:
+                print(f"           [{kw}] {r.get('SERIES_CODE'):<22}"
+                      f"{str(r.get('FREQUENCY'))[:9]:<10}"
+                      f"{str(r.get('NAME_OF_TIME_SERIES'))[:76]}")
+            if len(hits) > limit_per_hit:
+                print(f"           [{kw}] ... {len(hits) - limit_per_hit} more")
+
+
 def run_targets():
     """One pass over every search still outstanding."""
     for db, terms in FINDS:
@@ -405,6 +438,8 @@ def main():
                     help="fetch one series and print the last rows")
     ap.add_argument("--dump", nargs=2, metavar=("DB", "CODE"),
                     help="print a raw getDataCode response")
+    ap.add_argument("--dbscan", action="store_true",
+                    help="map the database namespace and grep for outstanding series")
     ap.add_argument("--targets", action="store_true",
                     help="search every database we need codes from")
     ap.add_argument("--find", nargs="+", metavar="DB TERM",
@@ -419,11 +454,13 @@ def main():
         print(f"{len(rows)} rows; last 8: {rows[-8:]}")
     if args.dump:
         dump_series(*args.dump)
+    if args.dbscan:
+        dbscan()
     if args.targets:
         run_targets()
     if args.find:
         find(args.find[0], *args.find[1:])
-    if not (args.probe or args.discover or args.series or args.dump or args.targets or args.find):
+    if not (args.probe or args.discover or args.series or args.dump or args.targets or args.find or args.dbscan):
         ap.print_help()
         return 1
     return 0
