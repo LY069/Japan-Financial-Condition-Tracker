@@ -112,6 +112,10 @@ def fetch_fred(fred_id: str, api_key: str):
 # see the BoJ connector probe workflow for the evidence.
 #   catalog series_id -> (database, series code)
 BOJ_API_SERIES = {
+    # Uncollateralized overnight call rate, monthly average. This is the rate
+    # the Bank steers to its target and the one BoJ Review 2026-E-4 calls the
+    # policy interest rate, so it replaces the stepped target the seed encoded.
+    "policy_rate":         ("FM02", "STRACLUCON"),
     # Average Contract Interest Rates on Loans and Discounts, monthly, % p.a.
     "lending_rate":        ("IR04", "DLLR2CIDBNL1"),
     # TANKAN judgement survey, quarterly, % points. Lending attitude and
