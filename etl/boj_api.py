@@ -305,11 +305,49 @@ def discover(db: str, keyword: str, lang: str = "EN", limit: int = 40):
 
 
 def dump_series(db: str, code: str, lang: str = "EN"):
-    """Print a getDataCode response verbatim, to learn the data-point schema."""
+    """Print the shape of a getDataCode response: keys, and a slice of each array."""
     doc = api("getDataCode", db=db, code=code, lang=lang)
-    text = json.dumps(doc, ensure_ascii=False, indent=1)
-    print(f"\n  getDataCode db={db} code={code}: {len(text)} chars")
-    print("\n".join("    " + ln for ln in text.splitlines()[:60]))
+    print(f"\n  getDataCode db={db} code={code}")
+    print(f"  top keys: {list(doc)}")
+    for row in (doc.get("RESULTSET") or [])[:2]:
+        print("  --- series row ---")
+        for k, v in row.items():
+            if isinstance(v, dict):
+                print(f"    {k}: dict keys={list(v)}")
+                for vk, vv in v.items():
+                    if isinstance(vv, list):
+                        print(f"      {vk}: list[{len(vv)}] head={vv[:6]} tail={vv[-6:]}")
+                    else:
+                        print(f"      {vk}: {vv!r}")
+            elif isinstance(v, list):
+                print(f"    {k}: list[{len(v)}] head={v[:6]} tail={v[-6:]}")
+            else:
+                print(f"    {k}: {v!r}")
+
+
+def find(db: str, *terms, lang: str = "EN", limit: int = 40):
+    """Print catalogue entries whose name contains EVERY term (AND, case-insensitive)."""
+    wanted = [x.lower() for x in terms if x]
+    try:
+        rows = metadata_rows(db, lang)
+    except Exception as e:  # noqa: BLE001
+        print(f"  {db}: {type(e).__name__}: {e}")
+        return []
+    hits = []
+    for r in rows:
+        hay = (str(r.get("NAME_OF_TIME_SERIES") or "") + " " +
+               str(r.get("CATEGORY") or "")).lower()
+        if all(w in hay for w in wanted):
+            hits.append(r)
+    print(f"\n  db={db} {list(terms)}: {len(hits)} of {len(rows)} rows match")
+    for r in hits[:limit]:
+        print(f"    {r.get('SERIES_CODE') or '(heading)':<24}"
+              f"{str(r.get('FREQUENCY'))[:9]:<10}"
+              f"{str(r.get('NAME_OF_TIME_SERIES'))[:88]:<90}"
+              f"{str(r.get('UNIT'))[:12]}")
+    if len(hits) > limit:
+        print(f"    ... {len(hits) - limit} more")
+    return hits
 
 
 # Databases to look through, with the names we need out of each.
@@ -349,6 +387,8 @@ def main():
                     help="print a raw getDataCode response")
     ap.add_argument("--targets", action="store_true",
                     help="search every database we need codes from")
+    ap.add_argument("--find", nargs="+", metavar="DB TERM",
+                    help="list codes in DB whose name contains every TERM")
     args = ap.parse_args()
     if args.probe:
         probe()
@@ -361,7 +401,9 @@ def main():
         dump_series(*args.dump)
     if args.targets:
         run_targets()
-    if not (args.probe or args.discover or args.series or args.dump or args.targets):
+    if args.find:
+        find(args.find[0], *args.find[1:])
+    if not (args.probe or args.discover or args.series or args.dump or args.targets or args.find):
         ap.print_help()
         return 1
     return 0
