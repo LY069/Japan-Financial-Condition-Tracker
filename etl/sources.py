@@ -113,10 +113,20 @@ def fetch_fred(fred_id: str, api_key: str):
 #   catalog series_id -> (database, series code)
 BOJ_API_SERIES = {
     # Average Contract Interest Rates on Loans and Discounts, monthly, % p.a.
-    "lending_rate":      ("IR04", "DLLR2CIDBNL1"),
-    # TANKAN judgement survey, quarterly, % points (accommodative minus severe)
-    "tankan_lend_large": ("CO", "TK99F0000612GCQ01000"),
-    "tankan_lend_small": ("CO", "TK99F0000612GCQ03000"),
+    "lending_rate":        ("IR04", "DLLR2CIDBNL1"),
+    # TANKAN judgement survey, quarterly, % points. Lending attitude and
+    # financial position, all industries, actual result, by enterprise size.
+    "tankan_lend_large":   ("CO", "TK99F0000612GCQ01000"),
+    "tankan_lend_small":   ("CO", "TK99F0000612GCQ03000"),
+    "tankan_finpos_large": ("CO", "TK99F0000609GCQ01000"),
+    "tankan_finpos_small": ("CO", "TK99F0000609GCQ03000"),
+    # TANKAN "Outlook for General Prices": the average of enterprises' inflation
+    # outlook, all enterprises, all industries. The survey runs 1, 3 and 5 years
+    # ahead - there is no 10-year horizon - so infexp_10y takes the 5-year
+    # outlook, the longest survey horizon the Bank publishes.
+    "infexp_1y":           ("CO", "TK99F0000204HCQ00000"),
+    "infexp_3y":           ("CO", "TK99F0000205HCQ00000"),
+    "infexp_10y":          ("CO", "TK99F0000206HCQ00000"),
 }
 
 
