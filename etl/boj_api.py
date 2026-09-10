@@ -210,6 +210,57 @@ def read_flat_zip(url: str, max_rows: int = 5):
 
 
 
+# --------------------------------------------- resolve a code by its name -----
+def resolve_code(db: str, must_have, prefer=(), exclude=("(discontinued)",), lang="EN"):
+    """Find the one series in `db` whose name contains every term in `must_have`.
+
+    MD11 carries hundreds of deposit and loan variants under a DL prefix, and the
+    code alone is unreadable, so the series is identified by its published name
+    and the choice is logged. Returns (code, name) or raises if it is ambiguous:
+    silently picking one of several would put the wrong data in the tracker.
+    """
+    rows = metadata_rows(db, lang)
+    need = [w.lower() for w in must_have]
+    bad = [w.lower() for w in exclude]
+    cands = []
+    for r in rows:
+        name = str(r.get("NAME_OF_TIME_SERIES") or "")
+        low = name.lower()
+        if not r.get("SERIES_CODE"):
+            continue
+        if any(b in low for b in bad):
+            continue
+        if all(w in low for w in need):
+            cands.append((r["SERIES_CODE"], name))
+    if not cands:
+        raise LookupError(f"{db}: nothing matches {must_have}")
+    if len(cands) > 1 and prefer:
+        for p in prefer:
+            narrowed = [c for c in cands if p.lower() in c[1].lower()]
+            if len(narrowed) == 1:
+                return narrowed[0]
+            if narrowed:
+                cands = narrowed
+    if len(cands) > 1:
+        raise LookupError(
+            f"{db}: {must_have} is ambiguous, {len(cands)} candidates: "
+            + "; ".join(f"{c}={n[:60]}" for c, n in cands[:6]))
+    return cands[0]
+
+
+def yoy_from_level(rows):
+    """Month-end levels -> year-on-year percent change."""
+    by = dict(rows)
+    out = []
+    for d, v in rows:
+        y, m = int(d[:4]), int(d[5:7])
+        prev = _month_end(y - 1, m)
+        pv = by.get(prev)
+        if pv:
+            out.append((d, (v / pv - 1.0) * 100.0))
+    return out
+
+
 # ------------------------------------------ published spreadsheet: output gap -----
 GAP_XLSX = "https://www.boj.or.jp/en/research/research_data/gap/gap.xlsx"
 
@@ -272,6 +323,30 @@ def fetch_potential_growth():
             out.append((iso, float(v)))
     out.sort()
     return out
+
+
+# ------------------------------------ series resolved by name, then transformed -----
+# Where the Bank publishes a level but the tracker needs a growth rate, and the
+# code is not human-readable, the series is identified by its published name.
+DERIVED = {
+    "bank_lending_yoy": {
+        "db": "MD11",
+        "must_have": ["loans and bills discounted", "average amounts outstanding"],
+        "prefer": ["domestically licensed banks", "total"],
+        "transform": "yoy",
+    },
+}
+
+
+def fetch_derived(series_id: str):
+    """Resolve a series by name, fetch it, and apply the transform it needs."""
+    spec = DERIVED[series_id]
+    code, name = resolve_code(spec["db"], spec["must_have"], spec.get("prefer", ()))
+    print(f"  [BOJ] {series_id}: resolved {spec['db']}/{code} = {name}")
+    rows = fetch_series(spec["db"], code)
+    if spec.get("transform") == "yoy":
+        rows = yoy_from_level(rows)
+    return rows
 
 
 # ---------------------------------------------------------------- probe -----
