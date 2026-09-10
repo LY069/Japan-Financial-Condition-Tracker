@@ -62,7 +62,7 @@
       case "percent":
       case "percent_yoy":  return num(v, 2) + "%";
       case "pp":           return num(v, 2) + " pp";
-      case "bp":           return (v > 0 ? "+" : "") + num(v, 0) + " bp";
+      case "bp":           return num(v, 0) + " bp";
       case "di_points":    return (v > 0 ? "+" : "") + num(v, 0) + " pts";
       case "yen_per_usd":  return "¥" + num(v, 2);
       case "index":        return num(v, 1);
@@ -78,7 +78,7 @@
   // Display unit for a series object (spreads stored as percent are shown as pp).
   function seriesUnit(s) {
     if (!s) return "";
-    if (s.unit === "percent" && /\(pp\)/.test(s.name || "")) return "pp";
+    if (s.unit === "percent" && /\bpp\)/.test(s.name || "")) return "pp";
     return s.unit;
   }
 
@@ -170,19 +170,22 @@
   // Generic multi-series chart on a SHARED date axis. Every dataset is mapped
   // onto the union of all member dates by date (never by index), so series of
   // different start dates / frequencies (monthly vs quarterly) stay aligned.
-  //   specs: [{ id, label, color, axis:'y'|'y2', type:'line'|'bar', dash }]
-  //   opts:  { yTitle, y2Title, zero (bool), type ('line'|'bar' base) }
+  //   specs: [{ id, label, color, axis:'y'|'y2'|'y3', type:'line'|'bar', dash }]
+  //   opts:  { yTitle, y2Title, y3Title, zero (bool), type ('line'|'bar' base) }
+  // y2 and y3 are both right-hand axes (Chart.js stacks them side by side), so
+  // series with very different magnitudes can share one panel legibly.
   function multiSeriesChart(canvasId, data, specs, opts) {
     var S = data.series; opts = opts || {};
     var live = specs.filter(function (sp) { return S[sp.id]; });
     if (!live.length) return null;
     var labels = unionDates.apply(null, live.map(function (sp) { return S[sp.id].observations; }));
-    var hasY2 = false;
+    var hasY2 = false, hasY3 = false;
     var ds = live.map(function (sp) {
       var s = S[sp.id];
       var d = lineDS(sp.label || s.name, alignTo(labels, s.observations), sp.color, sp.width);
       d._unit = seriesUnit(s);
       if (sp.axis === "y2") { d.yAxisID = "y2"; hasY2 = true; }
+      if (sp.axis === "y3") { d.yAxisID = "y3"; hasY3 = true; }
       if (sp.dash) d.borderDash = sp.dash;
       if (sp.type === "bar") {
         d.type = "bar"; d.backgroundColor = sp.color; d.borderWidth = 0;
@@ -194,6 +197,10 @@
     if (hasY2) scales.y2 = yScale({
       position: "right", grid: { drawOnChartArea: false },
       title: { display: !!opts.y2Title, text: opts.y2Title || "" }
+    });
+    if (hasY3) scales.y3 = yScale({
+      position: "right", grid: { drawOnChartArea: false },
+      title: { display: !!opts.y3Title, text: opts.y3Title || "" }
     });
     return new Chart(document.getElementById(canvasId), {
       type: opts.type || "line",
@@ -404,17 +411,22 @@
       { id: "jpy_basis_3m", label: "USD/JPY 3m basis", color: COLORS.red, axis: "y2", dash: [4, 3] }
     ], { yTitle: "pp", y2Title: "bp", zero: true });
 
-    // (b) market functioning — quarterly DI bars (2015+) with quarterly BoJ share (2005+)
+    // (b) market functioning — quarterly DI bars (2015+), quarterly BoJ share
+    //     (2005+, right) and the monthly 10s30s slope (1999+, second right axis
+    //     because ~1 pp would be invisible on the % share axis). All by date.
     multiSeriesChart("marketFunctioningChart", data, [
       { id: "jgb_market_functioning_di", label: "JGB functioning DI", color: COLORS.navySoft, type: "bar" },
-      { id: "boj_jgb_share", label: "BoJ share of JGBs", color: COLORS.red, axis: "y2" }
-    ], { type: "bar", yTitle: "DI points", y2Title: "%", zero: true });
+      { id: "boj_jgb_share", label: "BoJ share of JGBs", color: COLORS.red, axis: "y2" },
+      { id: "jgb_10s30s", label: "10s30s slope", color: COLORS.amber, axis: "y3", dash: [4, 3] }
+    ], { type: "bar", yTitle: "DI points", y2Title: "% of JGBs", y3Title: "pp", zero: true });
 
-    // (c) bid-ask (index, left) and Nikkei VI (%, right)
+    // (c) bid-ask (index, left) with Nikkei VI (%) and 10Y realized vol (bp) on
+    //     the right — VI and vol are of comparable magnitude; vol starts 1987.
     multiSeriesChart("marketVolChart", data, [
       { id: "jgb_bid_ask", label: "10y JGB bid-ask", color: COLORS.navy },
-      { id: "nikkei_vi", label: "Nikkei VI", color: COLORS.amber, axis: "y2" }
-    ], { yTitle: "normalized ticks", y2Title: "%" });
+      { id: "nikkei_vi", label: "Nikkei VI (%)", color: COLORS.amber, axis: "y2" },
+      { id: "jgb_10y_vol", label: "10Y JGB realized vol (bp)", color: COLORS.red, axis: "y2", dash: [4, 3] }
+    ], { yTitle: "normalized ticks", y2Title: "% / bp" });
   }
 
   // 6: Composite history ----------------------------------------------------

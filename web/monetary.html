@@ -251,23 +251,37 @@
         <div class="card">
           <div class="card-head">
             <h3>JGB market functioning</h3>
-            <span class="hint">DI (bars, left) · BoJ share of JGBs % (right)</span>
+            <span class="hint">DI (bars, left) · BoJ share % and 10s30s slope pp (right)</span>
           </div>
           <div class="chart-box"><canvas id="marketFunctioningChart"></canvas></div>
           <p class="note">BoJ Bond Market Survey functioning DI (quarterly, 2015+; negative = impaired)
-            with the BoJ's share of outstanding JGBs. A falling share restores free float.</p>
+            with the BoJ's share of outstanding JGBs and the 30Y–10Y curve slope, a super-long
+            term-premium gauge. A falling share restores free float; a steeper 10s30s signals
+            term-premium stress.</p>
         </div>
         <div class="card">
           <div class="card-head">
             <h3>Bid-ask &amp; volatility</h3>
-            <span class="hint">10y JGB bid-ask (left) · Nikkei VI % (right)</span>
+            <span class="hint">10y JGB bid-ask (left) · Nikkei VI % and 10Y realized vol bp (right)</span>
           </div>
           <div class="chart-box"><canvas id="marketVolChart"></canvas></div>
-          <p class="note">Normalized 10-year JGB bid-ask spread and the Nikkei Volatility Index. Wider
-            spreads and higher volatility both mean thinner market liquidity.</p>
+          <p class="note">Normalized 10-year JGB bid-ask spread, the Nikkei Volatility Index and realized
+            10Y JGB volatility (12-month standard deviation of monthly yield changes). Wider spreads
+            and higher volatility both mean thinner market liquidity.</p>
         </div>
       </div>
-    </section>
+          <!-- (d) term-premium / market-stress gauges computed from the MoF curve -->
+      <div class="card" style="margin-top:14px">
+        <div class="card-head">
+          <h3>Term-premium stress from the JGB curve</h3>
+          <span class="hint">computed from MoF yields · realized 10Y vol (bp) &amp; 10s30s slope (pp)</span>
+        </div>
+        <div class="chart-box"><canvas id="termPremiumChart"></canvas></div>
+        <p class="note">Realized volatility is the 12-month standard deviation of monthly 10Y yield
+          changes; the 10s30s slope proxies super-long term premium / fiscal-risk stress. Both are
+          live (MoF data) and enter the market-liquidity axis with polarity −1 (higher = less liquid).</p>
+      </div>
+</section>
 
     <!-- ============================ COMPOSITE HISTORY ============================ -->
     <section class="stage" aria-labelledby="hist-heading">
