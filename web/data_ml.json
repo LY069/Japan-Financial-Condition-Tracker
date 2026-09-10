@@ -2,7 +2,7 @@
   "meta": {
     "title": "Japan Monetary & Liquidity Conditions Tracker",
     "framework": "Monetary conditions (rates, money & credit, FX, balance sheet) and liquidity conditions (central-bank, funding, market)",
-    "generated_utc": "2026-09-10T08:58:42+00:00",
+    "generated_utc": "2026-09-10T09:06:50+00:00",
     "data_mode": "LIVE (official sources) + SEED fallback for un-fetched series",
     "latest_date": "2026-09-30",
     "score_window": "Each indicator is z-scored over its longest available history (polarity-signed so + = easier / more liquid); axes are weighted means of members; MCI / LCI are equal-weight means of their axes; the combined MLCI averages the two.",
@@ -3439,7 +3439,7 @@
       "weight": 0.75,
       "source": "BOJ",
       "source_url": "https://www.boj.or.jp/en/statistics/sj/index.htm",
-      "notes": "Central-bank absorption of the market; higher share = thinner free float",
+      "notes": "Central-bank absorption of the market; higher share = thinner free float, worse market liquidity (polarity -1).",
       "latest_date": "2026-09-30",
       "latest_value": 48.9082,
       "latest_source": "SEED",
