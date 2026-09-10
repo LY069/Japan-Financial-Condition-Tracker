@@ -427,6 +427,12 @@
       { id: "nikkei_vi", label: "Nikkei VI (%)", color: COLORS.amber, axis: "y2" },
       { id: "jgb_10y_vol", label: "10Y JGB realized vol (bp)", color: COLORS.red, axis: "y2", dash: [4, 3] }
     ], { yTitle: "normalized ticks", y2Title: "% / bp" });
+
+    // (d) term-premium stress from the MoF curve: realized 10Y vol (bp, left), 10s30s (pp, right)
+    multiSeriesChart("termPremiumChart", data, [
+      { id: "jgb_10y_vol", label: "10Y realized volatility (bp)", color: COLORS.red },
+      { id: "jgb_10s30s", label: "10s30s slope (pp)", color: COLORS.navy, axis: "y2", dash: [4, 3] }
+    ], { yTitle: "bp", y2Title: "pp" });
   }
 
   // 6: Composite history ----------------------------------------------------
