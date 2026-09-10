@@ -6,12 +6,28 @@ name: BoJ connector probe
 on:
   workflow_dispatch:
     inputs:
+      run_probe:
+        description: "Run the full connectivity probe (true/false)"
+        required: false
+        default: "false"
       discover_db:
         description: "Optional: database to search for codes (e.g. CO, IR04)"
         required: false
         default: ""
       discover_keyword:
         description: "Optional: keyword to match in series names"
+        required: false
+        default: ""
+      run_targets:
+        description: "Search every database we need codes from (true/false)"
+        required: false
+        default: "false"
+      dump_db:
+        description: "Optional: database for a raw series dump"
+        required: false
+        default: "CO"
+      dump_code:
+        description: "Optional: series code for a raw series dump"
         required: false
         default: ""
 
@@ -24,7 +40,14 @@ jobs:
         with:
           python-version: "3.11"
       - name: Probe BoJ endpoints
+        if: inputs.run_probe == 'true'
         run: python etl/boj_api.py --probe
       - name: Discover series codes
         if: inputs.discover_db != '' && inputs.discover_keyword != ''
         run: python etl/boj_api.py --discover "${{ inputs.discover_db }}" "${{ inputs.discover_keyword }}"
+      - name: Search every database we need codes from
+        if: inputs.run_targets == 'true'
+        run: python etl/boj_api.py --targets
+      - name: Dump one series response
+        if: inputs.dump_code != ''
+        run: python etl/boj_api.py --dump "${{ inputs.dump_db }}" "${{ inputs.dump_code }}"

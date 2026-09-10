@@ -261,22 +261,81 @@ def probe():
         _show(f"release page: {label}", rel)
 
 
-def discover(db: str, keyword: str, lang: str = "EN"):
-    """Print codes in `db` whose name contains `keyword` (case-insensitive)."""
+def metadata_rows(db: str, lang: str = "EN"):
+    """All catalogue rows for a database.
+
+    Confirmed response shape (probe, 2026-09-10):
+      {STATUS, MESSAGEID, MESSAGE, DATE, DB,
+       RESULTSET: [{SERIES_CODE, NAME_OF_TIME_SERIES, UNIT, FREQUENCY,
+                    CATEGORY, LAYER1..LAYER4}, ...]}
+    Header rows carry an empty SERIES_CODE and name a layer, so they are kept:
+    the layer names are what make a bare code readable.
+    """
+    doc = api("getMetadata", db=db, lang=lang)
+    if doc.get("STATUS") != 200:
+        raise RuntimeError(f"{db}: STATUS {doc.get('STATUS')} {doc.get('MESSAGE')}")
+    return doc.get("RESULTSET") or []
+
+
+def discover(db: str, keyword: str, lang: str = "EN", limit: int = 40):
+    """Print catalogue entries in `db` whose name or category matches `keyword`."""
     kw = keyword.lower()
-    for endpoint, params in (("getDataLayer", {"layer1": "*"}), ("getMetadata", {})):
+    try:
+        rows = metadata_rows(db, lang)
+    except Exception as e:  # noqa: BLE001
+        print(f"  {db}: {type(e).__name__}: {e}")
+        return []
+    hits = []
+    for r in rows:
+        name = str(r.get("NAME_OF_TIME_SERIES") or "")
+        cat = str(r.get("CATEGORY") or "")
+        if kw in name.lower() or kw in cat.lower():
+            hits.append(r)
+    print(f"\n  db={db} '{keyword}': {len(hits)} of {len(rows)} rows match")
+    for r in hits[:limit]:
+        code = r.get("SERIES_CODE") or ""
+        freq = r.get("FREQUENCY") or ""
+        unit = r.get("UNIT") or ""
+        layers = "/".join(str(r.get(f"LAYER{i}") or "") for i in range(1, 5))
+        marker = "  " if code else "> "  # "> " marks a layer heading
+        print(f"    {marker}{code:<24}{freq:<3}{str(r.get('NAME_OF_TIME_SERIES'))[:64]:<66}{unit[:14]:<16}{layers}")
+    if len(hits) > limit:
+        print(f"    ... {len(hits) - limit} more")
+    return hits
+
+
+def dump_series(db: str, code: str, lang: str = "EN"):
+    """Print a getDataCode response verbatim, to learn the data-point schema."""
+    doc = api("getDataCode", db=db, code=code, lang=lang)
+    text = json.dumps(doc, ensure_ascii=False, indent=1)
+    print(f"\n  getDataCode db={db} code={code}: {len(text)} chars")
+    print("\n".join("    " + ln for ln in text.splitlines()[:60]))
+
+
+# Databases to look through, with the names we need out of each.
+TARGETS = [
+    ("CO", ["lending attitude", "financial position", "general prices"]),
+    ("IR04", ["new loans", "average contract", "short-term"]),
+    ("FM01", ["commercial paper", "cp "]),
+    ("FM02", ["commercial paper"]),
+    ("FM08", ["commercial paper"]),
+    ("MD01", ["commercial paper"]),
+    ("MD10", ["commercial paper", "corporate bond"]),
+]
+
+
+def run_targets():
+    """One pass over every database/keyword pair we need codes for."""
+    for db, keywords in TARGETS:
+        print(f"\n=== {db} ===")
         try:
-            doc = api(endpoint, db=db, lang=lang, **params)
+            rows = metadata_rows(db)
         except Exception as e:  # noqa: BLE001
-            print(f"  {endpoint} failed: {type(e).__name__}: {e}")
+            print(f"  unavailable: {type(e).__name__}: {e}")
             continue
-        hits = [(c, n) for c, n in _walk(doc, []) if kw in n.lower()]
-        print(f"\n{endpoint} db={db} '{keyword}': {len(hits)} hits")
-        for c, n in hits[:60]:
-            print(f"  {c:<28}{n[:90]}")
-        if hits:
-            return hits
-    return []
+        print(f"  {len(rows)} catalogue rows")
+        for kw in keywords:
+            discover(db, kw)
 
 
 def main():
@@ -286,6 +345,10 @@ def main():
                     help="list series codes in DB whose name contains KEYWORD")
     ap.add_argument("--series", nargs=2, metavar=("DB", "CODE"),
                     help="fetch one series and print the last rows")
+    ap.add_argument("--dump", nargs=2, metavar=("DB", "CODE"),
+                    help="print a raw getDataCode response")
+    ap.add_argument("--targets", action="store_true",
+                    help="search every database we need codes from")
     args = ap.parse_args()
     if args.probe:
         probe()
@@ -294,7 +357,11 @@ def main():
     if args.series:
         rows = fetch_series(*args.series)
         print(f"{len(rows)} rows; last 8: {rows[-8:]}")
-    if not (args.probe or args.discover or args.series):
+    if args.dump:
+        dump_series(*args.dump)
+    if args.targets:
+        run_targets()
+    if not (args.probe or args.discover or args.series or args.dump or args.targets):
         ap.print_help()
         return 1
     return 0
