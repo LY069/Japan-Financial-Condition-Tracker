@@ -106,25 +106,43 @@ as repo secrets).
 ## Data vintage and seeding
 
 Every indicator is scored on its own latest observation, so the composite blends
-vintages. Both dashboards print an **As of** date for each indicator in the
-methodology table and flag any series that has fallen behind its normal
-publication lag (a monthly statistic more than two month-labels back, a
-quarterly one more than five).
+vintages. Both dashboards print an **As of** date and the true source for each
+indicator, and flag any series that has fallen behind its normal publication lag.
 
-Seeding follows two rules so a seeded series can never look fresher than it is:
+**28 of 33 series are live.** The Bank of Japan opened a public API for its
+Time-Series Data Search in February 2026 (`https://www.stat-search.boj.or.jp/api/v1`).
+It needs no registration and no key. `etl/boj_api.py` is the client;
+`sources.BOJ_API_SERIES` pins the codes, every one confirmed on a runner via the
+BoJ connector probe workflow rather than guessed.
+
+Live from the Bank: the policy rate (uncollateralized overnight call rate), the
+average contract rate on new loans, all four Tankan diffusion indexes, all three
+inflation expectation series, and potential growth (read from the published
+`gap.xlsx` workbook, which the Data Search does not carry).
+
+**Five series remain seeded, and the catalog records why for each.** Three have
+no live source at all: the Bank discontinued its commercial-paper yield series
+after October 2009, corporate bond spreads come from the JSDA rather than the
+Bank, and TOPIX is a JPX index the Data Search does not carry. Bank lending
+amounts exist in `MD11` but only as levels among about eighty near-identical
+variants, and the resolver refuses to guess between them.
+
+Seeding follows rules that keep a seeded series from ever looking fresher than
+it is:
 
 - A seeded series **ends at its last anchor** rather than carrying the last value
   forward, so no observation is invented for a month with no data. The policy
-  rate is the exception: it is a step level that holds by construction until the
-  next decision.
-- `etl/seed_data.py` runs on **every** refresh and is guarded **per date** — any
-  month that already carries a live observation keeps it, while months with no
-  live source are still seeded. That lets corrected anchors reach series with no
-  live connector, without ever overwriting official data.
-
-Series still awaiting a live connector (BoJ Time-Series Data Search exports:
-Tankan DIs, lending and CP rates, corporate spreads, TOPIX, inflation
-expectations) are the ones the vintage panel flags.
+  rate was the exception while it was seeded, being a level that holds by
+  construction; it is now live.
+- Where a live feed exists, the seed fills gaps inside and before its coverage
+  but **never past its end**, so a synthetic value can never be presented as the
+  newest reading.
+- `etl/seed_data.py` runs on every refresh and is guarded **per date**, so
+  corrected anchors reach series with no live connector without ever overwriting
+  official data. Cleanup is exact: seed rows exist at the dates a run intends and
+  nowhere else.
+- Verified published values are pinned so the seed's noise never perturbs a real
+  print.
 
 ## Repository layout
 
