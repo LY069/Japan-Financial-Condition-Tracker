@@ -2,8 +2,8 @@
   "meta": {
     "title": "Japan Financial Conditions Tracker",
     "framework": "Bank of Japan Review 2026-E-4 (two-stage assessment of financial conditions)",
-    "generated_utc": "2026-09-10T09:49:59+00:00",
-    "data_mode": "SEED (illustrative; run etl/fetch.py for live data)",
+    "generated_utc": "2026-09-10T23:03:39+00:00",
+    "data_mode": "LIVE (official sources) + SEED fallback for un-fetched series",
     "latest_date": "2026-09-30",
     "source_note": "Seed values are illustrative approximations anchored to recent observations; run etl/fetch.py for authoritative data from BoJ/MoF/e-Stat/FRED.",
     "axis_order": [
@@ -111,7 +111,7 @@
     {
       "key": "asset_prices",
       "label": "Asset prices",
-      "score": 2.9675,
+      "score": 2.9676,
       "label_text": "Accommodative",
       "direction": {
         "label": "Easing",
@@ -32726,13 +32726,13 @@
       "source_url": "https://www.jpx.co.jp/english/",
       "notes": "Headline equity index.",
       "latest_date": "2026-09-30",
-      "latest_value": 65226.9071,
+      "latest_value": 65232.4125,
       "latest_source": "FRED",
-      "score": 3.7229,
+      "score": 3.7233,
       "accommodation": "Accommodative",
       "direction": {
         "label": "Easing",
-        "delta": 0.951,
+        "delta": 0.952,
         "lag_date": "2026-03-31"
       },
       "observations": [
@@ -33826,7 +33826,7 @@
         ],
         [
           "2026-09-30",
-          65226.9071
+          65232.4125
         ]
       ]
     },
@@ -50913,7 +50913,7 @@
       ],
       [
         "2009-09-30",
-        -1.0802
+        -1.0801
       ],
       [
         "2009-10-31",
@@ -51705,11 +51705,11 @@
       ],
       [
         "2026-03-31",
-        2.4834
+        2.4833
       ],
       [
         "2026-04-30",
-        2.6065
+        2.6064
       ],
       [
         "2026-05-31",
@@ -51729,7 +51729,7 @@
       ],
       [
         "2026-09-30",
-        2.9675
+        2.9676
       ]
     ],
     "axis::funding_volumes": [
