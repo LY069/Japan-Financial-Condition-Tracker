@@ -2,8 +2,8 @@
   "meta": {
     "title": "Japan Financial Conditions Tracker",
     "framework": "Bank of Japan Review 2026-E-4 (two-stage assessment of financial conditions)",
-    "generated_utc": "2026-09-10T08:32:48+00:00",
-    "data_mode": "SEED (illustrative; run etl/fetch.py for live data)",
+    "generated_utc": "2026-09-10T08:36:44+00:00",
+    "data_mode": "LIVE (official sources) + SEED fallback for un-fetched series",
     "latest_date": "2026-09-30",
     "source_note": "Seed values are illustrative approximations anchored to recent observations; run etl/fetch.py for authoritative data from BoJ/MoF/e-Stat/FRED.",
     "axis_order": [
@@ -28,7 +28,7 @@
     "natural_rate_mid": -0.356,
     "natural_rate_high": 0.53,
     "core_cpi_yoy": 1.7921,
-    "jgb_10y": 2.95,
+    "jgb_10y": 2.9416,
     "fci_direction": {
       "label": "Easing",
       "delta": 0.167,
@@ -1290,7 +1290,7 @@
       "source_url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/",
       "notes": "MoF reference interest rates (daily) aggregated to monthly.",
       "latest_date": "2026-09-30",
-      "latest_value": 1.5528,
+      "latest_value": 1.5534,
       "score": null,
       "accommodation": null,
       "direction": {
@@ -3693,7 +3693,7 @@
         ],
         [
           "2026-09-30",
-          1.5528
+          1.5534
         ]
       ]
     },
@@ -3710,7 +3710,7 @@
       "source_url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/",
       "notes": "MoF reference interest rates.",
       "latest_date": "2026-09-30",
-      "latest_value": 1.8393,
+      "latest_value": 1.8384,
       "score": null,
       "accommodation": null,
       "direction": {
@@ -6161,7 +6161,7 @@
         ],
         [
           "2026-09-30",
-          1.8393
+          1.8384
         ]
       ]
     },
@@ -6178,7 +6178,7 @@
       "source_url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/",
       "notes": "MoF reference interest rates.",
       "latest_date": "2026-09-30",
-      "latest_value": 2.2825,
+      "latest_value": 2.2769,
       "score": null,
       "accommodation": null,
       "direction": {
@@ -8685,7 +8685,7 @@
         ],
         [
           "2026-09-30",
-          2.2825
+          2.2769
         ]
       ]
     },
@@ -8702,7 +8702,7 @@
       "source_url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/",
       "notes": "Benchmark long-term rate.",
       "latest_date": "2026-09-30",
-      "latest_value": 2.95,
+      "latest_value": 2.9416,
       "score": null,
       "accommodation": null,
       "direction": {
@@ -10641,7 +10641,7 @@
         ],
         [
           "2026-09-30",
-          2.95
+          2.9416
         ]
       ]
     },
@@ -10658,7 +10658,7 @@
       "source_url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/",
       "notes": "Super-long maturity.",
       "latest_date": "2026-09-30",
-      "latest_value": 4.04,
+      "latest_value": 4.028,
       "score": null,
       "accommodation": null,
       "direction": {
@@ -11965,7 +11965,7 @@
         ],
         [
           "2026-09-30",
-          4.04
+          4.028
         ]
       ]
     },
@@ -15150,12 +15150,12 @@
       "source_url": "",
       "notes": "Nominal 1y minus 1y expected inflation. 2005+ reference (ex-ante).",
       "latest_date": "2026-09-30",
-      "latest_value": -0.4265,
-      "score": -0.3325,
+      "latest_value": -0.4259,
+      "score": -0.3334,
       "accommodation": "Mildly restrictive",
       "direction": {
         "label": "Tightening",
-        "delta": -0.839,
+        "delta": -0.84,
         "lag_date": "2026-03-31"
       },
       "observations": [
@@ -16201,7 +16201,7 @@
         ],
         [
           "2026-09-30",
-          -0.4265
+          -0.4259
         ]
       ]
     },
@@ -16218,12 +16218,12 @@
       "source_url": "",
       "notes": "Medium real rate (3y interpolated). 2005+ reference (ex-ante).",
       "latest_date": "2026-09-30",
-      "latest_value": 0.1266,
-      "score": -1.0893,
+      "latest_value": 0.1241,
+      "score": -1.085,
       "accommodation": "Restrictive",
       "direction": {
         "label": "Tightening",
-        "delta": -1.06,
+        "delta": -1.056,
         "lag_date": "2026-03-31"
       },
       "observations": [
@@ -17269,7 +17269,7 @@
         ],
         [
           "2026-09-30",
-          0.1266
+          0.1241
         ]
       ]
     },
@@ -17286,12 +17286,12 @@
       "source_url": "",
       "notes": "Long real rate. 2005+ reference (ex-ante).",
       "latest_date": "2026-09-30",
-      "latest_value": 1.1512,
-      "score": -1.4254,
+      "latest_value": 1.1428,
+      "score": -1.4147,
       "accommodation": "Restrictive",
       "direction": {
         "label": "Tightening",
-        "delta": -0.753,
+        "delta": -0.742,
         "lag_date": "2026-03-31"
       },
       "observations": [
@@ -18337,7 +18337,7 @@
         ],
         [
           "2026-09-30",
-          1.1512
+          1.1428
         ]
       ]
     },
