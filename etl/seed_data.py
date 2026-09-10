@@ -168,19 +168,19 @@ def build():
         ("2014-04-30", 1.4), ("2016-06-30", 0.4), ("2020-06-30", 0.2),
         ("2022-12-31", 1.6), ("2023-06-30", 2.2), ("2024-06-30", 2.1),
         ("2025-06-30", 2.0), ("2026-06-30", 2.0),
-    ], mdates, noise=0.05)
+    ], qdates, noise=0.05)
     series["infexp_3y"] = interp([
         ("2005-01-31", 0.0), ("2008-09-30", 0.9), ("2009-06-30", -0.1),
         ("2014-04-30", 1.1), ("2016-06-30", 0.5), ("2020-06-30", 0.4),
         ("2022-12-31", 1.3), ("2023-06-30", 1.7), ("2024-06-30", 1.9),
         ("2025-06-30", 1.9), ("2026-06-30", 1.9),
-    ], mdates, noise=0.04)
+    ], qdates, noise=0.04)
     series["infexp_10y"] = interp([
         ("2005-01-31", 0.3), ("2009-06-30", 0.3), ("2014-04-30", 1.0),
         ("2016-06-30", 0.6), ("2020-06-30", 0.5), ("2022-12-31", 1.1),
         ("2023-06-30", 1.4), ("2024-06-30", 1.6), ("2025-06-30", 1.7),
         ("2026-06-30", 1.8),
-    ], mdates, noise=0.03)
+    ], qdates, noise=0.03)
 
     # ---- Stage 2: funding costs ----
     series["lending_rate"] = interp([
@@ -305,14 +305,27 @@ def main():
             "SELECT date FROM observations WHERE series_id=? AND source!='SEED'", (sid,))}
         rows = [(d, VERIFIED.get((sid, d), v)) for d, v in rows]
         keep = [(d, v) for d, v in rows if d not in live_dates]
+        if live_dates:
+            # Where a live feed exists, the seed fills gaps inside and before its
+            # coverage but never past its end: a synthetic tail after the last
+            # official print would be presented as the newest reading.
+            last_live = max(live_dates)
+            keep = [(d, v) for d, v in keep if d <= last_live]
         held += len(rows) - len(keep)
         total += upsert_observations(conn, sid, keep, source="SEED")
-        # Drop any SEED rows beyond the span the anchors now cover, so shortening
-        # a series (or tightening its horizon) cannot leave an orphaned tail behind.
-        if rows:
+        # SEED rows must exist at exactly the dates this run intends, and nowhere
+        # else. Anything left over from an earlier convention is deleted: a
+        # shortened horizon, a series that moved from monthly to quarterly, or a
+        # tail that a newly arrived live feed has now overtaken.
+        wanted = [d for d, _ in keep]
+        if wanted:
+            marks = ",".join("?" * len(wanted))
             conn.execute(
-                "DELETE FROM observations WHERE series_id=? AND source='SEED' AND date>?",
-                (sid, rows[-1][0]))
+                f"DELETE FROM observations WHERE series_id=? AND source='SEED' "
+                f"AND date NOT IN ({marks})", (sid, *wanted))
+        else:
+            conn.execute(
+                "DELETE FROM observations WHERE series_id=? AND source='SEED'", (sid,))
     conn.commit()
     if held:
         print(f"  {held} months left untouched because live observations exist")
