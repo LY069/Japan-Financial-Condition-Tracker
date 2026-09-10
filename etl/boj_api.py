@@ -99,22 +99,26 @@ def _walk(node, out, depth=0):
     return out
 
 
-def _points(node, out):
-    """Collect (date, value) pairs from an arbitrarily shaped JSON response."""
-    if isinstance(node, dict):
-        d = node.get("time") or node.get("date") or node.get("period")
-        v = node.get("value") if "value" in node else node.get("val")
-        if d is not None and v not in (None, "", "NA", "ND"):
-            try:
-                out.append((str(d), float(str(v).replace(",", ""))))
-            except ValueError:
-                pass
-        for x in node.values():
-            _points(x, out)
-    elif isinstance(node, list):
-        for x in node:
-            _points(x, out)
-    return out
+def period_to_month_end(period, frequency: str):
+    """BoJ period label -> month-end ISO date.
+
+    Confirmed shapes (probe, 2026-09-10): monthly periods are YYYYMM
+    (202607 = July 2026); quarterly ones are YYYYQQ with QQ in 01..04
+    (202602 = 2026 Q2), so the same six digits mean different things and the
+    series' own FREQUENCY has to decide. Annual periods are YYYY.
+    """
+    s = str(period).strip()
+    freq = (frequency or "").upper()
+    if len(s) == 6 and s.isdigit():
+        y, n = int(s[:4]), int(s[4:])
+        if freq.startswith("Q"):
+            return _month_end(y, n * 3) if 1 <= n <= 4 else None
+        return _month_end(y, n) if 1 <= n <= 12 else None
+    if len(s) == 8 and s.isdigit():
+        return f"{s[:4]}-{s[4:6]}-{s[6:]}"
+    if len(s) == 4 and s.isdigit():
+        return f"{s}-12-31"
+    return None
 
 
 def normalize_period(p: str):
@@ -144,13 +148,30 @@ def _month_end(y: int, m: int) -> str:
 
 
 def fetch_series(db: str, code: str, lang: str = "EN"):
-    """Fetch one series as [(iso_date, value)], month-end dated."""
+    """Fetch one series as [(month_end_iso, float)].
+
+    Response shape (confirmed): RESULTSET[0].VALUES holds two parallel lists,
+    SURVEY_DATES and VALUES.
+    """
     doc = api("getDataCode", db=db, code=code, lang=lang)
+    if doc.get("STATUS") != 200:
+        raise RuntimeError(f"{db}/{code}: STATUS {doc.get('STATUS')} {doc.get('MESSAGE')}")
     rows = []
-    for period, value in _points(doc, []):
-        iso = normalize_period(period)
-        if iso:
-            rows.append((iso, value))
+    for entry in doc.get("RESULTSET") or []:
+        vals = entry.get("VALUES") or {}
+        dates = vals.get("SURVEY_DATES") or []
+        values = vals.get("VALUES") or []
+        freq = entry.get("FREQUENCY") or ""
+        for period, value in zip(dates, values):
+            if value in (None, "", "NA", "ND", "-"):
+                continue
+            try:
+                v = float(str(value).replace(",", ""))
+            except ValueError:
+                continue
+            iso = period_to_month_end(period, freq)
+            if iso:
+                rows.append((iso, v))
     rows.sort()
     return rows
 
@@ -350,30 +371,34 @@ def find(db: str, *terms, lang: str = "EN", limit: int = 40):
     return hits
 
 
-# Databases to look through, with the names we need out of each.
-TARGETS = [
-    ("CO", ["lending attitude", "financial position", "general prices"]),
-    ("IR04", ["new loans", "average contract", "short-term"]),
-    ("FM01", ["commercial paper", "cp "]),
-    ("FM02", ["commercial paper"]),
-    ("FM08", ["commercial paper"]),
-    ("MD01", ["commercial paper"]),
-    ("MD10", ["commercial paper", "corporate bond"]),
+# Series still to pin, as (database, AND-matched terms).
+# Already confirmed and wired in sources.BOJ_API_SERIES:
+#   IR04 DLLR2CIDBNL1          lending_rate
+#   CO   TK99F0000612GCQ01000  tankan_lend_large
+#   CO   TK99F0000612GCQ03000  tankan_lend_small
+FINDS = [
+    ("CO", ["Financial Position", "All industries", "Actual result", "D.I."]),
+    ("CO", ["Outlook for General Prices", "All industries", "1 year ahead"]),
+    ("CO", ["Outlook for General Prices", "All industries", "3 years ahead"]),
+    ("FM02", ["CP"]),
+    ("FM02", ["Yields"]),
+    ("MD10", ["Bonds"]),
 ]
+
+# getMetadata needs a db; try to learn the valid list from the error it returns.
+DB_LIST_PROBE = [("getMetadata", {"lang": "EN"}), ("getMetadata", {"db": "*", "lang": "EN"})]
 
 
 def run_targets():
-    """One pass over every database/keyword pair we need codes for."""
-    for db, keywords in TARGETS:
-        print(f"\n=== {db} ===")
+    """One pass over every search still outstanding."""
+    for endpoint, params in DB_LIST_PROBE:
+        _show(f"database list via {endpoint} {params}",
+              lambda e=endpoint, p=params: print("  " + json.dumps(api(e, **p))[:600]))
+    for db, terms in FINDS:
         try:
-            rows = metadata_rows(db)
+            find(db, *terms)
         except Exception as e:  # noqa: BLE001
-            print(f"  unavailable: {type(e).__name__}: {e}")
-            continue
-        print(f"  {len(rows)} catalogue rows")
-        for kw in keywords:
-            discover(db, kw)
+            print(f"  {db} {terms}: {type(e).__name__}: {e}")
 
 
 def main():
