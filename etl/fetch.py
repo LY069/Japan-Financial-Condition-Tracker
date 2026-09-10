@@ -58,16 +58,31 @@ def run_mof(conn):
 
 def run_boj_files(conn):
     """BoJ series published as files rather than through the Data Search API."""
+    n = 0
     try:
         import boj_api
+    except Exception as e:  # noqa: BLE001
+        print(f"  [BOJ] files/derived: skipped: {e}")
+        return 0
+
+    try:
         rows = boj_api.fetch_potential_growth()
+        if rows:
+            n += upsert_observations(conn, "potential_growth", rows, "BOJ")
+            print(f"  [BOJ] potential_growth: {len(rows)} obs, "
+                  f"latest {rows[-1][0]} = {rows[-1][1]}")
     except Exception as e:  # noqa: BLE001
         print(f"  [BOJ] potential_growth: skipped: {e}")
-        return 0
-    if not rows:
-        return 0
-    n = upsert_observations(conn, "potential_growth", rows, "BOJ")
-    print(f"  [BOJ] potential_growth: {len(rows)} obs, latest {rows[-1][0]} = {rows[-1][1]}")
+
+    for sid in boj_api.DERIVED:
+        try:
+            rows = boj_api.fetch_derived(sid)
+        except Exception as e:  # noqa: BLE001 - an ambiguous name must not guess
+            print(f"  [BOJ] {sid}: skipped: {e}")
+            continue
+        if rows:
+            n += upsert_observations(conn, sid, rows, "BOJ")
+            print(f"  [BOJ] {sid}: {len(rows)} obs, latest {rows[-1][0]} = {rows[-1][1]}")
     return n
 
 
