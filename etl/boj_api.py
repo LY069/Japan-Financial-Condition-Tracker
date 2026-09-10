@@ -346,7 +346,7 @@ def dump_series(db: str, code: str, lang: str = "EN"):
                 print(f"    {k}: {v!r}")
 
 
-def find(db: str, *terms, lang: str = "EN", limit: int = 40):
+def find(db: str, *terms, lang: str = "EN", limit: int = 12):
     """Print catalogue entries whose name contains EVERY term (AND, case-insensitive)."""
     wanted = [x.lower() for x in terms if x]
     try:
@@ -378,11 +378,9 @@ def find(db: str, *terms, lang: str = "EN", limit: int = 40):
 #   CO   TK99F0000612GCQ03000  tankan_lend_small
 FINDS = [
     ("CO", ["Financial Position", "All industries", "Actual result", "D.I."]),
-    ("CO", ["Outlook for General Prices", "All industries", "1 year ahead"]),
-    ("CO", ["Outlook for General Prices", "All industries", "3 years ahead"]),
-    ("FM02", ["CP"]),
-    ("FM02", ["Yields"]),
-    ("MD10", ["Bonds"]),
+    ("CO", ["Outlook for General Prices", "All industries", "1 year ahead", "Average of Enterprises"]),
+    ("CO", ["Outlook for General Prices", "All industries", "5 years ahead", "Average of Enterprises"]),
+    ("IR04", ["Short-term", "Domestically Licensed Banks", "New Loans"]),
 ]
 
 # getMetadata needs a db; try to learn the valid list from the error it returns.
@@ -391,9 +389,6 @@ DB_LIST_PROBE = [("getMetadata", {"lang": "EN"}), ("getMetadata", {"db": "*", "l
 
 def run_targets():
     """One pass over every search still outstanding."""
-    for endpoint, params in DB_LIST_PROBE:
-        _show(f"database list via {endpoint} {params}",
-              lambda e=endpoint, p=params: print("  " + json.dumps(api(e, **p))[:600]))
     for db, terms in FINDS:
         try:
             find(db, *terms)
