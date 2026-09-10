@@ -2,8 +2,8 @@
   "meta": {
     "title": "Japan Monetary & Liquidity Conditions Tracker",
     "framework": "Monetary conditions (rates, money & credit, FX, balance sheet) and liquidity conditions (central-bank, funding, market)",
-    "generated_utc": "2026-09-10T08:37:54+00:00",
-    "data_mode": "SEED (illustrative; run etl/fetch.py for live data)",
+    "generated_utc": "2026-09-10T08:58:42+00:00",
+    "data_mode": "LIVE (official sources) + SEED fallback for un-fetched series",
     "latest_date": "2026-09-30",
     "score_window": "Each indicator is z-scored over its longest available history (polarity-signed so + = easier / more liquid); axes are weighted means of members; MCI / LCI are equal-weight means of their axes; the combined MLCI averages the two.",
     "source_note": "Live where mapped (FRED mirrors of BoJ/BIS series); BoJ-only series (money-market spreads, JGB market functioning, balance-sheet shares) are illustrative seed anchored to recent observations until BoJ CSVs are ingested.",
