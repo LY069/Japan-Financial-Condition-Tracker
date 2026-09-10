@@ -207,6 +207,8 @@ def main():
     series = {}
     for r in cat:
         sid = r["series_id"]
+        if (r["stage"] or "").startswith("ml_"):
+            continue            # Monetary & Liquidity tracker series live in data_ml.json
         obs = [[d, round(v, 4)] for d, v in get_series(conn, sid) if v is not None]
         if not obs:
             continue

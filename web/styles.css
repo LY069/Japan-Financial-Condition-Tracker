@@ -356,3 +356,71 @@ main.wrap { padding-top: 28px; padding-bottom: 40px; }
   .natrate-read { flex-direction: column; align-items: flex-start; }
   .method-tbl .src { display: none; }
 }
+
+/* ------------------------------ Top nav ------------------------------ */
+.topnav { display: flex; gap: 6px; flex-wrap: wrap; }
+.topnav a {
+  color: #dbe2f0; text-decoration: none; font-size: 13px; font-weight: 600;
+  padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(255,255,255,.22);
+}
+.topnav a:hover { background: rgba(255,255,255,.10); }
+.topnav a.active { background: var(--amber); color: #2a1d00; border-color: var(--amber); }
+
+/* =========================================================================
+   Monetary & Liquidity Conditions page (monetary.html) — additive rules only
+   ========================================================================= */
+/* Hero: two gauges + combined MLCI card, metrics below */
+.hero-top { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; align-items: stretch; }
+.combo-card { display: flex; flex-direction: column; justify-content: space-between; }
+.combo-body { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; flex: 1; justify-content: center; }
+.combo-score { font-size: 34px; font-weight: 700; line-height: 1; color: var(--navy); }
+.combo-formula { font-size: 12px; color: var(--slate-light); margin: 0; }
+.combo-formula b { color: var(--navy); }
+.metrics-ml { grid-template-columns: repeat(5, 1fr); margin-top: 20px; }
+.metric-value.sm { font-size: 22px; }
+
+/* Definitions panel */
+.def-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.def-card h3 { margin: 0 0 6px; font-size: 15px; color: var(--navy); font-weight: 650; }
+.def-card .def-lead { margin: 0 0 10px; font-size: 13.5px; color: var(--ink); }
+.def-list { list-style: none; margin: 0; padding: 0; }
+.def-list li {
+  display: grid; grid-template-columns: 150px 1fr; gap: 10px; padding: 7px 0;
+  border-top: 1px solid var(--line); font-size: 13px; color: var(--slate);
+}
+.def-list li b { color: var(--navy); font-weight: 650; }
+.def-diff {
+  margin-top: 16px; padding: 12px 16px; font-size: 13px; color: var(--slate);
+  background: #f6f8fc; border: 1px solid var(--line); border-radius: 10px;
+}
+.def-diff a { color: var(--navy-soft); }
+
+/* Axis cards: three-up variant for liquidity */
+.axis-grid-3 { grid-template-columns: repeat(3, 1fr); }
+.axis-desc { margin: 0; font-size: 12.5px; color: var(--slate-light); }
+
+/* Implications panel */
+.impl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+.impl-card h3 { margin: 0 0 8px; font-size: 15px; color: var(--navy); font-weight: 650; }
+.impl-card .impl-kicker {
+  display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; color: var(--amber); margin-bottom: 4px;
+}
+.impl-card ul { margin: 0; padding-left: 18px; font-size: 13px; color: var(--slate); }
+.impl-card li { margin: 6px 0; }
+.impl-card li b { color: var(--ink); }
+
+/* Footer key for stage naming */
+.foot-col .stage-key { display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; }
+
+@media (max-width: 960px) {
+  .hero-top { grid-template-columns: 1fr 1fr; }
+  .combo-card { grid-column: 1 / -1; }
+  .metrics-ml { grid-template-columns: repeat(3, 1fr); }
+  .def-grid, .impl-grid, .axis-grid-3 { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .hero-top { grid-template-columns: 1fr; }
+  .metrics-ml { grid-template-columns: 1fr 1fr; }
+  .def-list li { grid-template-columns: 1fr; gap: 2px; }
+}

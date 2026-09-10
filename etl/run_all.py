@@ -41,11 +41,15 @@ def main():
         run("seed_data.py")
     if not args.no_fetch:
         run("fetch.py")
+    run("seed_data_ml.py")     # Monetary & Liquidity series (guarded: never overwrites live data)
     run("dedupe_monthly.py")   # one row per series-month (month-end); guards chart alignment
     run("build_indicators.py")
+    run("build_indicators_ml.py")
     run("export_web.py")
+    run("export_web_ml.py")
     run("export_excel.py")
-    print("\nPipeline complete: data/jfct.db, web/data.json, Japan_FCI_Tracker.xlsx are up to date.")
+    run("export_excel_ml.py")
+    print("\nPipeline complete: data/jfct.db, web/data*.json, Japan_FCI_Tracker.xlsx, Japan_ML_Tracker.xlsx are up to date.")
 
 
 if __name__ == "__main__":

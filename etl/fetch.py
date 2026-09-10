@@ -36,6 +36,9 @@ BOJ_CSV_SERIES = {
     "infexp_1y", "infexp_3y", "infexp_10y", "lending_rate", "cp_rate", "corp_bond_spread",
     "topix", "bank_lending_yoy", "cp_corpbond_yoy", "potential_growth",
     "natural_rate_low", "natural_rate_mid", "natural_rate_high",
+    # Monetary & Liquidity tracker (BoJ Time-Series Data Search / BoJ Bond Market Survey exports)
+    "monetary_base_yoy", "boj_ca_yoy", "call_policy_spread", "tibor_ois_3m", "jpy_basis_3m",
+    "jgb_market_functioning_di", "jgb_bid_ask", "boj_jgb_share", "nikkei_vi",
 }
 
 
