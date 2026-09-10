@@ -22,6 +22,10 @@ on:
         description: "Search every database we need codes from (true/false)"
         required: false
         default: "false"
+      run_dbscan:
+        description: "Map which databases exist and hold the outstanding series (true/false)"
+        required: false
+        default: "false"
       find_terms:
         description: 'Optional: DB then quoted terms, e.g. CO "Lending Attitude" "All Industries"'
         required: false
@@ -52,6 +56,9 @@ jobs:
       - name: Search every database we need codes from
         if: inputs.run_targets == 'true'
         run: python etl/boj_api.py --targets
+      - name: Map the database namespace
+        if: inputs.run_dbscan == 'true'
+        run: python etl/boj_api.py --dbscan
       - name: Find codes by combined terms
         if: inputs.find_terms != ''
         run: python etl/boj_api.py --find ${{ inputs.find_terms }}
