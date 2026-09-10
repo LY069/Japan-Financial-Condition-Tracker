@@ -56,6 +56,21 @@ def run_mof(conn):
     return n
 
 
+def run_boj_files(conn):
+    """BoJ series published as files rather than through the Data Search API."""
+    try:
+        import boj_api
+        rows = boj_api.fetch_potential_growth()
+    except Exception as e:  # noqa: BLE001
+        print(f"  [BOJ] potential_growth: skipped: {e}")
+        return 0
+    if not rows:
+        return 0
+    n = upsert_observations(conn, "potential_growth", rows, "BOJ")
+    print(f"  [BOJ] potential_growth: {len(rows)} obs, latest {rows[-1][0]} = {rows[-1][1]}")
+    return n
+
+
 def run_boj_api(conn):
     """Pinned BoJ Time-Series Data Search series (public API, no key)."""
     n = 0
@@ -216,6 +231,7 @@ def main():
         total += run_estat(conn)
     if args.only in (None, "boj"):
         total += run_boj_api(conn)
+        total += run_boj_files(conn)
     if (args.only in (None, "boj")) and args.boj_dir:
         total += run_boj_dir(conn, args.boj_dir)
 

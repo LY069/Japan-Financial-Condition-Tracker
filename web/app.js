@@ -676,7 +676,8 @@
   // further back is genuinely waiting on data, not on the calendar.
   function vintageOf(s, asof) {
     var lag = monthsBetween(s.latest_date, asof);
-    var allowed = (s.frequency === "quarterly") ? 5 : 2;
+    var allowed = s.frequency === "semiannual" ? 9
+                : s.frequency === "quarterly" ? 5 : 2;
     return { lag: lag, stale: lag > allowed, date: s.latest_date };
   }
 

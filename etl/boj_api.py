@@ -209,6 +209,71 @@ def read_flat_zip(url: str, max_rows: int = 5):
     return names, sample
 
 
+
+# ------------------------------------------ published spreadsheet: output gap -----
+GAP_XLSX = "https://www.boj.or.jp/en/research/research_data/gap/gap.xlsx"
+
+
+def _last_quarter_end(label: str):
+    """'1983.1 : 1983.2Q-1983.4Q' -> '1983-12-31' (the half-year's final quarter)."""
+    quarters = re.findall(r"(\d{4})\.(\d)Q", str(label))
+    if not quarters:
+        return None
+    y, q = quarters[-1]
+    q = int(q)
+    return _month_end(int(y), q * 3) if 1 <= q <= 4 else None
+
+
+def fetch_potential_growth():
+    """BoJ potential growth rate from the published output-gap workbook.
+
+    Sheet 'data2' is semi-annual by fiscal year: five header rows, then a period
+    label like '1983.1 : 1983.2Q-1983.4Q' and the potential growth rate in y/y %.
+    The observation is dated to the final quarter of the half it covers.
+    """
+    import openpyxl
+    import os
+    import tempfile
+
+    blob = _get(GAP_XLSX, timeout=180)
+    fh = tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False)
+    fh.write(blob)
+    fh.close()
+    try:
+        wb = openpyxl.load_workbook(fh.name, read_only=True, data_only=True)
+        ws = wb["data2"]
+        rows = list(ws.iter_rows(values_only=True))
+    finally:
+        os.unlink(fh.name)
+
+    # Find the column whose English header names the potential growth rate,
+    # rather than trusting a fixed position.
+    col = None
+    for row in rows[:6]:
+        for i, cell in enumerate(row):
+            if cell and "potential growth rate" in str(cell).lower():
+                col = i
+                break
+        if col is not None:
+            break
+    if col is None:
+        col = 1  # the workbook has kept it in column B, but say so if that changes
+        print("  [BOJ] gap.xlsx: potential-growth header not found, using column B")
+
+    out = []
+    for row in rows:
+        if not row or row[0] is None:
+            continue
+        iso = _last_quarter_end(row[0])
+        if not iso or col >= len(row):
+            continue
+        v = row[col]
+        if isinstance(v, (int, float)):
+            out.append((iso, float(v)))
+    out.sort()
+    return out
+
+
 # ---------------------------------------------------------------- probe -----
 # Parameter shapes to try, since the manual is not reachable from every network.
 PROBE_CALLS = [
@@ -434,6 +499,11 @@ def run_targets():
 # The six series still seeded. Each needs either a database we have not looked
 # in, a published file, or a source outside the Bank entirely.
 HUNT = [
+    ("MD11", ["loans and bills discounted", "loans", "average amounts outstanding"]),
+    ("LA03", ["outstanding", "total"]),
+    ("FM03", ["outstanding"]),
+    ("FM05", ["corporate", "outstanding"]),
+    ("FM09", ["effective exchange rate"]),
     # bank_lending_yoy and cp_corpbond_yoy are AMOUNTS, and IR04 holds only the
     # interest rates on those amounts, so the amounts live in another database.
     ("LA01", ["loans", "outstanding", "bills discounted"]),
