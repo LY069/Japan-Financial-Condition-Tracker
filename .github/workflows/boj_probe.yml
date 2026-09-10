@@ -22,6 +22,10 @@ on:
         description: "Search every database we need codes from (true/false)"
         required: false
         default: "false"
+      find_terms:
+        description: 'Optional: DB then quoted terms, e.g. CO "Lending Attitude" "All Industries"'
+        required: false
+        default: ""
       dump_db:
         description: "Optional: database for a raw series dump"
         required: false
@@ -48,6 +52,9 @@ jobs:
       - name: Search every database we need codes from
         if: inputs.run_targets == 'true'
         run: python etl/boj_api.py --targets
+      - name: Find codes by combined terms
+        if: inputs.find_terms != ''
+        run: python etl/boj_api.py --find ${{ inputs.find_terms }}
       - name: Dump one series response
         if: inputs.dump_code != ''
         run: python etl/boj_api.py --dump "${{ inputs.dump_db }}" "${{ inputs.dump_code }}"
