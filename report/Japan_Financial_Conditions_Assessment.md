@@ -8,6 +8,8 @@
 
 > **Labelling caveat.** The composite Financial Conditions Index (FCI) below is an *analytical synthesis* on the axes of the BoJ's framework — a z-score composite assembled by this tracker. It is **not** an official BoJ index; the BoJ publishes no single headline FCI and sets out only a *qualitative* comprehensive judgment. "The BoJ's own read" refers to that qualitative judgment; numerical scores are the tracker's measure. Each accommodation score is signed so **positive = more accommodative**; "direction" is the trailing 6-month change (▲ easing / ▼ tightening / → stable).
 
+> **Data addendum (snapshot 2026-09-30, regenerated 2026-09-10).** After the Monetary & Liquidity companion work re-anchored the bank-lending series to the latest BoJ *Loans and Discounts* prints (+5.8% y/y Jun-2026, +5.6% Sep-2026) and the monthly pipeline was re-run, the live tracker now reads: composite **FCI +1.08** (accommodative, ▲ easing over six months); real rates **+0.41** (▼ tightening); funding costs **−0.82** (▼ tightening); availability **+1.07** (→ stable); asset prices **+2.87** (▲ easing); funding volumes **+1.20** (→ stable). The real policy rate (−0.98%), the natural-rate band and the rate gap (−0.62pp) are unchanged. The direction of every argument below is unaffected; the volumes axis is simply easier than the +0.55 quoted in the text, and the headline FCI stronger than the +0.80 quoted. The companion assessment of monetary and liquidity conditions is in `report/Japan_Monetary_Liquidity_Conditions_Assessment.md`.
+
 ---
 
 ## 1. Executive summary
