@@ -424,3 +424,9 @@ main.wrap { padding-top: 28px; padding-bottom: 40px; }
   .metrics-ml { grid-template-columns: 1fr 1fr; }
   .def-list li { grid-template-columns: 1fr; gap: 2px; }
 }
+
+/* Data vintage in the methodology table -------------------------------- */
+.method-tbl td.asof { white-space: nowrap; font-variant-numeric: tabular-nums; color: #4b5563; }
+.method-tbl td.asof.stale { color: #b45309; font-weight: 600; }
+.method-tbl td.asof.stale span { color: #d97706; }
+#vintage-panel p { margin-top: 0; }

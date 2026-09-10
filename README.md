@@ -103,6 +103,29 @@ as repo secrets).
 
 ---
 
+## Data vintage and seeding
+
+Every indicator is scored on its own latest observation, so the composite blends
+vintages. Both dashboards print an **As of** date for each indicator in the
+methodology table and flag any series that has fallen behind its normal
+publication lag (a monthly statistic more than two month-labels back, a
+quarterly one more than five).
+
+Seeding follows two rules so a seeded series can never look fresher than it is:
+
+- A seeded series **ends at its last anchor** rather than carrying the last value
+  forward, so no observation is invented for a month with no data. The policy
+  rate is the exception: it is a step level that holds by construction until the
+  next decision.
+- `etl/seed_data.py` runs on **every** refresh and is guarded **per date** — any
+  month that already carries a live observation keeps it, while months with no
+  live source are still seeded. That lets corrected anchors reach series with no
+  live connector, without ever overwriting official data.
+
+Series still awaiting a live connector (BoJ Time-Series Data Search exports:
+Tankan DIs, lending and CP rates, corporate spreads, TOPIX, inflation
+expectations) are the ones the vintage panel flags.
+
 ## Repository layout
 
 ```

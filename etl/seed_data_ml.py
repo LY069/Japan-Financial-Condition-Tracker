@@ -14,7 +14,8 @@ from db import connect, init_db, load_catalog, upsert_observations
 from seed_data import interp, month_ends, quarter_ends
 
 random.seed(20260910)
-END = date(2026, 9, 1)
+# Track the current month, like seed_data.END (values hold flat past the last anchor).
+END = date.today().replace(day=1)
 
 
 def build():

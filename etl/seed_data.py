@@ -20,7 +20,10 @@ from db import connect, init_db, load_catalog, upsert_observations, set_meta
 random.seed(20260620)
 
 START = date(2005, 1, 1)
-END = date(2026, 6, 1)
+# Seed horizon runs to the CURRENT month so seeded series never silently
+# stop short of the live ones. Values are held flat past the last anchor,
+# so extending the horizon adds no invented movement - only carry-forward.
+END = date.today().replace(day=1)
 
 
 def month_ends(start: date = START, end: date = END):
@@ -51,16 +54,23 @@ def quarter_ends(start: date = START, end: date = END):
     return out
 
 
-def interp(anchors, dates, noise=0.0):
+def interp(anchors, dates, noise=0.0, extend=False):
     """Piecewise-linear interpolation of (iso_date,value) anchors onto `dates`.
 
-    Anchors must be sorted. Values before/after the range are held flat.
+    Anchors must be sorted. Values before the first anchor are held flat.
+    After the LAST anchor the series simply ends (extend=False, the default):
+    a seeded observation is only produced for the span the anchors actually
+    cover, so the tracker never shows a carried-forward value as if it were a
+    fresh print. Pass extend=True only for quantities that hold by
+    construction rather than by observation.
     """
     ax = [date.fromisoformat(d).toordinal() for d, _ in anchors]
     ay = [v for _, v in anchors]
     out = []
     for d in dates:
         x = date.fromisoformat(d).toordinal()
+        if x > ax[-1] and not extend:
+            break
         if x <= ax[0]:
             y = ay[0]
         elif x >= ax[-1]:
@@ -92,6 +102,17 @@ def step(anchors, dates):
     return out
 
 
+# Exact published values, applied verbatim after noise so a real print is
+# never shown perturbed. (series_id, date) -> value.
+VERIFIED = {
+    # BoJ, Loans and Discounts (banks excl. shinkin), released 2026-09-09
+    ("bank_lending_yoy", "2026-07-31"): 5.9,
+    ("bank_lending_yoy", "2026-08-31"): 5.8,
+    # TOPIX close, 31 Aug 2026
+    ("topix", "2026-08-31"): 4156.29,
+}
+
+
 def build():
     mdates = month_ends()
     qdates = quarter_ends()
@@ -105,7 +126,7 @@ def build():
         ("2013-04-30", 0.10), ("2016-02-29", -0.10), ("2024-03-31", 0.05),
         ("2024-07-31", 0.25), ("2025-01-31", 0.50), ("2025-12-31", 0.75),
         ("2026-06-30", 1.00),
-    ], mdates)
+    ], mdates)  # step() holds the prevailing rate forward by construction
 
     # ---- JGB nominal curve ----
     series["jgb_1y"] = interp([
@@ -216,6 +237,8 @@ def build():
         ("2020-03-31", 1300), ("2021-09-30", 2090), ("2023-06-30", 2290),
         ("2024-07-31", 2870), ("2025-06-30", 3250), ("2026-03-31", 3700),
         ("2026-06-30", 3950),
+        # Verified close: 31 Aug 2026 = 4,156.29
+        ("2026-08-31", 4156.29),
     ], mdates, noise=18)
     series["nikkei225"] = interp([
         ("2005-01-31", 11400), ("2007-06-30", 18100), ("2009-02-28", 7600),
@@ -236,7 +259,9 @@ def build():
         ("2005-01-31", -1.8), ("2007-06-30", 0.8), ("2008-12-31", 3.6),
         ("2010-06-30", -1.9), ("2013-06-30", 2.3), ("2016-06-30", 2.4),
         ("2020-06-30", 6.2), ("2021-06-30", 0.8), ("2023-06-30", 3.1),
-        ("2025-06-30", 4.6), ("2026-06-30", 5.8), ("2026-09-30", 5.6),
+        ("2025-06-30", 4.6), ("2026-06-30", 5.8),
+        # Verified BoJ prints (banks excl. shinkin): Jul-2026 +5.9%, Aug-2026 +5.8%
+        ("2026-07-31", 5.9), ("2026-08-31", 5.8),
     ], mdates, noise=0.15)
     series["cp_corpbond_yoy"] = interp([
         ("2005-01-31", 1.0), ("2008-12-31", 8.0), ("2010-06-30", -2.0),
@@ -270,8 +295,27 @@ def main():
     load_catalog(conn)
     series = build()
     total = 0
+    held = 0
     for sid, rows in series.items():
-        total += upsert_observations(conn, sid, rows, source="SEED")
+        # Guard, per DATE rather than per series: any month already carrying a
+        # live observation keeps it, while months with no live source are still
+        # seeded. That protects live history without stranding the seeded tail
+        # of a series whose feed stops part-way (e.g. the policy rate).
+        live_dates = {r[0] for r in conn.execute(
+            "SELECT date FROM observations WHERE series_id=? AND source!='SEED'", (sid,))}
+        rows = [(d, VERIFIED.get((sid, d), v)) for d, v in rows]
+        keep = [(d, v) for d, v in rows if d not in live_dates]
+        held += len(rows) - len(keep)
+        total += upsert_observations(conn, sid, keep, source="SEED")
+        # Drop any SEED rows beyond the span the anchors now cover, so shortening
+        # a series (or tightening its horizon) cannot leave an orphaned tail behind.
+        if rows:
+            conn.execute(
+                "DELETE FROM observations WHERE series_id=? AND source='SEED' AND date>?",
+                (sid, rows[-1][0]))
+    conn.commit()
+    if held:
+        print(f"  {held} months left untouched because live observations exist")
     # Real BoJ six-model natural-rate band (data/seed/natural_rate_band.csv).
     try:
         from load_neutral_rate import read_csv, load_band
