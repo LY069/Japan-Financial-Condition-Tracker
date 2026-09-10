@@ -1,0 +1,30 @@
+name: BoJ connector probe
+
+# Manual diagnostic: reports which Bank of Japan endpoints (API, flat files,
+# per-statistic release pages) respond from a runner, so series codes can be
+# pinned from evidence. Read-only; commits nothing.
+on:
+  workflow_dispatch:
+    inputs:
+      discover_db:
+        description: "Optional: database to search for codes (e.g. CO, IR04)"
+        required: false
+        default: ""
+      discover_keyword:
+        description: "Optional: keyword to match in series names"
+        required: false
+        default: ""
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Probe BoJ endpoints
+        run: python etl/boj_api.py --probe
+      - name: Discover series codes
+        if: inputs.discover_db != '' && inputs.discover_keyword != ''
+        run: python etl/boj_api.py --discover "${{ inputs.discover_db }}" "${{ inputs.discover_keyword }}"
