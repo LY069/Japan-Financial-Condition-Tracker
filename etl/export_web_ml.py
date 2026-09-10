@@ -19,6 +19,14 @@ OUT = os.path.join(ROOT, "web", "data_ml.json")
 CONTEXT = ["policy_rate", "core_cpi_yoy", "jgb_10y", "usdjpy", "bank_lending_yoy", "real_1y_xp"]
 
 
+def latest_source(conn, sid):
+    """Source of the newest observation for a series (MOF/FRED/ESTAT/BOJ/COMPUTED/SEED)."""
+    r = conn.execute(
+        "SELECT source FROM observations WHERE series_id=? ORDER BY date DESC LIMIT 1",
+        (sid,)).fetchone()
+    return (r[0] if r else None)
+
+
 def series_score_hist(conn, sid):
     cur = conn.execute("SELECT date, score FROM indicators WHERE scope='series' AND key=? ORDER BY date",
                        (f"ml::{sid}",))
@@ -65,6 +73,8 @@ def main():
             "unit": r["unit"], "frequency": r["frequency"], "polarity": r["polarity"],
             "weight": r["weight"], "source": r["source"], "source_url": r["source_url"],
             "notes": r["notes"], "latest_date": obs[-1][0], "latest_value": obs[-1][1],
+            # Actual provenance of the newest observation (see export_web).
+            "latest_source": latest_source(conn, sid),
             "score": sc, "accommodation": label_for(sc) if sc is not None else None,
             "direction": direction(series_score_hist(conn, sid)),
             "history_start": obs[0][0], "observations": obs,
