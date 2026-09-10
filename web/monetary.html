@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Japan Monetary &amp; Liquidity Conditions Tracker</title>
+  <meta name="description" content="Japan monetary conditions (real rates, money and credit, exchange rate, BoJ balance sheet) and liquidity conditions (central-bank, funding and market liquidity)." />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ============================ HEADER ============================ -->
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">日銀</div>
+        <div class="brand-text">
+          <h1 id="dash-title">Japan Monetary &amp; Liquidity Conditions Tracker</h1>
+          <p class="brand-sub">
+            <span id="framework-line">Monetary conditions and liquidity conditions</span>
+          </p>
+        </div>
+      </div>
+      <nav class="topnav" aria-label="Trackers">
+        <a href="index.html">Financial conditions</a>
+        <a href="monetary.html" class="active" aria-current="page">Monetary &amp; liquidity</a>
+      </nav>
+      <div class="header-meta">
+        <div class="asof">As of <strong id="asof-date">—</strong></div>
+        <span class="badge" id="data-mode-badge">—</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <!-- ============================ HERO / VERDICT ============================ -->
+    <section class="hero" aria-labelledby="hero-heading">
+      <h2 id="hero-heading" class="visually-hidden">Headline verdict</h2>
+      <div class="hero-top">
+
+        <!-- MCI gauge -->
+        <div class="card gauge-card">
+          <div class="card-head">
+            <h3>Monetary conditions (MCI)</h3>
+            <span class="hint">z-score vs longest history</span>
+          </div>
+          <div class="gauge-wrap">
+            <canvas id="mciGauge" width="320" height="180" role="img"
+                    aria-label="Monetary Conditions Index gauge"></canvas>
+            <div class="gauge-readout">
+              <div class="gauge-score" id="mci-score">—</div>
+              <div class="gauge-label" id="mci-label">—</div>
+              <div class="gauge-dir" id="mci-dir"></div>
+            </div>
+          </div>
+          <div class="gauge-scale">
+            <span>−3 Tight</span><span>0</span><span>+3 Easy</span>
+          </div>
+        </div>
+
+        <!-- LCI gauge -->
+        <div class="card gauge-card">
+          <div class="card-head">
+            <h3>Liquidity conditions (LCI)</h3>
+            <span class="hint">z-score vs longest history</span>
+          </div>
+          <div class="gauge-wrap">
+            <canvas id="lciGauge" width="320" height="180" role="img"
+                    aria-label="Liquidity Conditions Index gauge"></canvas>
+            <div class="gauge-readout">
+              <div class="gauge-score" id="lci-score">—</div>
+              <div class="gauge-label" id="lci-label">—</div>
+              <div class="gauge-dir" id="lci-dir"></div>
+            </div>
+          </div>
+          <div class="gauge-scale">
+            <span>−3 Scarce</span><span>0</span><span>+3 Ample</span>
+          </div>
+        </div>
+
+        <!-- Combined MLCI -->
+        <div class="card combo-card">
+          <div class="card-head">
+            <h3>Combined MLCI</h3>
+            <span class="hint">mean of MCI and LCI</span>
+          </div>
+          <div class="combo-body" id="mlci-chip">
+            <div class="combo-score" id="mlci-score">—</div>
+            <span class="chip" data-role="chip">—</span>
+            <div class="stage-dir" id="mlci-dir"></div>
+            <p class="combo-formula">MLCI = ½ (<b>MCI</b> + <b>LCI</b>). Positive = easier money and
+              more ample liquidity than the historical norm; negative = tighter / scarcer.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Metric cards -->
+      <div class="metrics metrics-ml" id="metric-cards">
+        <!-- populated by JS -->
+      </div>
+
+      <!-- Assessment callout -->
+      <div class="callout" id="assessment-callout">
+        <div class="callout-icon" aria-hidden="true">‣</div>
+        <p id="assessment-text">—</p>
+      </div>
+    </section>
+
+    <!-- ============================ DEFINITIONS ============================ -->
+    <section class="stage" aria-labelledby="defs-heading">
+      <div class="stage-head">
+        <div>
+          <span class="stage-kicker">Definitions</span>
+          <h2 id="defs-heading">What the two indices measure</h2>
+          <p class="stage-desc">Both are polarity-signed z-scores against each indicator's longest
+            available history, so a positive reading always means easier money or more liquid markets.</p>
+        </div>
+      </div>
+      <div class="def-grid">
+        <div class="card def-card">
+          <h3>Monetary conditions</h3>
+          <p class="def-lead">The <strong>stance and quantity of money</strong> — how cheap and how
+            plentiful money is relative to history.</p>
+          <ul class="def-list">
+            <li><b>Real short rates</b><span>Ex-post real policy rate and real 1-year rate (nominal minus
+              realized core CPI): the price of money.</span></li>
+            <li><b>Exchange rate</b><span>Real effective yen (BIS broad, 2020=100) and USD/JPY — the
+              classic MCI channel; a weaker yen is easier.</span></li>
+            <li><b>Money &amp; credit</b><span>M2, M3 and bank-lending growth: the quantity of money
+              and credit, the "money view" of inflation.</span></li>
+            <li><b>BoJ balance sheet</b><span>Growth of total BoJ assets — QQE expansion versus the
+              post-2024 taper and contraction.</span></li>
+          </ul>
+        </div>
+        <div class="card def-card">
+          <h3>Liquidity conditions</h3>
+          <p class="def-lead">The <strong>availability of funds and the ease of trading</strong>,
+            tracked in three layers from the central bank outward.</p>
+          <ul class="def-list">
+            <li><b>Central-bank liquidity</b><span>Base money and BoJ current-account balances (reserves)
+              — the raw supply of settlement money.</span></li>
+            <li><b>Funding liquidity</b><span>Ease of bank funding: TONA versus the policy target,
+              3m TIBOR–OIS, GC repo conditions and the USD/JPY cross-currency basis.</span></li>
+            <li><b>Market liquidity</b><span>Ease of trading: JGB market functioning DI, bid-ask spreads,
+              free float (BoJ share of JGBs) and equity volatility.</span></li>
+          </ul>
+        </div>
+      </div>
+      <div class="def-diff">
+        <strong>How this differs from financial conditions.</strong> The
+        <a href="index.html">Financial Conditions Tracker</a> follows the BoJ two-stage framework — the
+        <em>outcomes</em> of transmission (yield curve and real rates by maturity, funding costs and
+        availability, asset prices, funding volumes). This page tracks the <em>inputs</em> upstream of
+        that channel: the stance and quantity of money the BoJ supplies, and how freely it circulates
+        through funding and securities markets.
+      </div>
+    </section>
+
+    <!-- ============================ MONETARY CONDITIONS ============================ -->
+    <section class="stage" aria-labelledby="mon-heading">
+      <div class="stage-head">
+        <div>
+          <span class="stage-kicker">Monetary conditions</span>
+          <h2 id="mon-heading">Stance and quantity of money</h2>
+          <p class="stage-desc">Four axes: real short-rate stance, money &amp; credit aggregates, the
+            exchange rate and the BoJ balance-sheet stance. Equal-weight mean of the four axis scores.</p>
+        </div>
+        <div class="stage-score" id="mon-score-chip">
+          <span class="chip" data-role="chip">—</span>
+          <span class="stage-score-label" id="mon-label">—</span>
+          <span class="stage-dir" id="mon-dir"></span>
+        </div>
+      </div>
+      <div class="axis-grid" id="mon-axis-cards">
+        <!-- populated by JS -->
+      </div>
+
+      <div class="chart-duo" style="margin-top:20px">
+        <div class="card">
+          <div class="card-head">
+            <h3>Money &amp; credit aggregates</h3>
+            <span class="hint">% y/y</span>
+          </div>
+          <div class="chart-box"><canvas id="moneyCreditChart"></canvas></div>
+          <p class="note">M2, M3 and bank lending outstanding, year-on-year. Slow money growth with
+            firm lending points to a sluggish money multiplier rather than weak credit demand.</p>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <h3>Exchange rate</h3>
+            <span class="hint">REER (left) · USD/JPY (right)</span>
+          </div>
+          <div class="chart-box"><canvas id="fxChart"></canvas></div>
+          <p class="note">Real effective yen (BIS broad, 2020=100) on the left axis; USD/JPY on the
+            right. A lower REER / higher USD/JPY is a weaker yen — easier on the MCI convention.</p>
+        </div>
+      </div>
+      <div class="chart-duo" style="margin-top:20px">
+        <div class="card">
+          <div class="card-head">
+            <h3>BoJ balance sheet</h3>
+            <span class="hint">% y/y</span>
+          </div>
+          <div class="chart-box"><canvas id="balanceSheetChart"></canvas></div>
+          <p class="note">Total assets and the monetary base. Negative growth marks the post-QQE
+            taper: reserves are being drained as JGB reinvestment is reduced.</p>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <h3>Real short-rate stance</h3>
+            <span class="hint">%, ex-post</span>
+          </div>
+          <div class="chart-box"><canvas id="realRateChart"></canvas></div>
+          <p class="note">Real policy rate (2004+) and real 1-year rate (1974+), nominal minus realized
+            core CPI. Below zero = negative real cost of money. Series are aligned by date.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ LIQUIDITY CONDITIONS ============================ -->
+    <section class="stage" aria-labelledby="liq-heading">
+      <div class="stage-head">
+        <div>
+          <span class="stage-kicker">Liquidity conditions</span>
+          <h2 id="liq-heading">Availability of funds and ease of trading</h2>
+          <p class="stage-desc">Three layers: central-bank liquidity, funding liquidity and market
+            liquidity. Equal-weight mean of the three axis scores.</p>
+        </div>
+        <div class="stage-score" id="liq-score-chip">
+          <span class="chip" data-role="chip">—</span>
+          <span class="stage-score-label" id="liq-label">—</span>
+          <span class="stage-dir" id="liq-dir"></span>
+        </div>
+      </div>
+      <div class="axis-grid axis-grid-3" id="liq-axis-cards">
+        <!-- populated by JS -->
+      </div>
+
+      <div class="card" style="margin-top:20px">
+        <div class="card-head">
+          <h3>Funding liquidity</h3>
+          <span class="hint">spreads in pp (left) · USD/JPY basis in bp (right)</span>
+        </div>
+        <div class="chart-box"><canvas id="fundingChart"></canvas></div>
+        <p class="note">3m TIBOR–OIS and the overnight call rate minus the policy target on the left
+          axis; the 3-month USD/JPY cross-currency basis on the right. A more negative basis means
+          dearer dollar funding for Japanese banks.</p>
+      </div>
+      <div class="chart-duo" style="margin-top:20px">
+        <div class="card">
+          <div class="card-head">
+            <h3>JGB market functioning</h3>
+            <span class="hint">DI (bars, left) · BoJ share of JGBs % (right)</span>
+          </div>
+          <div class="chart-box"><canvas id="marketFunctioningChart"></canvas></div>
+          <p class="note">BoJ Bond Market Survey functioning DI (quarterly, 2015+; negative = impaired)
+            with the BoJ's share of outstanding JGBs. A falling share restores free float.</p>
+        </div>
+        <div class="card">
+          <div class="card-head">
+            <h3>Bid-ask &amp; volatility</h3>
+            <span class="hint">10y JGB bid-ask (left) · Nikkei VI % (right)</span>
+          </div>
+          <div class="chart-box"><canvas id="marketVolChart"></canvas></div>
+          <p class="note">Normalized 10-year JGB bid-ask spread and the Nikkei Volatility Index. Wider
+            spreads and higher volatility both mean thinner market liquidity.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ COMPOSITE HISTORY ============================ -->
+    <section class="stage" aria-labelledby="hist-heading">
+      <div class="stage-head">
+        <div>
+          <h2 id="hist-heading">Composite indices — history</h2>
+          <p class="stage-desc">MCI (monetary), LCI (liquidity) and the combined MLCI. Positive = easier /
+            more liquid than history; negative = tighter / scarcer. MCI extends back to 1974 via the
+            real-rate axis; LCI and MLCI begin in 2005.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="chart-box tall"><canvas id="compositeChart"></canvas></div>
+      </div>
+    </section>
+
+    <!-- ============================ AXIS COMPARISON ============================ -->
+    <section class="stage" aria-labelledby="axiscmp-heading">
+      <div class="stage-head">
+        <div>
+          <h2 id="axiscmp-heading">Axis comparison</h2>
+          <p class="stage-desc">Latest score by axis — monetary axes first, then liquidity axes.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="chart-box tall"><canvas id="axisBarChart"></canvas></div>
+      </div>
+    </section>
+
+    <!-- ============================ IMPLICATIONS ============================ -->
+    <section class="stage" aria-labelledby="impl-heading">
+      <div class="stage-head">
+        <div>
+          <span class="stage-kicker">Implications</span>
+          <h2 id="impl-heading">What the readings mean</h2>
+          <p class="stage-desc">How monetary and liquidity conditions feed through to growth, inflation
+            and the conduct of policy.</p>
+        </div>
+      </div>
+      <div class="impl-grid">
+        <div class="card impl-card">
+          <span class="impl-kicker">Growth</span>
+          <h3>Demand and credit</h3>
+          <ul>
+            <li><b>Money &amp; credit growth and real rates</b> drive nominal demand: subdued M2/M3
+              growth with real rates rising toward zero is a headwind for spending, even if bank
+              lending remains firm.</li>
+            <li><b>Weak REER</b> supports export competitiveness and tourism receipts, but the
+              import-price squeeze on real household income offsets part of the gain.</li>
+            <li><b>Funding stress</b> (wider TIBOR–OIS, more negative USD/JPY basis) would raise bank
+              funding costs and curb lending — the channel that turns a liquidity shock into a growth
+              shock.</li>
+          </ul>
+        </div>
+        <div class="card impl-card">
+          <span class="impl-kicker">Inflation</span>
+          <h3>The money view and the yen</h3>
+          <ul>
+            <li><b>Money view:</b> slow money growth and a less-negative real policy rate point to
+              diminishing monetary impetus to inflation over the medium term.</li>
+            <li><b>Weak REER</b> lifts import prices and near-term headline inflation — the
+              exchange-rate channel is still the easiest part of the monetary mix.</li>
+            <li><b>Balance-sheet contraction and reserve drain</b> tighten liquidity and lift term
+              premia, adding to long-yield pressure independent of the policy rate.</li>
+          </ul>
+        </div>
+        <div class="card impl-card">
+          <span class="impl-kicker">Monetary-policy conduct</span>
+          <h3>Rate control and QT</h3>
+          <ul>
+            <li><b>JGB market functioning</b> is the binding constraint on the pace of balance-sheet
+              normalization (QT): a recovering DI and a falling BoJ share of JGBs give room to keep
+              tapering purchases.</li>
+            <li><b>Rate control:</b> the overnight call rate trading close to target with ample
+              current-account balances means the interest-on-reserves floor is still operative
+              despite the reserve drain.</li>
+            <li><b>Financial stability:</b> orderly TIBOR–OIS and basis readings keep the bank-lending
+              channel open; a sharp widening would argue for slower QT or dollar liquidity
+              backstops before further rate hikes.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================ EXPLORE SERIES ============================ -->
+    <section class="stage" aria-labelledby="explore-heading">
+      <div class="stage-head">
+        <div>
+          <h2 id="explore-heading">Explore series</h2>
+          <p class="stage-desc">Pick any underlying indicator to inspect its full history.</p>
+        </div>
+        <div class="explore-control">
+          <label for="series-select">Series</label>
+          <select id="series-select" aria-label="Select a data series"></select>
+        </div>
+      </div>
+      <div class="card">
+        <div class="explore-meta" id="explore-meta"><!-- populated by JS --></div>
+        <div class="chart-box tall"><canvas id="exploreChart"></canvas></div>
+        <p class="note" id="explore-notes"></p>
+      </div>
+    </section>
+  </main>
+
+  <!-- ============================ FOOTER / METHODOLOGY ============================ -->
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <div class="foot-col">
+        <h4>Methodology</h4>
+        <p id="score-window">—</p>
+        <p class="sign-key">
+          <span class="chip pos">≥ +0.15 easy / liquid</span>
+          <span class="chip neu">−0.15 … +0.15 broadly neutral</span>
+          <span class="chip neg">&lt; −0.15 tight / scarce</span>
+        </p>
+        <p><strong>Direction</strong> (▲ easing / ▼ tightening / → stable) is the trailing
+          6-month change in each score — whether a signal is turning easier or tighter, shown
+          alongside its level.</p>
+      </div>
+      <div class="foot-col">
+        <h4>Indices</h4>
+        <div class="stage-key">
+          <span><strong>MCI</strong> — Monetary Conditions Index: real short rates, money &amp; credit,
+            exchange rate, BoJ balance sheet.</span>
+          <span><strong>LCI</strong> — Liquidity Conditions Index: central-bank, funding and market
+            liquidity.</span>
+          <span><strong>MLCI</strong> — combined index, the mean of MCI and LCI.</span>
+        </div>
+        <p class="caveat" id="source-note" style="margin-top:12px">—</p>
+      </div>
+      <div class="foot-col">
+        <h4>Sources</h4>
+        <ul class="source-list">
+          <li>Bank of Japan (BoJ)</li>
+          <li>Ministry of Finance (MoF)</li>
+          <li>e-Stat / MIC</li>
+          <li>Bank for International Settlements (BIS)</li>
+          <li>FRED</li>
+        </ul>
+        <p class="gen-stamp" id="gen-stamp"></p>
+      </div>
+    </div>
+
+    <!-- Full weights & assumptions for every indicator -->
+    <div class="wrap foot-methodology">
+      <h4>Indicator weights &amp; assumptions</h4>
+      <p class="foot-note">Each axis score is a <strong>weight-weighted mean</strong> of its member
+        scores; MCI and LCI are equal-weight means of their axes and MLCI averages the two. Core
+        gauges carry full weight (1.0); secondary or overlapping gauges (M3, USD/JPY, bid-ask, BoJ share,
+        equity volatility, dollar basis) are down-weighted (0.5–0.75). Polarity orients each series so a
+        higher score always means easier money or more ample liquidity.</p>
+      <div id="methodology-table"></div>
+    </div>
+  </footer>
+
+  <!-- Chart.js from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Local data (file:// friendly) loaded BEFORE app_ml.js -->
+  <script src="data_ml.js"></script>
+  <script src="app_ml.js"></script>
+</body>
+</html>
