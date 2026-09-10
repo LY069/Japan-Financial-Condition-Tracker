@@ -499,19 +499,15 @@ def run_targets():
 # The six series still seeded. Each needs either a database we have not looked
 # in, a published file, or a source outside the Bank entirely.
 HUNT = [
-    ("MD11", ["loans and bills discounted", "loans", "average amounts outstanding"]),
-    ("LA03", ["outstanding", "total"]),
+    # MD01 revealed the convention: a trailing "@" marks a ready-made
+    # year-on-year series, which is exactly the form these indicators need.
+    ("MD11", ["year-on-year", "loans and bills discounted"]),
+    ("MD02", ["year-on-year"]),
+    ("MD01", ["year-on-year"]),
+    ("LA03", ["year-on-year", "outstanding"]),
     ("FM03", ["outstanding"]),
-    ("FM05", ["corporate", "outstanding"]),
+    ("FM05", ["corporate", "bonds", "outstanding"]),
     ("FM09", ["effective exchange rate"]),
-    # bank_lending_yoy and cp_corpbond_yoy are AMOUNTS, and IR04 holds only the
-    # interest rates on those amounts, so the amounts live in another database.
-    ("LA01", ["loans", "outstanding", "bills discounted"]),
-    ("MD01", ["outstanding", "corporate bond", "commercial paper"]),
-    ("MD02", ["outstanding", "corporate bond", "commercial paper"]),
-    ("MD10", ["outstanding", "corporate bond", "commercial paper", "cp"]),
-    ("BS02", ["loans", "outstanding"]),
-    ("FM08", ["topix", "stock", "yield", "corporate"]),
 ]
 
 # Databases not yet tried, in case the amounts sit in one of them.
@@ -535,7 +531,7 @@ def hunt():
                     if kw in str(r.get("NAME_OF_TIME_SERIES") or "").lower()
                     and r.get("SERIES_CODE")]
             print(f"  [{kw}] {len(hits)} hits")
-            for r in hits[:6]:
+            for r in hits[:14]:
                 print(f"      {r.get('SERIES_CODE'):<22}{str(r.get('FREQUENCY'))[:9]:<10}"
                       f"{str(r.get('NAME_OF_TIME_SERIES'))[:78]:<80}{str(r.get('UNIT'))[:14]}")
 
