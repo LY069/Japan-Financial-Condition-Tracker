@@ -429,6 +429,91 @@ def run_targets():
             print(f"  {db} {terms}: {type(e).__name__}: {e}")
 
 
+
+# --------------------------------------------------- outstanding-series hunt -----
+# The six series still seeded. Each needs either a database we have not looked
+# in, a published file, or a source outside the Bank entirely.
+HUNT = [
+    # bank_lending_yoy and cp_corpbond_yoy are AMOUNTS, and IR04 holds only the
+    # interest rates on those amounts, so the amounts live in another database.
+    ("LA01", ["loans", "outstanding", "bills discounted"]),
+    ("MD01", ["outstanding", "corporate bond", "commercial paper"]),
+    ("MD02", ["outstanding", "corporate bond", "commercial paper"]),
+    ("MD10", ["outstanding", "corporate bond", "commercial paper", "cp"]),
+    ("BS02", ["loans", "outstanding"]),
+    ("FM08", ["topix", "stock", "yield", "corporate"]),
+]
+
+# Databases not yet tried, in case the amounts sit in one of them.
+MORE_DBS = ["LA02", "LA03", "MD03", "MD04", "MD05", "MD11", "IR05", "IR06",
+            "FM03", "FM04", "FM05", "FM06", "FM07", "FM09", "BS03", "CG01",
+            "SP01", "SL01", "DE01", "FA01"]
+
+
+def hunt():
+    """Search the databases that might hold the six still-seeded series."""
+    for db, terms in HUNT:
+        print(f"\n=== {db} ===")
+        try:
+            rows = metadata_rows(db)
+        except Exception as e:  # noqa: BLE001
+            print(f"  unavailable: {type(e).__name__}: {e}")
+            continue
+        print(f"  {len(rows)} rows")
+        for kw in terms:
+            hits = [r for r in rows
+                    if kw in str(r.get("NAME_OF_TIME_SERIES") or "").lower()
+                    and r.get("SERIES_CODE")]
+            print(f"  [{kw}] {len(hits)} hits")
+            for r in hits[:6]:
+                print(f"      {r.get('SERIES_CODE'):<22}{str(r.get('FREQUENCY'))[:9]:<10}"
+                      f"{str(r.get('NAME_OF_TIME_SERIES'))[:78]:<80}{str(r.get('UNIT'))[:14]}")
+
+    print("\n=== databases not tried before ===")
+    for db in MORE_DBS:
+        try:
+            rows = metadata_rows(db)
+        except Exception:  # noqa: BLE001
+            continue
+        names = [str(r.get("NAME_OF_TIME_SERIES") or "") for r in rows[:3]]
+        print(f"  {db:<6} {len(rows):>7} rows   e.g. {' | '.join(n[:44] for n in names)}")
+
+
+def probe_files():
+    """Check the published files and the non-BoJ sources the rest would need."""
+    def gap():
+        import openpyxl  # in requirements.txt
+        import tempfile, os
+        url = "https://www.boj.or.jp/en/research/research_data/gap/gap.xlsx"
+        blob = _get(url, timeout=120)
+        fh = tempfile.NamedTemporaryFile(suffix=".xlsx", delete=False)
+        fh.write(blob); fh.close()
+        wb = openpyxl.load_workbook(fh.name, read_only=True, data_only=True)
+        print(f"  {len(blob)} bytes; sheets: {wb.sheetnames}")
+        for ws in wb.worksheets:
+            print(f"  --- sheet {ws.title!r} ({ws.max_row}x{ws.max_column}) ---")
+            for i, row in enumerate(ws.iter_rows(values_only=True)):
+                if i >= 8:
+                    break
+                print("    " + " | ".join("" if c is None else str(c)[:22] for c in row[:8]))
+        os.unlink(fh.name)
+    _show("BoJ output gap / potential growth (gap.xlsx)", gap)
+
+    for label, url in [
+        ("TOPIX monthly, stooq", "https://stooq.com/q/d/l/?s=%5Etpx&i=m"),
+        ("TOPIX daily, stooq", "https://stooq.com/q/d/l/?s=%5Etpx&i=d"),
+    ]:
+        def t(u=url):
+            text = _get(u, timeout=60).decode("utf-8", "replace")
+            lines = text.splitlines()
+            print(f"  {len(lines)} lines")
+            for ln in lines[:3]:
+                print(f"    {ln}")
+            for ln in lines[-3:]:
+                print(f"    {ln}")
+        _show(label, t)
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--probe", action="store_true", help="report what responds and how")
@@ -438,6 +523,10 @@ def main():
                     help="fetch one series and print the last rows")
     ap.add_argument("--dump", nargs=2, metavar=("DB", "CODE"),
                     help="print a raw getDataCode response")
+    ap.add_argument("--hunt", action="store_true",
+                    help="search for the six series that are still seeded")
+    ap.add_argument("--files", action="store_true",
+                    help="check published files and non-BoJ sources")
     ap.add_argument("--dbscan", action="store_true",
                     help="map the database namespace and grep for outstanding series")
     ap.add_argument("--targets", action="store_true",
@@ -454,13 +543,17 @@ def main():
         print(f"{len(rows)} rows; last 8: {rows[-8:]}")
     if args.dump:
         dump_series(*args.dump)
+    if args.hunt:
+        hunt()
+    if args.files:
+        probe_files()
     if args.dbscan:
         dbscan()
     if args.targets:
         run_targets()
     if args.find:
         find(args.find[0], *args.find[1:])
-    if not (args.probe or args.discover or args.series or args.dump or args.targets or args.find or args.dbscan):
+    if not (args.probe or args.discover or args.series or args.dump or args.targets or args.find or args.dbscan or args.hunt or args.files):
         ap.print_help()
         return 1
     return 0

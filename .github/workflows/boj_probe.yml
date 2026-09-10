@@ -22,6 +22,14 @@ on:
         description: "Search every database we need codes from (true/false)"
         required: false
         default: "false"
+      run_hunt:
+        description: "Search for the six series still seeded (true/false)"
+        required: false
+        default: "false"
+      run_files:
+        description: "Check gap.xlsx and outside sources (true/false)"
+        required: false
+        default: "false"
       run_dbscan:
         description: "Map which databases exist and hold the outstanding series (true/false)"
         required: false
@@ -56,6 +64,14 @@ jobs:
       - name: Search every database we need codes from
         if: inputs.run_targets == 'true'
         run: python etl/boj_api.py --targets
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Hunt for the still-seeded series
+        if: inputs.run_hunt == 'true'
+        run: python etl/boj_api.py --hunt
+      - name: Check published files and outside sources
+        if: inputs.run_files == 'true'
+        run: python etl/boj_api.py --files
       - name: Map the database namespace
         if: inputs.run_dbscan == 'true'
         run: python etl/boj_api.py --dbscan
