@@ -53,8 +53,10 @@ ML_AXES = {
     "liq_market": {
         "label": "Market liquidity", "stage": "ml_liquidity",
         "members": {"jgb_market_functioning_di": 1.0, "jgb_bid_ask": 0.75,
-                    "boj_jgb_share": 0.75, "nikkei_vi": 0.5},
-        "desc": "JGB market functioning, bid-ask, free float, equity volatility.",
+                    "boj_jgb_share": 0.75, "jgb_10y_vol": 0.75, "jgb_10s30s": 0.5,
+                    "nikkei_vi": 0.5},
+        "desc": "JGB market functioning, bid-ask, free float, realized yield volatility, "
+                "super-long slope, equity volatility.",
     },
 }
 

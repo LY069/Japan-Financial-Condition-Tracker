@@ -38,6 +38,18 @@ def main():
     rp_xp = [(month_end_of(m), pol[m] - cpi[m]) for m in sorted(pol) if m in cpi]
     upsert_observations(conn, "real_policy_rate_xp", rp_xp, "COMPUTED")
 
+    # ---- derived market-liquidity gauges from the MoF curve (real, automatable) ----
+    j10 = {d[:7]: v for d, v in get_series(conn, "jgb_10y")}
+    j30 = {d[:7]: v for d, v in get_series(conn, "jgb_30y")}
+    ms = sorted(j10)
+    vol = []
+    for i in range(12, len(ms)):
+        window = [(j10[ms[k]] - j10[ms[k - 1]]) * 100.0 for k in range(i - 11, i + 1)]  # bp changes
+        vol.append((month_end_of(ms[i]), statistics.pstdev(window)))
+    upsert_observations(conn, "jgb_10y_vol", vol, "COMPUTED")
+    upsert_observations(conn, "jgb_10s30s",
+                        [(month_end_of(m), j30[m] - j10[m]) for m in ms if m in j30], "COMPUTED")
+
     # ---- per-series scores over full history ----
     members = sorted({sid for a in ML_AXES.values() for sid in a["members"]})
     conn.execute("DELETE FROM indicators WHERE key LIKE 'ml::%' OR key IN ('ml_monetary','ml_liquidity','mci','lci','mlci')")
