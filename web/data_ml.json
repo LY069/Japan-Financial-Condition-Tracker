@@ -2,7 +2,7 @@
   "meta": {
     "title": "Japan Monetary & Liquidity Conditions Tracker",
     "framework": "Monetary conditions (rates, money & credit, FX, balance sheet) and liquidity conditions (central-bank, funding, market)",
-    "generated_utc": "2026-09-10T23:03:40+00:00",
+    "generated_utc": "2026-09-11T23:09:44+00:00",
     "data_mode": "LIVE (official sources) + SEED fallback for un-fetched series",
     "latest_date": "2026-09-30",
     "score_window": "Each indicator is z-scored over its longest available history (polarity-signed so + = easier / more liquid); axes are weighted means of members; MCI / LCI are equal-weight means of their axes; the combined MLCI averages the two.",
@@ -30,14 +30,14 @@
       "delta": 0.031,
       "lag_date": "2026-03-31"
     },
-    "lci_score": -0.1703,
+    "lci_score": -0.1701,
     "lci_label": "Mildly restrictive",
     "lci_direction": {
       "label": "Easing",
       "delta": 0.107,
       "lag_date": "2026-03-31"
     },
-    "mlci_score": 0.145,
+    "mlci_score": 0.1451,
     "mlci_label": "Broadly neutral",
     "mlci_direction": {
       "label": "Stable",
@@ -61,7 +61,7 @@
     "jgb_bid_ask": 1.2932,
     "boj_jgb_share": 48.9082,
     "nikkei_vi": 20.552,
-    "assessment": "Monetary conditions score +0.46 (mildly accommodative) and liquidity conditions -0.17 (mildly restrictive); the combined index is +0.14 (broadly neutral), each measured against the longest available history of its indicators (+ = easier / more liquid). Money growth is subdued (M2 +2.2% y/y) and the BoJ balance sheet is contracting (-8.2% y/y; monetary base -13.1%), while the yen remains weak in real effective terms (REER 64, 2020=100) — the quantity of money is tightening even as the exchange-rate channel stays easy. Funding liquidity is orderly (3m TIBOR-OIS 0.19pp; USD/JPY basis -30bp) and JGB market functioning is recovering (DI -14) as the BoJ's JGB share falls to 49%."
+    "assessment": "Monetary conditions score +0.46 (mildly accommodative) and liquidity conditions -0.17 (mildly restrictive); the combined index is +0.15 (broadly neutral), each measured against the longest available history of its indicators (+ = easier / more liquid). Money growth is subdued (M2 +2.2% y/y) and the BoJ balance sheet is contracting (-8.2% y/y; monetary base -13.1%), while the yen remains weak in real effective terms (REER 64, 2020=100) — the quantity of money is tightening even as the exchange-rate channel stays easy. Funding liquidity is orderly (3m TIBOR-OIS 0.19pp; USD/JPY basis -30bp) and JGB market functioning is recovering (DI -14) as the BoJ's JGB share falls to 49%."
   },
   "axes": [
     {
@@ -172,7 +172,7 @@
       "label": "Market liquidity",
       "stage": "ml_liquidity",
       "desc": "JGB market functioning, bid-ask, free float, realized yield volatility, super-long slope, equity volatility.",
-      "score": 0.3977,
+      "score": 0.3983,
       "label_text": "Mildly accommodative",
       "direction": {
         "label": "Easing",
@@ -208,7 +208,7 @@
     },
     "ml_liquidity": {
       "label": "Liquidity conditions",
-      "score": -0.1703,
+      "score": -0.1701,
       "label_text": "Mildly restrictive",
       "direction": {
         "label": "Easing",
@@ -4885,13 +4885,13 @@
       "source_url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/",
       "notes": "Super-long term premium / fiscal-risk gauge from MoF yields. Steeper = more term-premium stress in the super-long zone (polarity -1).",
       "latest_date": "2026-09-30",
-      "latest_value": 1.0864,
+      "latest_value": 1.085,
       "latest_source": "COMPUTED",
-      "score": -0.9268,
+      "score": -0.9205,
       "accommodation": "Restrictive",
       "direction": {
         "label": "Easing",
-        "delta": 0.174,
+        "delta": 0.181,
         "lag_date": "2026-03-31"
       },
       "history_start": "1999-09-30",
@@ -6194,7 +6194,7 @@
         ],
         [
           "2026-09-30",
-          1.0864
+          1.085
         ]
       ],
       "ml_weight": 0.5
@@ -6211,13 +6211,13 @@
       "source_url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/",
       "notes": "Computed from MoF yields. Higher volatility = impaired market liquidity / term-premium stress (IMF GFSR Apr-2026; June-2025 taper slowdown trigger).",
       "latest_date": "2026-09-30",
-      "latest_value": 10.1965,
+      "latest_value": 10.2049,
       "latest_source": "COMPUTED",
-      "score": 0.2946,
+      "score": 0.2937,
       "accommodation": "Mildly accommodative",
       "direction": {
         "label": "Easing",
-        "delta": 0.363,
+        "delta": 0.362,
         "lag_date": "2026-03-31"
       },
       "history_start": "1987-07-31",
@@ -8104,7 +8104,7 @@
         ],
         [
           "2026-09-30",
-          10.1965
+          10.2049
         ]
       ],
       "ml_weight": 0.75
@@ -27167,7 +27167,7 @@
       "source_url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/",
       "notes": "Benchmark long-term rate.",
       "latest_date": "2026-09-30",
-      "latest_value": 2.9416,
+      "latest_value": 2.9389,
       "latest_source": "MOF",
       "score": null,
       "accommodation": null,
@@ -29108,7 +29108,7 @@
         ],
         [
           "2026-09-30",
-          2.9416
+          2.9389
         ]
       ]
     }
@@ -31631,7 +31631,7 @@
       ],
       [
         "1987-10-31",
-        -3.1729
+        -3.1728
       ],
       [
         "1987-11-30",
@@ -31723,7 +31723,7 @@
       ],
       [
         "1989-09-30",
-        -0.3754
+        -0.3753
       ],
       [
         "1989-10-31",
@@ -32123,7 +32123,7 @@
       ],
       [
         "1998-01-31",
-        -0.1246
+        -0.1245
       ],
       [
         "1998-02-28",
@@ -32259,11 +32259,11 @@
       ],
       [
         "2000-11-30",
-        0.2113
+        0.2112
       ],
       [
         "2000-12-31",
-        0.1911
+        0.191
       ],
       [
         "2001-01-31",
@@ -32299,7 +32299,7 @@
       ],
       [
         "2001-09-30",
-        -0.1151
+        -0.1152
       ],
       [
         "2001-10-31",
@@ -32315,7 +32315,7 @@
       ],
       [
         "2002-01-31",
-        -0.2462
+        -0.2463
       ],
       [
         "2002-02-28",
@@ -32359,7 +32359,7 @@
       ],
       [
         "2002-12-31",
-        0.5081
+        0.508
       ],
       [
         "2003-01-31",
@@ -32427,7 +32427,7 @@
       ],
       [
         "2004-05-31",
-        -0.2346
+        -0.2347
       ],
       [
         "2004-06-30",
@@ -32567,7 +32567,7 @@
       ],
       [
         "2007-04-30",
-        -0.6983
+        -0.6984
       ],
       [
         "2007-05-31",
@@ -32775,7 +32775,7 @@
       ],
       [
         "2011-08-31",
-        0.2504
+        0.2503
       ],
       [
         "2011-09-30",
@@ -32823,7 +32823,7 @@
       ],
       [
         "2012-08-31",
-        0.3576
+        0.3575
       ],
       [
         "2012-09-30",
@@ -33343,7 +33343,7 @@
       ],
       [
         "2023-06-30",
-        -0.3412
+        -0.3413
       ],
       [
         "2023-07-31",
@@ -33499,7 +33499,7 @@
       ],
       [
         "2026-09-30",
-        -0.1703
+        -0.1701
       ]
     ],
     "mlci": [
@@ -33717,7 +33717,7 @@
       ],
       [
         "1991-12-31",
-        -0.7632
+        -0.7631
       ],
       [
         "1992-01-31",
@@ -34313,7 +34313,7 @@
       ],
       [
         "2004-05-31",
-        -0.339
+        -0.3391
       ],
       [
         "2004-06-30",
@@ -35053,7 +35053,7 @@
       ],
       [
         "2019-10-31",
-        -0.0727
+        -0.0726
       ],
       [
         "2019-11-30",
@@ -35385,7 +35385,7 @@
       ],
       [
         "2026-09-30",
-        0.145
+        0.1451
       ]
     ],
     "ml_monetary": [
@@ -37905,7 +37905,7 @@
       ],
       [
         "1987-10-31",
-        -3.1729
+        -3.1728
       ],
       [
         "1987-11-30",
@@ -37997,7 +37997,7 @@
       ],
       [
         "1989-09-30",
-        -0.3754
+        -0.3753
       ],
       [
         "1989-10-31",
@@ -38397,7 +38397,7 @@
       ],
       [
         "1998-01-31",
-        -0.1246
+        -0.1245
       ],
       [
         "1998-02-28",
@@ -38533,11 +38533,11 @@
       ],
       [
         "2000-11-30",
-        0.2113
+        0.2112
       ],
       [
         "2000-12-31",
-        0.1911
+        0.191
       ],
       [
         "2001-01-31",
@@ -38573,7 +38573,7 @@
       ],
       [
         "2001-09-30",
-        -0.1151
+        -0.1152
       ],
       [
         "2001-10-31",
@@ -38589,7 +38589,7 @@
       ],
       [
         "2002-01-31",
-        -0.2462
+        -0.2463
       ],
       [
         "2002-02-28",
@@ -38633,7 +38633,7 @@
       ],
       [
         "2002-12-31",
-        0.5081
+        0.508
       ],
       [
         "2003-01-31",
@@ -38701,7 +38701,7 @@
       ],
       [
         "2004-05-31",
-        -0.2346
+        -0.2347
       ],
       [
         "2004-06-30",
@@ -38841,7 +38841,7 @@
       ],
       [
         "2007-04-30",
-        -0.6983
+        -0.6984
       ],
       [
         "2007-05-31",
@@ -39049,7 +39049,7 @@
       ],
       [
         "2011-08-31",
-        0.2504
+        0.2503
       ],
       [
         "2011-09-30",
@@ -39097,7 +39097,7 @@
       ],
       [
         "2012-08-31",
-        0.3576
+        0.3575
       ],
       [
         "2012-09-30",
@@ -39617,7 +39617,7 @@
       ],
       [
         "2023-06-30",
-        -0.3412
+        -0.3413
       ],
       [
         "2023-07-31",
@@ -39773,7 +39773,7 @@
       ],
       [
         "2026-09-30",
-        -0.1703
+        -0.1701
       ]
     ],
     "axis::mon_rates": [
@@ -47571,7 +47571,7 @@
       ],
       [
         "1987-10-31",
-        -3.1729
+        -3.1728
       ],
       [
         "1987-11-30",
@@ -47663,7 +47663,7 @@
       ],
       [
         "1989-09-30",
-        -0.3754
+        -0.3753
       ],
       [
         "1989-10-31",
@@ -48063,7 +48063,7 @@
       ],
       [
         "1998-01-31",
-        -0.1246
+        -0.1245
       ],
       [
         "1998-02-28",
@@ -48199,11 +48199,11 @@
       ],
       [
         "2000-11-30",
-        0.2113
+        0.2112
       ],
       [
         "2000-12-31",
-        0.1911
+        0.191
       ],
       [
         "2001-01-31",
@@ -48239,7 +48239,7 @@
       ],
       [
         "2001-09-30",
-        -0.1151
+        -0.1152
       ],
       [
         "2001-10-31",
@@ -48255,7 +48255,7 @@
       ],
       [
         "2002-01-31",
-        -0.2462
+        -0.2463
       ],
       [
         "2002-02-28",
@@ -48299,7 +48299,7 @@
       ],
       [
         "2002-12-31",
-        0.5081
+        0.508
       ],
       [
         "2003-01-31",
@@ -48367,7 +48367,7 @@
       ],
       [
         "2004-05-31",
-        -0.2346
+        -0.2347
       ],
       [
         "2004-06-30",
@@ -48403,7 +48403,7 @@
       ],
       [
         "2005-02-28",
-        0.8173
+        0.8172
       ],
       [
         "2005-03-31",
@@ -48567,7 +48567,7 @@
       ],
       [
         "2008-07-31",
-        -0.6719
+        -0.672
       ],
       [
         "2008-08-31",
@@ -48611,7 +48611,7 @@
       ],
       [
         "2009-06-30",
-        0.6269
+        0.6268
       ],
       [
         "2009-07-31",
@@ -48635,7 +48635,7 @@
       ],
       [
         "2009-12-31",
-        0.5112
+        0.5111
       ],
       [
         "2010-01-31",
@@ -48679,7 +48679,7 @@
       ],
       [
         "2010-11-30",
-        0.2898
+        0.2897
       ],
       [
         "2010-12-31",
@@ -48719,7 +48719,7 @@
       ],
       [
         "2011-09-30",
-        0.2555
+        0.2554
       ],
       [
         "2011-10-31",
@@ -48763,7 +48763,7 @@
       ],
       [
         "2012-08-31",
-        0.3815
+        0.3814
       ],
       [
         "2012-09-30",
@@ -48795,7 +48795,7 @@
       ],
       [
         "2013-04-30",
-        0.4932
+        0.4931
       ],
       [
         "2013-05-31",
@@ -48823,7 +48823,7 @@
       ],
       [
         "2013-11-30",
-        0.2489
+        0.2488
       ],
       [
         "2013-12-31",
@@ -48867,7 +48867,7 @@
       ],
       [
         "2014-10-31",
-        0.2428
+        0.2427
       ],
       [
         "2014-11-30",
@@ -49007,7 +49007,7 @@
       ],
       [
         "2017-09-30",
-        0.3704
+        0.3703
       ],
       [
         "2017-10-31",
@@ -49263,7 +49263,7 @@
       ],
       [
         "2023-01-31",
-        -1.0744
+        -1.0745
       ],
       [
         "2023-02-28",
@@ -49439,7 +49439,7 @@
       ],
       [
         "2026-09-30",
-        0.3977
+        0.3983
       ]
     ]
   }
