@@ -2,7 +2,7 @@
   "meta": {
     "title": "Japan Monetary & Liquidity Conditions Tracker",
     "framework": "Monetary conditions (rates, money & credit, FX, balance sheet) and liquidity conditions (central-bank, funding, market)",
-    "generated_utc": "2026-10-07T00:34:05+00:00",
+    "generated_utc": "2026-10-08T00:54:36+00:00",
     "data_mode": "LIVE (official sources) + SEED fallback for un-fetched series",
     "latest_date": "2026-10-31",
     "score_window": "Each indicator is z-scored over its longest available history (polarity-signed so + = easier / more liquid); axes are weighted means of members; MCI / LCI are equal-weight means of their axes; the combined MLCI averages the two.",
@@ -30,14 +30,14 @@
       "delta": 0.049,
       "lag_date": "2026-04-30"
     },
-    "lci_score": -0.162,
+    "lci_score": -0.1617,
     "lci_label": "Mildly restrictive",
     "lci_direction": {
       "label": "Easing",
-      "delta": 0.127,
+      "delta": 0.128,
       "lag_date": "2026-04-30"
     },
-    "mlci_score": 0.1368,
+    "mlci_score": 0.1369,
     "mlci_label": "Broadly neutral",
     "mlci_direction": {
       "label": "Stable",
@@ -172,11 +172,11 @@
       "label": "Market liquidity",
       "stage": "ml_liquidity",
       "desc": "JGB market functioning, bid-ask, free float, realized yield volatility, super-long slope, equity volatility.",
-      "score": 0.4169,
+      "score": 0.4177,
       "label_text": "Mildly accommodative",
       "direction": {
         "label": "Easing",
-        "delta": 0.351,
+        "delta": 0.352,
         "lag_date": "2026-04-30"
       },
       "members": [
@@ -208,11 +208,11 @@
     },
     "ml_liquidity": {
       "label": "Liquidity conditions",
-      "score": -0.162,
+      "score": -0.1617,
       "label_text": "Mildly restrictive",
       "direction": {
         "label": "Easing",
-        "delta": 0.127,
+        "delta": 0.128,
         "lag_date": "2026-04-30"
       },
       "axes": [
@@ -4885,13 +4885,13 @@
       "source_url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/",
       "notes": "Super-long term premium / fiscal-risk gauge from MoF yields. Steeper = more term-premium stress in the super-long zone (polarity -1).",
       "latest_date": "2026-10-31",
-      "latest_value": 1.054,
+      "latest_value": 1.0528,
       "latest_source": "COMPUTED",
-      "score": -0.7848,
+      "score": -0.7795,
       "accommodation": "Restrictive",
       "direction": {
         "label": "Easing",
-        "delta": 0.279,
+        "delta": 0.285,
         "lag_date": "2026-04-30"
       },
       "history_start": "1999-09-30",
@@ -6198,7 +6198,7 @@
         ],
         [
           "2026-10-31",
-          1.054
+          1.0528
         ]
       ],
       "ml_weight": 0.5
@@ -6215,13 +6215,13 @@
       "source_url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/",
       "notes": "Computed from MoF yields. Higher volatility = impaired market liquidity / term-premium stress (IMF GFSR Apr-2026; June-2025 taper slowdown trigger).",
       "latest_date": "2026-10-31",
-      "latest_value": 9.8789,
+      "latest_value": 9.8695,
       "latest_source": "COMPUTED",
-      "score": 0.3274,
+      "score": 0.3284,
       "accommodation": "Mildly accommodative",
       "direction": {
         "label": "Easing",
-        "delta": 0.187,
+        "delta": 0.188,
         "lag_date": "2026-04-30"
       },
       "history_start": "1987-07-31",
@@ -8112,7 +8112,7 @@
         ],
         [
           "2026-10-31",
-          9.8789
+          9.8695
         ]
       ],
       "ml_weight": 0.75
@@ -27195,7 +27195,7 @@
       "source_url": "https://www.mof.go.jp/english/policy/jgbs/reference/interest_rate/",
       "notes": "Benchmark long-term rate.",
       "latest_date": "2026-10-31",
-      "latest_value": 3.0913,
+      "latest_value": 3.0976,
       "latest_source": "MOF",
       "score": null,
       "accommodation": null,
@@ -29140,7 +29140,7 @@
         ],
         [
           "2026-10-31",
-          3.0913
+          3.0976
         ]
       ]
     }
@@ -31779,7 +31779,7 @@
       ],
       [
         "1990-02-28",
-        -0.7212
+        -0.7213
       ],
       [
         "1990-03-31",
@@ -32091,7 +32091,7 @@
       ],
       [
         "1996-08-31",
-        0.1319
+        0.1318
       ],
       [
         "1996-09-30",
@@ -32351,7 +32351,7 @@
       ],
       [
         "2002-01-31",
-        -0.2469
+        -0.247
       ],
       [
         "2002-02-28",
@@ -32439,7 +32439,7 @@
       ],
       [
         "2003-11-30",
-        -0.0183
+        -0.0184
       ],
       [
         "2003-12-31",
@@ -32823,7 +32823,7 @@
       ],
       [
         "2011-11-30",
-        0.3134
+        0.3133
       ],
       [
         "2011-12-31",
@@ -33539,7 +33539,7 @@
       ],
       [
         "2026-10-31",
-        -0.162
+        -0.1617
       ]
     ],
     "mlci": [
@@ -34193,7 +34193,7 @@
       ],
       [
         "2001-01-31",
-        -0.036
+        -0.0361
       ],
       [
         "2001-02-28",
@@ -34365,7 +34365,7 @@
       ],
       [
         "2004-08-31",
-        -0.4268
+        -0.4269
       ],
       [
         "2004-09-30",
@@ -34549,7 +34549,7 @@
       ],
       [
         "2008-06-30",
-        -0.6411
+        -0.6412
       ],
       [
         "2008-07-31",
@@ -35365,7 +35365,7 @@
       ],
       [
         "2025-06-30",
-        0.1553
+        0.1552
       ],
       [
         "2025-07-31",
@@ -35429,7 +35429,7 @@
       ],
       [
         "2026-10-31",
-        0.1368
+        0.1369
       ]
     ],
     "ml_monetary": [
@@ -38065,7 +38065,7 @@
       ],
       [
         "1990-02-28",
-        -0.7212
+        -0.7213
       ],
       [
         "1990-03-31",
@@ -38377,7 +38377,7 @@
       ],
       [
         "1996-08-31",
-        0.1319
+        0.1318
       ],
       [
         "1996-09-30",
@@ -38637,7 +38637,7 @@
       ],
       [
         "2002-01-31",
-        -0.2469
+        -0.247
       ],
       [
         "2002-02-28",
@@ -38725,7 +38725,7 @@
       ],
       [
         "2003-11-30",
-        -0.0183
+        -0.0184
       ],
       [
         "2003-12-31",
@@ -39109,7 +39109,7 @@
       ],
       [
         "2011-11-30",
-        0.3134
+        0.3133
       ],
       [
         "2011-12-31",
@@ -39825,7 +39825,7 @@
       ],
       [
         "2026-10-31",
-        -0.162
+        -0.1617
       ]
     ],
     "axis::mon_rates": [
@@ -47759,7 +47759,7 @@
       ],
       [
         "1990-02-28",
-        -0.7212
+        -0.7213
       ],
       [
         "1990-03-31",
@@ -48071,7 +48071,7 @@
       ],
       [
         "1996-08-31",
-        0.1319
+        0.1318
       ],
       [
         "1996-09-30",
@@ -48331,7 +48331,7 @@
       ],
       [
         "2002-01-31",
-        -0.2469
+        -0.247
       ],
       [
         "2002-02-28",
@@ -48419,7 +48419,7 @@
       ],
       [
         "2003-11-30",
-        -0.0183
+        -0.0184
       ],
       [
         "2003-12-31",
@@ -48699,7 +48699,7 @@
       ],
       [
         "2009-09-30",
-        0.5226
+        0.5225
       ],
       [
         "2009-10-31",
@@ -48843,7 +48843,7 @@
       ],
       [
         "2012-09-30",
-        0.3233
+        0.3232
       ],
       [
         "2012-10-31",
@@ -48975,7 +48975,7 @@
       ],
       [
         "2015-06-30",
-        0.5801
+        0.58
       ],
       [
         "2015-07-31",
@@ -48991,7 +48991,7 @@
       ],
       [
         "2015-10-31",
-        0.4317
+        0.4316
       ],
       [
         "2015-11-30",
@@ -49435,7 +49435,7 @@
       ],
       [
         "2025-01-31",
-        -0.0403
+        -0.0404
       ],
       [
         "2025-02-28",
@@ -49455,7 +49455,7 @@
       ],
       [
         "2025-06-30",
-        -0.1042
+        -0.1043
       ],
       [
         "2025-07-31",
@@ -49519,7 +49519,7 @@
       ],
       [
         "2026-10-31",
-        0.4169
+        0.4177
       ]
     ]
   }
